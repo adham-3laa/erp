@@ -10,7 +10,7 @@ public class AccountantService
     public AccountantService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new System.Uri("https://your-api-base-url.com"); // عدّلها حسب الـ API
+        _httpClient.BaseAddress = new System.Uri("http://be-positive.runasp.net"); // عدّلها حسب الـ API
     }
 
     public async Task<List<AccountantDto>> GetAllAccountantsAsync()
