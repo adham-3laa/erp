@@ -1,0 +1,23 @@
+﻿<Page x:Class="erp.Views.Accountants.AddAccountantPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="AddAccountantPage">
+
+    <StackPanel Margin="40" Width="400">
+
+        <TextBlock Text="إضافة محاسب جديد" FontSize="22" Margin="0,0,0,20"/>
+
+        <TextBox Name="NameTextBox" Margin="0,10,0,0"/>
+        <TextBlock Text="الاسم" Foreground="Gray" Margin="5,-25,0,0" IsHitTestVisible="False"/>
+
+        <TextBox Name="EmailTextBox" Margin="0,10,0,0"/>
+        <TextBlock Text="البريد الإلكتروني" Foreground="Gray" Margin="5,-25,0,0" IsHitTestVisible="False"/>
+
+        <TextBox Name="PhoneTextBox" Margin="0,10,0,0"/>
+        <TextBlock Text="رقم الهاتف" Foreground="Gray" Margin="5,-25,0,0" IsHitTestVisible="False"/>
+
+        <PasswordBox Name="PasswordBox" Margin="0,10"/>
+
+        <Button Content="حفظ" Height="40" Margin="0,20,0,0"/>
+    </StackPanel>
+</Page>
