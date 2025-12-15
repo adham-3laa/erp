@@ -1,18 +1,71 @@
 ﻿<Page x:Class="EduGate.Views.Accountants.AllAccountantsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="AllAccountantsPage">
 
-    <Grid Margin="20">
-        <DataGrid AutoGenerateColumns="False"
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Search + Refresh -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBox Width="320"
+                     Margin="0,0,12,0"
+                     Height="34"
+                     VerticalContentAlignment="Center"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="Search by name/email/phone"
+                     />
+
+            <Button Content="Refresh"
+                    Height="34"
+                    Padding="12,0"
+                    Command="{Binding LoadCommand}" />
+        </DockPanel>
+
+        <!-- Error -->
+        <Border Grid.Row="1"
+                Background="#22FF0000"
+                BorderBrush="#55FF0000"
+                BorderThickness="1"
+                Padding="10"
+                CornerRadius="8"
+                Margin="0,0,0,12"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="DarkRed"/>
+        </Border>
+
+        <!-- DataGrid -->
+        <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Accountants}"
-                  IsReadOnly="True">
-
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  RowHeight="34">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="الاسم" Binding="{Binding Name}"/>
-                <DataGridTextColumn Header="الإيميل" Binding="{Binding Email}"/>
-                <DataGridTextColumn Header="الهاتف" Binding="{Binding PhoneNumber}"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="2*"/>
+                <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="*"/>
             </DataGrid.Columns>
-
         </DataGrid>
+
+        <!-- Loading overlay -->
+        <Border Background="#66000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar Width="220" Height="10" IsIndeterminate="True"/>
+                <TextBlock Text="Loading..."
+                           Margin="0,10,0,0"
+                           Foreground="White"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
     </Grid>
 </Page>

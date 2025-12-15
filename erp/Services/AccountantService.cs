@@ -1,31 +1,29 @@
-﻿using System.Net.Http;
+﻿using erp.Dtos;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+
+namespace erp.Services;
 
 public class AccountantService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _http;
 
     public AccountantService(HttpClient httpClient)
     {
-        _httpClient = httpClient;
-        _httpClient.BaseAddress = new System.Uri("http://be-positive.runasp.net"); // عدّلها حسب الـ API
+        _http = httpClient;
     }
 
-    public async Task<List<AccountantDto>> GetAllAccountantsAsync()
-    {
-        return await _httpClient.GetFromJsonAsync<List<AccountantDto>>("/api/AccountantProfiles/GetAllAccountants");
-    }
+    public Task<List<AccountantDto>?> GetAllAccountantsAsync()
+        => _http.GetFromJsonAsync<List<AccountantDto>>("/api/AccountantProfiles/GetAllAccountants");
 
-    public async Task<AccountantDto> GetCurrentAccountantAsync()
-    {
-        return await _httpClient.GetFromJsonAsync<AccountantDto>("/api/AccountantProfiles/GetCurrentAccountant");
-    }
+    public Task<AccountantDto?> GetCurrentAccountantAsync()
+        => _http.GetFromJsonAsync<AccountantDto>("/api/AccountantProfiles/GetCurrentAccountant");
 
     public async Task<bool> AddAccountantAsync(AccountantPostDto dto)
     {
-        var response = await _httpClient.PostAsJsonAsync("/api/AccountantProfiles/AddAccountant", dto);
-        return response.IsSuccessStatusCode;
+        var res = await _http.PostAsJsonAsync("/api/AccountantProfiles/AddAccountant", dto);
+        return res.IsSuccessStatusCode;
     }
 }

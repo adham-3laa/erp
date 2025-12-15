@@ -1,23 +1,110 @@
-﻿<Page x:Class="erp.Views.Accountants.AddAccountantPage"
+﻿<Page x:Class="EduGate.Views.Accountants.AddAccountantPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="AddAccountantPage">
+      Title="AddAccountantPage"
+      Background="{StaticResource PageBgBrush}">
 
-    <StackPanel Margin="40" Width="400">
+    <Grid Margin="20">
 
-        <TextBlock Text="إضافة محاسب جديد" FontSize="22" Margin="0,0,0,20"/>
+        <!-- ✅ Outer Glow Gradient Frame -->
+        <Border Style="{StaticResource GlowGradientFrame}"
+                HorizontalAlignment="Center"
+                Width="560">
 
-        <TextBox Name="NameTextBox" Margin="0,10,0,0"/>
-        <TextBlock Text="الاسم" Foreground="Gray" Margin="5,-25,0,0" IsHitTestVisible="False"/>
+            <!-- ✅ Inner White Card -->
+            <Border Style="{StaticResource InnerCardContainer}">
 
-        <TextBox Name="EmailTextBox" Margin="0,10,0,0"/>
-        <TextBlock Text="البريد الإلكتروني" Foreground="Gray" Margin="5,-25,0,0" IsHitTestVisible="False"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-        <TextBox Name="PhoneTextBox" Margin="0,10,0,0"/>
-        <TextBlock Text="رقم الهاتف" Foreground="Gray" Margin="5,-25,0,0" IsHitTestVisible="False"/>
+                    <TextBlock Text="إضافة محاسب جديد"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryBrush}"
+                               Margin="0,0,0,14"/>
 
-        <PasswordBox Name="PasswordBox" Margin="0,10"/>
+                    <!-- Name -->
+                    <StackPanel Grid.Row="1" Margin="0,8,0,0">
+                        <TextBlock Text="الاسم" Foreground="#6B7280" Margin="0,0,0,6"/>
 
-        <Button Content="حفظ" Height="40" Margin="0,20,0,0"/>
-    </StackPanel>
+                        <Border Style="{StaticResource GlowInputFrame}">
+                            <Border Style="{StaticResource GlowInputInner}">
+                                <TextBox Style="{StaticResource GlowTextBox}"
+                                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Email -->
+                    <StackPanel Grid.Row="2" Margin="0,10,0,0">
+                        <TextBlock Text="البريد الإلكتروني" Foreground="#6B7280" Margin="0,0,0,6"/>
+
+                        <Border Style="{StaticResource GlowInputFrame}">
+                            <Border Style="{StaticResource GlowInputInner}">
+                                <TextBox Style="{StaticResource GlowTextBox}"
+                                         Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Phone -->
+                    <StackPanel Grid.Row="3" Margin="0,10,0,0">
+                        <TextBlock Text="رقم الهاتف" Foreground="#6B7280" Margin="0,0,0,6"/>
+
+                        <Border Style="{StaticResource GlowInputFrame}">
+                            <Border Style="{StaticResource GlowInputInner}">
+                                <TextBox Style="{StaticResource GlowTextBox}"
+                                         Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Password -->
+                    <StackPanel Grid.Row="4" Margin="0,10,0,0">
+                        <TextBlock Text="كلمة المرور" Foreground="#6B7280" Margin="0,0,0,6"/>
+
+                        <Border Style="{StaticResource GlowInputFrame}">
+                            <Border Style="{StaticResource GlowInputInner}">
+                                <PasswordBox x:Name="PasswordBox"
+                                             Style="{StaticResource GlowPasswordBox}"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Actions -->
+                    <StackPanel Grid.Row="5" Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,16,0,0">
+                        <Button Content="حفظ"
+                                Style="{StaticResource DarkButtonStyle}"
+                                MinWidth="120"
+                                Command="{Binding SaveCommand}"/>
+                    </StackPanel>
+
+                    <!-- Loading Overlay -->
+                    <Border Background="#66000000"
+                            CornerRadius="18"
+                            Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <ProgressBar Width="220" Height="10" IsIndeterminate="True"/>
+                            <TextBlock Text="جارٍ الحفظ..."
+                                       Margin="0,10,0,0"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+
+            </Border>
+        </Border>
+
+    </Grid>
 </Page>

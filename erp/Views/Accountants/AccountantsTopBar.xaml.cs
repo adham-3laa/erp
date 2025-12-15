@@ -1,5 +1,4 @@
-﻿using erp.Views.Accountants;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace EduGate.Views.Accountants
@@ -11,22 +10,19 @@ namespace EduGate.Views.Accountants
             InitializeComponent();
         }
 
-        private void AddAccountant_Click(object sender, RoutedEventArgs e)
+        private void Navigate(Page page)
         {
-            var parentWindow = Window.GetWindow(this) as MainWindow;
-            parentWindow?.MainFrame.Navigate(new AddAccountantPage());
+            if (Window.GetWindow(this) is MainWindow mw && mw.MainFrame != null)
+                mw.MainFrame.Navigate(page);
         }
+
+        private void AddAccountant_Click(object sender, RoutedEventArgs e)
+            => Navigate(new AddAccountantPage());
 
         private void AllAccountants_Click(object sender, RoutedEventArgs e)
-        {
-            var parentWindow = Window.GetWindow(this) as MainWindow;
-            parentWindow?.MainFrame.Navigate(new AllAccountantsPage());
-        }
+            => Navigate(new AllAccountantsPage());
 
         private void CurrentAccountant_Click(object sender, RoutedEventArgs e)
-        {
-            var parentWindow = Window.GetWindow(this) as MainWindow;
-            parentWindow?.MainFrame.Navigate(new CurrentAccountantPage());
-        }
+            => Navigate(new CurrentAccountantPage());
     }
 }

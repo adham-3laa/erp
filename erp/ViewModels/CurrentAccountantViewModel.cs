@@ -1,24 +1,44 @@
-﻿namespace EduGate.Views.Accountants
-{
-    public class CurrentAccountantViewModel
-    {
-        public AccountantDto Accountant { get; set; }
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using erp.Dtos;
+using erp.Services;
+using System.Net.Http;
+using System.Threading.Tasks;
 
-        public CurrentAccountantViewModel()
-        {
-            Accountant = new AccountantDto
-            {
-                Name = "محمد أحمد",
-                Email = "m.ahmed@example.com",
-                PhoneNumber = "0123456789"
-            };
-        }
+namespace erp.ViewModels;
+
+public partial class CurrentAccountantViewModel : ObservableObject
+{
+    private readonly AccountantService _service;
+
+    [ObservableProperty] private AccountantDto? accountant;
+    [ObservableProperty] private bool isBusy;
+    [ObservableProperty] private string errorMessage = "";
+
+    public IAsyncRelayCommand LoadCommand { get; }
+
+    public CurrentAccountantViewModel()
+    {
+        _service = new AccountantService(ApiClient.Create());
+        LoadCommand = new AsyncRelayCommand(LoadAsync);
     }
 
-    public class AccountantDto
+    private async Task LoadAsync()
     {
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
+        try
+        {
+            ErrorMessage = "";
+            IsBusy = true;
+
+            Accountant = await _service.GetCurrentAccountantAsync();
+        }
+        catch (HttpRequestException)
+        {
+            ErrorMessage = "تعذر الاتصال بالسيرفر.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

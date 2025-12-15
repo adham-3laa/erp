@@ -9,35 +9,93 @@ namespace EduGate
         public MainWindow()
         {
             InitializeComponent();
-
             NavListBox.SelectionChanged += NavListBox_SelectionChanged;
+
+            // صفحة افتراضية
+            NavigateTo("Accountants");
         }
 
         private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (NavListBox.SelectedItem == null) return;
+            if (NavListBox.SelectedItem is not ListBoxItem item) return;
 
-            var selected = ((ListBoxItem)NavListBox.SelectedItem).Content.ToString();
+            var section = item.Tag?.ToString();
+            NavigateTo(section);
 
-            switch (selected)
+            NavListBox.SelectedItem = null;
+        }
+
+        private void NavigateTo(string? section)
+        {
+            AccountantsTopBarControl.Visibility = Visibility.Collapsed;
+            PageTitleText.Text = "لوحة التحكم";
+
+            switch (section)
             {
-                case "🧮 المحاسبين":
-                    // إظهار TopBar للمحاسبين
+                case "Accountants":
                     AccountantsTopBarControl.Visibility = Visibility.Visible;
-
-                    // تنقل إلى الصفحة الرئيسية للمحاسبين (كل المحاسبين)
+                    PageTitleText.Text = "المحاسبين";
                     MainFrame.Navigate(new AllAccountantsPage());
                     break;
 
+                case "Users":
+                    PageTitleText.Text = "المستخدمين";
+                    MainFrame.Content = null;
+                    break;
+
+                case "Inventory":
+                    PageTitleText.Text = "المخزون";
+                    MainFrame.Content = null;
+                    break;
+
+                case "Invoices":
+                    PageTitleText.Text = "الفواتير";
+                    MainFrame.Content = null;
+                    break;
+
+                case "Orders":
+                    PageTitleText.Text = "الطلبات";
+                    MainFrame.Content = null;
+                    break;
+
+                case "Expenses":
+                    PageTitleText.Text = "المصروفات";
+                    MainFrame.Content = null;
+                    break;
+
+                case "Categories":
+                    PageTitleText.Text = "الأصناف";
+                    MainFrame.Content = null;
+                    break;
+
+                case "Suppliers":
+                    PageTitleText.Text = "الموردين";
+                    MainFrame.Content = null;
+                    break;
+
+                case "Auth":
+                    PageTitleText.Text = "المصادقة";
+                    MainFrame.Content = null;
+                    break;
+
                 default:
-                    // اخفاء TopBar لأي صفحة غير المحاسبين
-                    AccountantsTopBarControl.Visibility = Visibility.Collapsed;
                     MainFrame.Content = null;
                     break;
             }
-
-            // بعد الاختيار، ازالة التحديد عشان المستخدم يقدر يضغط مرة تانية
-            NavListBox.SelectedItem = null;
         }
+
+        // --- Window chrome (because WindowStyle=None) ---
+        private void Window_DragMove(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+                DragMove();
+        }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+        private void Maximize_Click(object sender, RoutedEventArgs e)
+            => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
+
+        private void Close_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

@@ -5,13 +5,85 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d">
 
-    <StackPanel Margin="40">
-        <TextBlock Text="بياناتي" FontSize="22" Margin="0,0,0,20"/>
-        <TextBlock Text="الاسم:"/>
-        <TextBlock Text="{Binding Accountant.Name}" Margin="0,0,0,10"/>
-        <TextBlock Text="الإيميل:"/>
-        <TextBlock Text="{Binding Accountant.Email}" Margin="0,0,0,10"/>
-        <TextBlock Text="رقم الهاتف:"/>
-        <TextBlock Text="{Binding Accountant.PhoneNumber}"/>
-    </StackPanel>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Text="بياناتي"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   Margin="0,0,0,12"
+                   Foreground="#2D2D44"/>
+
+        <!-- Error -->
+        <Border Grid.Row="1"
+                Margin="0,0,0,12"
+                Padding="10"
+                CornerRadius="8"
+                Background="#22FF0000"
+                BorderBrush="#55FF0000"
+                BorderThickness="1"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="DarkRed"/>
+        </Border>
+
+        <!-- Card -->
+        <Border Grid.Row="2"
+                Background="White"
+                BorderBrush="#E6E6E6"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="20">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Name -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                    <TextBlock Text="الاسم" Foreground="#666"/>
+                    <TextBlock Text="{Binding Accountant.Name, TargetNullValue='—'}"
+                               FontSize="16"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <!-- Email -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,14">
+                    <TextBlock Text="الإيميل" Foreground="#666"/>
+                    <TextBlock Text="{Binding Accountant.Email, TargetNullValue='—'}"
+                               FontSize="16"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <!-- Phone -->
+                <StackPanel Grid.Row="2">
+                    <TextBlock Text="رقم الهاتف" Foreground="#666"/>
+                    <TextBlock Text="{Binding Accountant.PhoneNumber, TargetNullValue='—'}"
+                               FontSize="16"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <!-- Loading -->
+                <Border Background="#66000000"
+                        CornerRadius="14"
+                        Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ProgressBar Width="220" Height="10" IsIndeterminate="True"/>
+                        <TextBlock Text="جارٍ التحميل..."
+                                   Margin="0,10,0,0"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </Border>
+    </Grid>
 </Page>
