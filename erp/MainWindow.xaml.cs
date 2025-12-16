@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using EduGate.Views.Accountants;
 
 namespace EduGate
@@ -9,93 +10,68 @@ namespace EduGate
         public MainWindow()
         {
             InitializeComponent();
+
             NavListBox.SelectionChanged += NavListBox_SelectionChanged;
 
-            // صفحة افتراضية
-            NavigateTo("Accountants");
+            // الصفحة الافتراضية: المحاسبين (index = 1)
+            NavListBox.SelectedIndex = 1;
         }
 
         private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (NavListBox.SelectedItem is not ListBoxItem item) return;
+            int index = NavListBox.SelectedIndex;
+            if (index < 0) return;
 
-            var section = item.Tag?.ToString();
-            NavigateTo(section);
-
-            NavListBox.SelectedItem = null;
+            NavigateToIndex(index);
         }
 
-        private void NavigateTo(string? section)
+        private void NavigateToIndex(int index)
         {
             AccountantsTopBarControl.Visibility = Visibility.Collapsed;
-            PageTitleText.Text = "لوحة التحكم";
+            MainFrame.Content = null;
 
-            switch (section)
+            switch (index)
             {
-                case "Accountants":
+                case 0: break; // المستخدمين
+
+                case 1:
                     AccountantsTopBarControl.Visibility = Visibility.Visible;
-                    PageTitleText.Text = "المحاسبين";
                     MainFrame.Navigate(new AllAccountantsPage());
                     break;
 
-                case "Users":
-                    PageTitleText.Text = "المستخدمين";
-                    MainFrame.Content = null;
-                    break;
-
-                case "Inventory":
-                    PageTitleText.Text = "المخزون";
-                    MainFrame.Content = null;
-                    break;
-
-                case "Invoices":
-                    PageTitleText.Text = "الفواتير";
-                    MainFrame.Content = null;
-                    break;
-
-                case "Orders":
-                    PageTitleText.Text = "الطلبات";
-                    MainFrame.Content = null;
-                    break;
-
-                case "Expenses":
-                    PageTitleText.Text = "المصروفات";
-                    MainFrame.Content = null;
-                    break;
-
-                case "Categories":
-                    PageTitleText.Text = "الأصناف";
-                    MainFrame.Content = null;
-                    break;
-
-                case "Suppliers":
-                    PageTitleText.Text = "الموردين";
-                    MainFrame.Content = null;
-                    break;
-
-                case "Auth":
-                    PageTitleText.Text = "المصادقة";
-                    MainFrame.Content = null;
-                    break;
-
-                default:
-                    MainFrame.Content = null;
-                    break;
+                case 2: break; // المخزون
+                case 3: break; // الفواتير
+                case 4: break; // الطلبات
+                case 5: break; // المصروفات
+                case 6: break; // الأصناف
+                case 7: break; // الموردين
+                case 8: break; // المصادقة
             }
         }
 
-        // --- Window chrome (because WindowStyle=None) ---
-        private void Window_DragMove(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        // ✅ Window Buttons
+        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+        private void Min_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private void Max_Click(object sender, RoutedEventArgs e)
         {
-            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
-                DragMove();
+            WindowState = (WindowState == WindowState.Maximized)
+                ? WindowState.Normal
+                : WindowState.Maximized;
         }
 
-        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+        // ✅ Drag window from sidebar (Double click toggles maximize)
+        private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                Max_Click(sender, e);
+                return;
+            }
 
-        private void Maximize_Click(object sender, RoutedEventArgs e)
-            => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
-
-        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+            try { DragMove(); } catch { }
+        }
     }
 }

@@ -1,69 +1,103 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:EduGate">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- =========================
-         Colors
-    ========================== -->
-    <Color x:Key="PrimaryColor">#1E1B4B</Color>
-    <Color x:Key="PrimaryHover">#312E81</Color>
+    <!-- ====== Colors (زي الصورة) ====== -->
+    <Color x:Key="Indigo900">#0F172A</Color>
+    <Color x:Key="Indigo800">#111B3A</Color>
+    <Color x:Key="Indigo700">#1E1B4B</Color>
+    <Color x:Key="Indigo600">#312E81</Color>
+
+    <Color x:Key="Purple700">#4338CA</Color>
+    <Color x:Key="Purple600">#4F46E5</Color>
+
+    <Color x:Key="PageBg">#F5F6FA</Color>
+    <Color x:Key="CardBg">#FFFFFF</Color>
+    <Color x:Key="SoftBorder">#E8EAF2</Color>
+
+    <Color x:Key="TextDark">#111827</Color>
+    <Color x:Key="TextMuted">#6B7280</Color>
+    <!-- Colors -->
     <Color x:Key="PrimaryPressed">#0F172A</Color>
 
-    <!-- Gradient Colors (حسب طلبك) -->
-    <Color x:Key="G0">#0F172A</Color>
-    <Color x:Key="G1">#1E1B4B</Color>
-    <Color x:Key="G2">#312E81</Color>
+    <!-- ====== Brushes ====== -->
+    <SolidColorBrush x:Key="PageBgBrush" Color="{StaticResource PageBg}"/>
+    <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardBg}"/>
+    <SolidColorBrush x:Key="SoftBorderBrush" Color="{StaticResource SoftBorder}"/>
 
-    <!-- =========================
-         Brushes
-    ========================== -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
-    <SolidColorBrush x:Key="PrimaryHoverBrush" Color="{StaticResource PrimaryHover}"/>
+    <SolidColorBrush x:Key="TextDarkBrush" Color="{StaticResource TextDark}"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMuted}"/>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Indigo700}"/>
+    <SolidColorBrush x:Key="PrimaryHoverBrush" Color="{StaticResource Indigo600}"/>
+
+    <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryPressedBrush" Color="{StaticResource PrimaryPressed}"/>
-
-    <SolidColorBrush x:Key="CardBrush" Color="White"/>
-    <SolidColorBrush x:Key="PageBgBrush" Color="#F5F6FA"/>
-
-    <!-- Gradient Brush (اللي هيتستخدم في الإطارات) -->
-    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="{StaticResource G0}" Offset="0"/>
-        <GradientStop Color="{StaticResource G1}" Offset="0.55"/>
-        <GradientStop Color="{StaticResource G2}" Offset="1"/>
+    
+    <!-- Sidebar gradient (زي الصورة) -->
+    <LinearGradientBrush x:Key="SidebarGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Indigo900}" Offset="0"/>
+        <GradientStop Color="{StaticResource Indigo700}" Offset="0.55"/>
+        <GradientStop Color="{StaticResource Purple700}" Offset="1"/>
     </LinearGradientBrush>
 
-    <!-- =========================
-         Shadows
-    ========================== -->
-    <DropShadowEffect x:Key="CardShadow" BlurRadius="25" ShadowDepth="6" Opacity="0.18"/>
-    <DropShadowEffect x:Key="SoftShadow" BlurRadius="12" ShadowDepth="2" Opacity="0.12"/>
+    <!-- ====== Shadows ====== -->
+    <DropShadowEffect x:Key="WindowShadow" BlurRadius="36" ShadowDepth="10" Opacity="0.18"/>
+    <DropShadowEffect x:Key="CardShadow" BlurRadius="24" ShadowDepth="6" Opacity="0.14"/>
+    <DropShadowEffect x:Key="SoftGlow" BlurRadius="28" ShadowDepth="0" Opacity="0.22"/>
 
-    <!-- =========================
-         BUTTONS (كما هي عندك)
-    ========================== -->
-    <Style x:Key="DarkButtonStyle" TargetType="Button">
-        <Setter Property="Height" Value="38"/>
-        <Setter Property="Padding" Value="18,0"/>
-        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+    <!-- ====== Cards ====== -->
+    <Style x:Key="CardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+        <Setter Property="CornerRadius" Value="18"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SoftBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <!-- ====== Sidebar Nav Item (pill + indicator) ====== -->
+    <Style x:Key="NavItemStyle" TargetType="ListBoxItem">
+        <Setter Property="Height" Value="56"/>
+        <Setter Property="Margin" Value="12,6"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="18"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" CornerRadius="14">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Root"
+                            CornerRadius="16"
+                            Background="Transparent"
+                            Padding="14,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- indicator -->
+                            <Border x:Name="Indicator"
+                                    Grid.Column="0"
+                                    Width="6"
+                                    CornerRadius="6"
+                                    Background="Transparent"
+                                    Margin="0,2,10,2"/>
+
+                            <ContentPresenter Grid.Column="1"
+                                              VerticalAlignment="Center"/>
+                        </Grid>
                     </Border>
+
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource PrimaryHoverBrush}"/>
+                            <Setter TargetName="Root" Property="Background" Value="#1AFFFFFF"/>
                         </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="{StaticResource PrimaryPressedBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.6"/>
+
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="#26FFFFFF"/>
+                            <Setter TargetName="Indicator" Property="Background" Value="#FFFFFF"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -71,91 +105,132 @@
         </Setter>
     </Style>
 
-    <!-- =========================
-         ✅ OUTER PAGE FRAME (Glowing Gradient)
-    ========================== -->
-    <Style x:Key="GlowGradientFrame" TargetType="Border">
-        <Setter Property="CornerRadius" Value="20"/>
-        <Setter Property="Padding" Value="2"/>
-        <Setter Property="Background" Value="{StaticResource PrimaryGradientBrush}"/>
-        <Setter Property="Effect">
+    <Style x:Key="NavListStyle" TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="6"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+    </Style>
+
+    <Style x:Key="DarkButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="42"/>
+        <Setter Property="MinWidth" Value="140"/>
+        <Setter Property="Padding" Value="18,10"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+        <Setter Property="Template">
             <Setter.Value>
-                <DropShadowEffect
-                    Color="{StaticResource G2}"
-                    BlurRadius="36"
-                    ShadowDepth="0"
-                    Opacity="0.40"/>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                        CornerRadius="16"
+                        Background="{TemplateBinding Background}">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.14"/>
+                        </Border.Effect>
+
+                        <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd"
+                                Property="Background"
+                                Value="{StaticResource PrimaryHoverBrush}"/>
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd"
+                                Property="Background"
+                                Value="{StaticResource PrimaryPressedBrush}"/>
+                            <Setter TargetName="Bd" Property="RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style x:Key="InnerCardContainer" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-        <Setter Property="CornerRadius" Value="18"/>
-        <Setter Property="Padding" Value="22"/>
+    <!-- ========= Glow / Form Styles (for AddAccountantPage) ========= -->
+
+    <!-- Outer gradient glow frame -->
+    <Style x:Key="GlowGradientFrame" TargetType="Border">
+        <Setter Property="CornerRadius" Value="22"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="Effect" Value="{StaticResource SoftGlow}"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                    <GradientStop Color="{StaticResource Purple600}" Offset="0.55"/>
+                    <GradientStop Color="{StaticResource Indigo900}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
     </Style>
 
-    <!-- =========================
-         ✅ GLOW INPUT WRAPPER (Border)  -> تستخدمه حوالين TextBox/PasswordBox
-    ========================== -->
+    <!-- Inner white card inside the glow frame -->
+    <Style x:Key="InnerCardContainer" TargetType="Border">
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SoftBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="18"/>
+    </Style>
+
+    <!-- Input outer frame -->
     <Style x:Key="GlowInputFrame" TargetType="Border">
         <Setter Property="CornerRadius" Value="14"/>
-        <Setter Property="Padding" Value="1.6"/>
-        <Setter Property="Background" Value="{StaticResource PrimaryGradientBrush}"/>
-        <Setter Property="Effect">
+        <Setter Property="Padding" Value="1.5"/>
+        <Setter Property="Background">
             <Setter.Value>
-                <DropShadowEffect
-                    Color="{StaticResource G2}"
-                    BlurRadius="18"
-                    ShadowDepth="0"
-                    Opacity="0.25"/>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{StaticResource Indigo600}" Offset="0"/>
+                    <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                </LinearGradientBrush>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <!-- Inner input surface -->
+    <!-- Input inner frame -->
     <Style x:Key="GlowInputInner" TargetType="Border">
+        <Setter Property="CornerRadius" Value="13"/>
         <Setter Property="Background" Value="White"/>
-        <Setter Property="CornerRadius" Value="12"/>
-        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Padding" Value="10,8"/>
     </Style>
 
-    <!-- =========================
-         ✅ TextBox + PasswordBox (نسخة نظيفة تلائم الـ Glow Wrapper)
-         *مهم*: BorderThickness = 0 لأن الإطار برا
-    ========================== -->
+    <!-- TextBox style -->
     <Style x:Key="GlowTextBox" TargetType="TextBox">
-        <Setter Property="Height" Value="40"/>
-        <Setter Property="Padding" Value="12,0"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="#111827"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="TextBox">
-                    <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}"/>
     </Style>
 
+    <!-- PasswordBox style -->
     <Style x:Key="GlowPasswordBox" TargetType="PasswordBox">
-        <Setter Property="Height" Value="40"/>
-        <Setter Property="Padding" Value="12,0"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="#111827"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="PasswordBox">
-                    <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}"/>
     </Style>
 
 </ResourceDictionary>

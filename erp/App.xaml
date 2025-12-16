@@ -7,7 +7,6 @@
 
     <Application.Resources>
         <ResourceDictionary>
-
             <ResourceDictionary.MergedDictionaries>
 
                 <!-- Material Design -->
@@ -15,14 +14,14 @@
                                              PrimaryColor="Blue"
                                              SecondaryColor="Teal"/>
 
-                <!-- ✅ Global Theme (تأكد إن اسم الفولدر Themes مش Thems) -->
+                <!-- ✅ Your Theme (فيه PrimaryBrush/CardBrush/DarkButtonStyle...) -->
                 <ResourceDictionary Source="Themes/ModernTheme.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
             <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <local:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>

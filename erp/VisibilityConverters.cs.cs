@@ -21,7 +21,7 @@ namespace EduGate
         }
     }
 
-    public sealed class StringToVisibilityConverter : IValueConverter
+    public sealed class StringNotEmptyToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -35,4 +35,5 @@ namespace EduGate
             throw new NotSupportedException();
         }
     }
+
 }

@@ -3,9 +3,18 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      mc:Ignorable="d">
+      mc:Ignorable="d"
+      Background="{StaticResource PageBgBrush}"
+      FlowDirection="RightToLeft">
 
     <Grid Margin="20">
+        <!-- خلي أي TextBlock يمين افتراضيًا -->
+        <Grid.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="TextAlignment" Value="Right"/>
+            </Style>
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -17,73 +26,112 @@
                    FontSize="22"
                    FontWeight="Bold"
                    Margin="0,0,0,12"
-                   Foreground="#2D2D44"/>
+                   Foreground="{StaticResource PrimaryBrush}"
+                   HorizontalAlignment="Right"/>
 
-        <!-- Error -->
+        <!-- Error (بدون Converter) -->
         <Border Grid.Row="1"
                 Margin="0,0,0,12"
                 Padding="10"
-                CornerRadius="8"
+                CornerRadius="12"
                 Background="#22FF0000"
                 BorderBrush="#55FF0000"
                 BorderThickness="1"
-                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="DarkRed"/>
+                HorizontalAlignment="Stretch">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <!-- الافتراضي Visible -->
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <!-- لو null => اخفي -->
+                        <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                        <!-- لو فاضي => اخفي -->
+                        <DataTrigger Binding="{Binding ErrorMessage}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="DarkRed"/>
         </Border>
 
-        <!-- Card -->
+        <!-- Card (Glow + Inner) -->
         <Border Grid.Row="2"
-                Background="White"
-                BorderBrush="#E6E6E6"
-                BorderThickness="1"
-                CornerRadius="14"
-                Padding="20">
+                Style="{StaticResource GlowGradientFrame}"
+                HorizontalAlignment="Center"
+                Width="560">
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <Border Style="{StaticResource InnerCardContainer}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <!-- Name -->
-                <StackPanel Grid.Row="0" Margin="0,0,0,14">
-                    <TextBlock Text="الاسم" Foreground="#666"/>
-                    <TextBlock Text="{Binding Accountant.Name, TargetNullValue='—'}"
-                               FontSize="16"
-                               FontWeight="SemiBold"/>
-                </StackPanel>
-
-                <!-- Email -->
-                <StackPanel Grid.Row="1" Margin="0,0,0,14">
-                    <TextBlock Text="الإيميل" Foreground="#666"/>
-                    <TextBlock Text="{Binding Accountant.Email, TargetNullValue='—'}"
-                               FontSize="16"
-                               FontWeight="SemiBold"/>
-                </StackPanel>
-
-                <!-- Phone -->
-                <StackPanel Grid.Row="2">
-                    <TextBlock Text="رقم الهاتف" Foreground="#666"/>
-                    <TextBlock Text="{Binding Accountant.PhoneNumber, TargetNullValue='—'}"
-                               FontSize="16"
-                               FontWeight="SemiBold"/>
-                </StackPanel>
-
-                <!-- Loading -->
-                <Border Background="#66000000"
-                        CornerRadius="14"
-                        Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <ProgressBar Width="220" Height="10" IsIndeterminate="True"/>
-                        <TextBlock Text="جارٍ التحميل..."
-                                   Margin="0,10,0,0"
-                                   Foreground="White"
-                                   HorizontalAlignment="Center"/>
+                    <!-- Name -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                        <TextBlock Text="الاسم"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="{Binding Accountant.Name, TargetNullValue='—'}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextDarkBrush}"/>
                     </StackPanel>
-                </Border>
 
-            </Grid>
+                    <!-- Email -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,14">
+                        <TextBlock Text="الإيميل"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="{Binding Accountant.Email, TargetNullValue='—'}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextDarkBrush}"/>
+                    </StackPanel>
+
+                    <!-- Phone -->
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="رقم الهاتف"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="{Binding Accountant.PhoneNumber, TargetNullValue='—'}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextDarkBrush}"/>
+                    </StackPanel>
+
+                    <!-- Loading (بدون Converter) -->
+                    <Border Background="#66000000"
+                            CornerRadius="20">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <ProgressBar Width="220" Height="10" IsIndeterminate="True"/>
+                            <TextBlock Text="جارٍ التحميل..."
+                                       Margin="0,10,0,0"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+            </Border>
         </Border>
     </Grid>
 </Page>

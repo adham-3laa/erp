@@ -37,7 +37,7 @@
                 Padding="10"
                 CornerRadius="8"
                 Margin="0,0,0,12"
-                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
             <TextBlock Text="{Binding ErrorMessage}" Foreground="DarkRed"/>
         </Border>
 
