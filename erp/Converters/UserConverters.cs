@@ -3,14 +3,15 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace erp
+namespace erp.Converters
 {
-    public sealed class BoolToVisibilityConverter : IValueConverter
+    // قم بتسمية كل كلاس بشكل منفصل
+    public class CollectionCountToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool b && b)
-                return Visibility.Visible;
+            if (value is int count)
+                return count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
             return Visibility.Collapsed;
         }
@@ -21,13 +22,15 @@ namespace erp
         }
     }
 
-    public sealed class StringNotEmptyToVisibilityConverter : IValueConverter
+    // يمكنك إضافة محولات أخرى هنا
+    public class UserStatusConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return string.IsNullOrWhiteSpace(value as string)
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            if (value is bool isActive)
+                return isActive ? "مفعل" : "معطل";
+
+            return "غير معروف";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -35,5 +38,4 @@ namespace erp
             throw new NotSupportedException();
         }
     }
-
 }

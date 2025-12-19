@@ -31,6 +31,12 @@
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Indigo700}"/>
     <SolidColorBrush x:Key="PrimaryHoverBrush" Color="{StaticResource Indigo600}"/>
 
+    <SolidColorBrush x:Key="Purple700Brush" Color="{StaticResource Purple700}"/>
+    <SolidColorBrush x:Key="Purple600Brush" Color="{StaticResource Purple600}"/>
+
+    <SolidColorBrush x:Key="SuccessGreenBrush" Color="#10B981"/>
+    <SolidColorBrush x:Key="ErrorRedBrush" Color="#EF4444"/>
+
     <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryPressedBrush" Color="{StaticResource PrimaryPressed}"/>
     

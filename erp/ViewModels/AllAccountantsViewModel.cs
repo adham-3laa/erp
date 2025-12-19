@@ -1,73 +1,73 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using erp.Dtos;
-using erp.Services;
-using System.Collections.ObjectModel;
-using System.Net.Http;
+﻿//using CommunityToolkit.Mvvm.ComponentModel;
+//using CommunityToolkit.Mvvm.Input;
+//using erp.Dtos;
+//using erp.Services;
+//using System.Collections.ObjectModel;
+//using System.Net.Http;
 
-namespace erp.ViewModels;
+//namespace erp.ViewModels;
 
-public partial class AllAccountantsViewModel : ObservableObject
-{
-    private readonly AccountantService _service;
+//public partial class AllAccountantsViewModel : ObservableObject
+//{
+//    private readonly AccountantService _service;
 
-    public ObservableCollection<AccountantDto> Accountants { get; } = new();
+//    public ObservableCollection<AccountantDto> Accountants { get; } = new();
 
-    [ObservableProperty] private bool isBusy;
-    [ObservableProperty] private string errorMessage = "";
-    [ObservableProperty] private string searchText = "";
+//    [ObservableProperty] private bool isBusy;
+//    [ObservableProperty] private string errorMessage = "";
+//    [ObservableProperty] private string searchText = "";
 
-    public IAsyncRelayCommand LoadCommand { get; }
-    public IRelayCommand RefreshCommand { get; }
+//    public IAsyncRelayCommand LoadCommand { get; }
+//    public IRelayCommand RefreshCommand { get; }
 
-    private List<AccountantDto> _all = new();
+//    private List<AccountantDto> _all = new();
 
-    public AllAccountantsViewModel()
-    {
-        _service = new AccountantService(ApiClient.Create());
+//    public AllAccountantsViewModel()
+//    {
+//        _service = new AccountantService(ApiClient.Create());
 
-        LoadCommand = new AsyncRelayCommand(LoadAsync);
-        RefreshCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ApplyFilter);
-    }
+//        LoadCommand = new AsyncRelayCommand(LoadAsync);
+//        RefreshCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ApplyFilter);
+//    }
 
-    partial void OnSearchTextChanged(string value) => ApplyFilter();
+//    partial void OnSearchTextChanged(string value) => ApplyFilter();
 
-    private async Task LoadAsync()
-    {
-        try
-        {
-            ErrorMessage = "";
-            IsBusy = true;
+//    private async Task LoadAsync()
+//    {
+//        try
+//        {
+//            ErrorMessage = "";
+//            IsBusy = true;
 
-            var list = await _service.GetAllAccountantsAsync() ?? new List<AccountantDto>();
-            _all = list;
+//            var list = await _service.GetAllAccountantsAsync() ?? new List<AccountantDto>();
+//            _all = list;
 
-            ApplyFilter();
-        }
-        catch (HttpRequestException)
-        {
-            ErrorMessage = "تعذر الاتصال بالسيرفر.";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
+//            ApplyFilter();
+//        }
+//        catch (HttpRequestException)
+//        {
+//            ErrorMessage = "تعذر الاتصال بالسيرفر.";
+//        }
+//        finally
+//        {
+//            IsBusy = false;
+//        }
+//    }
 
-    private void ApplyFilter()
-    {
-        var q = (SearchText ?? "").Trim().ToLowerInvariant();
+//    private void ApplyFilter()
+//    {
+//        var q = (SearchText ?? "").Trim().ToLowerInvariant();
 
-        var filtered = string.IsNullOrWhiteSpace(q)
-            ? _all
-            : _all.Where(a =>
-                   (a.Name ?? "").ToLowerInvariant().Contains(q) ||
-                   (a.Email ?? "").ToLowerInvariant().Contains(q) ||
-                   (a.PhoneNumber ?? "").ToLowerInvariant().Contains(q))
-                .ToList();
+//        var filtered = string.IsNullOrWhiteSpace(q)
+//            ? _all
+//            : _all.Where(a =>
+//                   (a.Name ?? "").ToLowerInvariant().Contains(q) ||
+//                   (a.Email ?? "").ToLowerInvariant().Contains(q) ||
+//                   (a.PhoneNumber ?? "").ToLowerInvariant().Contains(q))
+//                .ToList();
 
-        Accountants.Clear();
-        foreach (var item in filtered)
-            Accountants.Add(item);
-    }
-}
+//        Accountants.Clear();
+//        foreach (var item in filtered)
+//            Accountants.Add(item);
+//    }
+//}

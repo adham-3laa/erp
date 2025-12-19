@@ -1,27 +1,49 @@
-﻿<Application x:Class="EduGate.App"
+﻿<Application x:Class="erp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:erp.Converters"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:local="clr-namespace:EduGate"
              StartupUri="MainWindow.xaml">
 
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-
                 <!-- Material Design -->
                 <materialDesign:BundledTheme BaseTheme="Light"
                                              PrimaryColor="Blue"
                                              SecondaryColor="Teal"/>
 
-                <!-- ✅ Your Theme (فيه PrimaryBrush/CardBrush/DarkButtonStyle...) -->
+                <!-- Your Theme -->
                 <ResourceDictionary Source="Themes/ModernTheme.xaml"/>
-
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
             <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <local:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
+            <local:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <local:StatusTooltipConverter x:Key="StatusTooltipConverter"/>
+            <local:InitialsConverter x:Key="InitialsConverter"/>
+
+            <!-- Note: UserConverters has different classes inside, use specific ones -->
+            <local:CollectionCountToVisibilityConverter x:Key="CollectionCountToVisibilityConverter"/>
+
+            <!-- Brushes -->
+            <SolidColorBrush x:Key="CardBrush" Color="White"/>
+            <SolidColorBrush x:Key="PrimaryBrush" Color="#1E1B4B"/>
+            <SolidColorBrush x:Key="TextDarkBrush" Color="#111827"/>
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#6B7280"/>
+            <SolidColorBrush x:Key="SoftBorderBrush" Color="#E8EAF2"/>
+
+            <!-- Status Brushes -->
+            <SolidColorBrush x:Key="SuccessGreenBrush" Color="#10B981"/>
+            <SolidColorBrush x:Key="ErrorRedBrush" Color="#EF4444"/>
+            <SolidColorBrush x:Key="PageBgBrush" Color="#F9FAFB"/>
+
+            <!-- Effects -->
+            <DropShadowEffect x:Key="CardShadow"
+                              BlurRadius="12"
+                              ShadowDepth="2"
+                              Opacity="0.2"/>
 
         </ResourceDictionary>
     </Application.Resources>

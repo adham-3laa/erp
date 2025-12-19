@@ -1,9 +1,10 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using EduGate.Views.Accountants;
+using erp.Views.Users;
 
-namespace EduGate
+namespace erp
 {
     public partial class MainWindow : Window
     {
@@ -11,67 +12,102 @@ namespace EduGate
         {
             InitializeComponent();
 
-            NavListBox.SelectionChanged += NavListBox_SelectionChanged;
+            // تهيئة NavigationService
+            erp.Services.NavigationService.Initialize(MainFrame);
 
-            // الصفحة الافتراضية: المحاسبين (index = 1)
-            NavListBox.SelectedIndex = 1;
+            // افتح صفحة المستخدمين عند بدء التشغيل
+            NavigateToUsersPage();
+        }
+
+        // ====== Navigation Methods ======
+
+        public void NavigateToUsersPage()
+        {
+            MainFrame.Navigate(new AllUsersPage());
+            SelectNavItem("Users");
+        }
+
+        public void NavigateToCurrentUser()
+        {
+            MainFrame.Navigate(new CurrentUserPage());
+            SelectNavItem(null);
         }
 
         private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int index = NavListBox.SelectedIndex;
-            if (index < 0) return;
-
-            NavigateToIndex(index);
-        }
-
-        private void NavigateToIndex(int index)
-        {
-            AccountantsTopBarControl.Visibility = Visibility.Collapsed;
-            MainFrame.Content = null;
-
-            switch (index)
+            if (NavListBox.SelectedItem is ListBoxItem selectedItem)
             {
-                case 0: break; // المستخدمين
+                string tag = selectedItem.Tag as string;
 
-                case 1:
-                    AccountantsTopBarControl.Visibility = Visibility.Visible;
-                    MainFrame.Navigate(new AllAccountantsPage());
-                    break;
-
-                case 2: break; // المخزون
-                case 3: break; // الفواتير
-                case 4: break; // الطلبات
-                case 5: break; // المصروفات
-                case 6: break; // الأصناف
-                case 7: break; // الموردين
-                case 8: break; // المصادقة
+                if (tag == "Users")
+                {
+                    NavigateToUsersPage();
+                }
+                else
+                {
+                    // بقية الصفحات...
+                    string pageName = tag switch
+                    {
+                        "Inventory" => "المخزون",
+                        "Invoices" => "الفواتير",
+                        "Orders" => "الطلبات",
+                        "Expenses" => "المصروفات",
+                        "Items" => "الأصناف",
+                        "Suppliers" => "الموردين",
+                        "Auth" => "المصادقة",
+                        _ => "الصفحة"
+                    };
+                    MessageBox.Show($"صفحة {pageName} قيد التطوير", "تطوير");
+                }
             }
         }
 
-        // ✅ Window Buttons
-        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+        private void CurrentUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateToCurrentUser();
+        }
 
-        private void Min_Click(object sender, RoutedEventArgs e)
-            => WindowState = WindowState.Minimized;
+        private void SelectNavItem(string tag)
+        {
+            if (string.IsNullOrEmpty(tag))
+            {
+                NavListBox.SelectedItem = null;
+                return;
+            }
+
+            foreach (ListBoxItem item in NavListBox.Items)
+            {
+                if (item.Tag as string == tag)
+                {
+                    NavListBox.SelectedItem = item;
+                    return;
+                }
+            }
+        }
+
+        // ====== Window Controls ======
+
+        private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
 
         private void Max_Click(object sender, RoutedEventArgs e)
         {
-            WindowState = (WindowState == WindowState.Maximized)
+            this.WindowState = this.WindowState == WindowState.Maximized
                 ? WindowState.Normal
                 : WindowState.Maximized;
         }
 
-        // ✅ Drag window from sidebar (Double click toggles maximize)
-        private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Min_Click(object sender, RoutedEventArgs e)
         {
-            if (e.ClickCount == 2)
-            {
-                Max_Click(sender, e);
-                return;
-            }
-
-            try { DragMove(); } catch { }
+            this.WindowState = WindowState.Minimized;
         }
     }
 }
