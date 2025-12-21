@@ -24,9 +24,9 @@ public partial class AllAccountantsViewModel : ObservableObject
 
     public AllAccountantsViewModel()
     {
-        _service = new AccountantService(ApiClient.Create());
+        _service = new AccountantService(ApiClient.CreateHttpClient());
 
-        LoadCommand = new AsyncRelayCommand(LoadAsync);
+        LoadCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(LoadAsync);
         RefreshCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ApplyFilter);
     }
 

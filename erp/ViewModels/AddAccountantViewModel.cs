@@ -22,8 +22,8 @@ public partial class AddAccountantViewModel : ObservableObject
 
     public AddAccountantViewModel()
     {
-        _service = new AccountantService(ApiClient.Create());
-        SaveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
+        _service = new AccountantService(ApiClient.CreateHttpClient());
+        SaveCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(SaveAsync, CanSave);
     }
 
     private bool CanSave()

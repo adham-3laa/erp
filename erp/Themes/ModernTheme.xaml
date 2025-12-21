@@ -233,4 +233,58 @@
         <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}"/>
     </Style>
 
+    <!-- ===== DataGrid Pro Style ===== -->
+    <SolidColorBrush x:Key="GridHeaderBg" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="GridHeaderBorder" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="GridRowAlt" Color="#FAFAFF"/>
+    <SolidColorBrush x:Key="GridRowHover" Color="#EEF2FF"/>
+    <SolidColorBrush x:Key="GridSelected" Color="#E0E7FF"/>
+
+    <Style x:Key="ProDataGridStyle" TargetType="DataGrid">
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+        <Setter Property="RowBackground" Value="White"/>
+        <Setter Property="AlternatingRowBackground" Value="{StaticResource GridRowAlt}"/>
+        <Setter Property="RowHeight" Value="44"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+    </Style>
+
+    <Style TargetType="DataGridColumnHeader" x:Key="ProDataGridHeaderStyle">
+        <Setter Property="Background" Value="{StaticResource GridHeaderBg}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GridHeaderBorder}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+    </Style>
+
+    <Style TargetType="DataGridRow" x:Key="ProDataGridRowStyle">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource GridRowHover}"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource GridSelected}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="DataGridCell" x:Key="ProDataGridCellStyle">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
 </ResourceDictionary>

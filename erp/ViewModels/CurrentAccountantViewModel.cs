@@ -19,8 +19,8 @@ public partial class CurrentAccountantViewModel : ObservableObject
 
     public CurrentAccountantViewModel()
     {
-        _service = new AccountantService(ApiClient.Create());
-        LoadCommand = new AsyncRelayCommand(LoadAsync);
+        _service = new AccountantService(ApiClient.CreateHttpClient());
+        LoadCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(LoadAsync);
     }
 
     private async Task LoadAsync()

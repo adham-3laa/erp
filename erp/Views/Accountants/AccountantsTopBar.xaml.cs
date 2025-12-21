@@ -1,7 +1,8 @@
-﻿using System.Windows;
+﻿using EduGate.Views.Accountants;
+using System.Windows;
 using System.Windows.Controls;
 
-namespace EduGate.Views.Accountants
+namespace erp.Views.Accountants
 {
     public partial class AccountantsTopBar : UserControl
     {

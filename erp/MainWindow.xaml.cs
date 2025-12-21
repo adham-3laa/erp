@@ -1,9 +1,11 @@
-﻿using System.Windows;
+﻿using EduGate.Views.Accountants;
+using erp.Views.Accountants;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using EduGate.Views.Accountants;
+using erp.Views.Category;   
 
-namespace EduGate
+namespace erp
 {
     public partial class MainWindow : Window
     {
@@ -43,13 +45,14 @@ namespace EduGate
                 case 3: break; // الفواتير
                 case 4: break; // الطلبات
                 case 5: break; // المصروفات
-                case 6: break; // الأصناف
+                case 6: // 🏷️ الأصناف
+                    MainFrame.Navigate(new CategoryListPage());   // ✅ ده اللي ناقصك
+                    break;
                 case 7: break; // الموردين
                 case 8: break; // المصادقة
             }
         }
 
-        // ✅ Window Buttons
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
         private void Min_Click(object sender, RoutedEventArgs e)
@@ -62,7 +65,6 @@ namespace EduGate
                 : WindowState.Maximized;
         }
 
-        // ✅ Drag window from sidebar (Double click toggles maximize)
         private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
