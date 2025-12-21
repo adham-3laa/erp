@@ -1,0 +1,206 @@
+﻿<UserControl x:Class="erp.Views.Users.CreateUserPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <Grid Background="{StaticResource PageBgBrush}">
+        <!-- Outer Gradient Frame -->
+        <Border Style="{StaticResource GlowGradientFrame}" Margin="20">
+            <!-- Inner White Card -->
+            <Border Style="{StaticResource InnerCardContainer}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+                            <TextBlock Text="إنشاء مستخدم جديد"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextDarkBrush}"
+                                       HorizontalAlignment="Center"/>
+
+                            <TextBlock Text="املأ الحقول التالية لإنشاء مستخدم جديد في النظام"
+                                       FontSize="14"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,8,0,0"/>
+                        </StackPanel>
+
+                        <!-- Form -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left Column -->
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <!-- Full Name -->
+                                <StackPanel Margin="0,0,0,20">
+                                    <TextBlock Text="الاسم الكامل"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{StaticResource TextDarkBrush}"
+                                               Margin="0,0,0,6"/>
+
+                                    <Border Style="{StaticResource GlowInputFrame}">
+                                        <Border Style="{StaticResource GlowInputInner}">
+                                            <TextBox Text="{Binding Fullname, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource GlowTextBox}"
+                                                     FontSize="14"/>
+                                        </Border>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Email -->
+                                <StackPanel Margin="0,0,0,20">
+                                    <TextBlock Text="البريد الإلكتروني"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{StaticResource TextDarkBrush}"
+                                               Margin="0,0,0,6"/>
+
+                                    <Border Style="{StaticResource GlowInputFrame}">
+                                        <Border Style="{StaticResource GlowInputInner}">
+                                            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource GlowTextBox}"
+                                                     FontSize="14"/>
+                                        </Border>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- User Type -->
+                                <StackPanel Margin="0,0,0,20">
+                                    <TextBlock Text="نوع المستخدم"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{StaticResource TextDarkBrush}"
+                                               Margin="0,0,0,6"/>
+
+                                    <Border Style="{StaticResource GlowInputFrame}">
+                                        <Border Style="{StaticResource GlowInputInner}">
+                                            <ComboBox ItemsSource="{Binding UserTypes}"
+                                                      SelectedItem="{Binding SelectedUserType}"
+                                                      Background="Transparent"
+                                                      BorderThickness="0"
+                                                      FontSize="14"
+                                                      Padding="4">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}"/>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </Border>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Right Column -->
+                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                <!-- Phone Number -->
+                                <StackPanel Margin="0,0,0,20">
+                                    <TextBlock Text="رقم الهاتف"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{StaticResource TextDarkBrush}"
+                                               Margin="0,0,0,6"/>
+
+                                    <Border Style="{StaticResource GlowInputFrame}">
+                                        <Border Style="{StaticResource GlowInputInner}">
+                                            <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource GlowTextBox}"
+                                                     FontSize="14"/>
+                                        </Border>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Password -->
+                                <StackPanel Margin="0,0,0,20">
+                                    <TextBlock Text="كلمة المرور"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{StaticResource TextDarkBrush}"
+                                               Margin="0,0,0,6"/>
+
+                                    <Border Style="{StaticResource GlowInputFrame}">
+                                        <Border Style="{StaticResource GlowInputInner}">
+                                            <PasswordBox x:Name="PasswordBox"
+                                                         PasswordChanged="PasswordBox_PasswordChanged"
+                                                         Style="{StaticResource GlowPasswordBox}"/>
+                                        </Border>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Confirm Password -->
+                                <StackPanel Margin="0,0,0,20">
+                                    <TextBlock Text="تأكيد كلمة المرور"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{StaticResource TextDarkBrush}"
+                                               Margin="0,0,0,6"/>
+
+                                    <Border Style="{StaticResource GlowInputFrame}">
+                                        <Border Style="{StaticResource GlowInputInner}">
+                                            <PasswordBox x:Name="ConfirmPasswordBox"
+                                                         PasswordChanged="ConfirmPasswordBox_PasswordChanged"
+                                                         Style="{StaticResource GlowPasswordBox}"/>
+                                        </Border>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Loading Overlay -->
+                        <Border Grid.Row="1" 
+                                Background="#80FFFFFF"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Panel.ZIndex="100">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <ProgressBar IsIndeterminate="True" Width="200" Height="6"/>
+                                <TextBlock Text="جاري إنشاء المستخدم..." 
+                                           Margin="0,12,0,0"
+                                           Foreground="{StaticResource TextMutedBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Buttons -->
+                        <StackPanel Grid.Row="2" 
+                                    Orientation="Horizontal" 
+                                    HorizontalAlignment="Center"
+                                    Margin="0,32,0,0">
+                            <Button Command="{Binding CreateCommand}"
+                                    Style="{StaticResource DarkButtonStyle}"
+                                    MinWidth="140"
+                                    Margin="0,0,12,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Check" Width="18" Height="18" Margin="0,0,6,0"/>
+                                    <TextBlock Text="إنشاء مستخدم"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding CancelCommand}"
+                                    Style="{StaticResource DarkButtonStyle}"
+                                    Background="{StaticResource TextMutedBrush}"
+                                    MinWidth="140">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Close" Width="18" Height="18" Margin="0,0,6,0"/>
+                                    <TextBlock Text="إلغاء"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,9 +1,9 @@
-﻿using EduGate.Views.Accountants;
-using erp.Views.Accountants;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using erp.Views.Category;   
+
+using erp.Views.Category;
+using erp.Views.Users;
 
 namespace erp
 {
@@ -13,67 +13,117 @@ namespace erp
         {
             InitializeComponent();
 
-            NavListBox.SelectionChanged += NavListBox_SelectionChanged;
+            // تهيئة NavigationService
+            erp.Services.NavigationService.Initialize(MainFrame);
 
-            // الصفحة الافتراضية: المحاسبين (index = 1)
-            NavListBox.SelectedIndex = 1;
+            // افتح صفحة المستخدمين عند بدء التشغيل
+            NavigateToUsersPage();
+        }
+
+        // ====== Navigation Methods ======
+
+        public void NavigateToUsersPage()
+        {
+            MainFrame.Navigate(new AllUsersPage());
+            SelectNavItem("Users");
+        }
+
+        public void NavigateToCurrentUser()
+        {
+            MainFrame.Navigate(new CurrentUserPage());
+            SelectNavItem(null);
+        }
+
+        private void CurrentUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateToCurrentUser();
         }
 
         private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int index = NavListBox.SelectedIndex;
-            if (index < 0) return;
+            if (NavListBox.SelectedItem is not ListBoxItem selectedItem) return;
 
-            NavigateToIndex(index);
+            var tag = selectedItem.Tag as string;
+            if (string.IsNullOrWhiteSpace(tag)) return;
+
+            switch (tag)
+            {
+                case "Users":
+                    NavigateToUsersPage();
+                    break;
+
+                // ✅ الأصناف
+                case "Items":
+                    MainFrame.Navigate(new CategoryListPage());
+                    break;
+
+                // باقي الصفحات لسه تحت التطوير
+                case "Inventory":
+                case "Invoices":
+                case "Orders":
+                case "Expenses":
+                case "Suppliers":
+                case "Auth":
+                default:
+                    ShowUnderDevelopment(tag);
+                    break;
+            }
         }
 
-        private void NavigateToIndex(int index)
+        private static void ShowUnderDevelopment(string tag)
         {
-            AccountantsTopBarControl.Visibility = Visibility.Collapsed;
-            MainFrame.Content = null;
-
-            switch (index)
+            string pageName = tag switch
             {
-                case 0: break; // المستخدمين
+                "Inventory" => "المخزون",
+                "Invoices" => "الفواتير",
+                "Orders" => "الطلبات",
+                "Expenses" => "المصروفات",
+                "Suppliers" => "الموردين",
+                "Auth" => "المصادقة",
+                _ => "الصفحة"
+            };
 
-                case 1:
-                    AccountantsTopBarControl.Visibility = Visibility.Visible;
-                    MainFrame.Navigate(new AllAccountantsPage());
-                    break;
+            MessageBox.Show($"صفحة {pageName} قيد التطوير", "تطوير");
+        }
 
-                case 2: break; // المخزون
-                case 3: break; // الفواتير
-                case 4: break; // الطلبات
-                case 5: break; // المصروفات
-                case 6: // 🏷️ الأصناف
-                    MainFrame.Navigate(new CategoryListPage());   // ✅ ده اللي ناقصك
-                    break;
-                case 7: break; // الموردين
-                case 8: break; // المصادقة
+        private void SelectNavItem(string tag)
+        {
+            if (string.IsNullOrEmpty(tag))
+            {
+                NavListBox.SelectedItem = null;
+                return;
             }
+
+            foreach (ListBoxItem item in NavListBox.Items)
+            {
+                if ((item.Tag as string) == tag)
+                {
+                    NavListBox.SelectedItem = item;
+                    return;
+                }
+            }
+        }
+
+        // ====== Window Controls ======
+
+        private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                DragMove();
         }
 
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
-        private void Min_Click(object sender, RoutedEventArgs e)
-            => WindowState = WindowState.Minimized;
-
         private void Max_Click(object sender, RoutedEventArgs e)
         {
-            WindowState = (WindowState == WindowState.Maximized)
+            WindowState = WindowState == WindowState.Maximized
                 ? WindowState.Normal
                 : WindowState.Maximized;
         }
 
-        private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Min_Click(object sender, RoutedEventArgs e)
         {
-            if (e.ClickCount == 2)
-            {
-                Max_Click(sender, e);
-                return;
-            }
-
-            try { DragMove(); } catch { }
+            WindowState = WindowState.Minimized;
         }
     }
 }

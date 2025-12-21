@@ -1,5 +1,6 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Windows;
+
 using erp.Services;
 
 namespace erp
@@ -9,9 +10,9 @@ namespace erp
         public static HttpClient Http { get; private set; } = null!;
         public static ApiClient Api { get; private set; } = null!;
         public static CategoryService Categories { get; private set; } = null!;
-        public static AccountantService Accountants { get; private set; } = null!;
+        //public static AccountantService Accountants { get; private set; } = null!;
 
-        // ✅ NEW (Auth)
+        // Auth
         public static IAuthSession Session { get; private set; } = null!;
         public static AuthService Auth { get; private set; } = null!;
 
@@ -19,16 +20,20 @@ namespace erp
         {
             base.OnStartup(e);
 
+            // Initialize session + clients
             Session = new AuthSession();
 
             Http = ApiClient.CreateHttpClient(Session.AccessToken);
             Api = new ApiClient(Http);
 
+            // Services
             Categories = new CategoryService(Api);
-            Accountants = new AccountantService(Http);
-
+            //Accountants = new AccountantService(Http);
             Auth = new AuthService(Api, Session);
-        }
 
+            // Show main window
+            var mainWindow = new MainWindow();
+            mainWindow.Show();
+        }
     }
 }
