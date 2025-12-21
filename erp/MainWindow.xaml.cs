@@ -3,6 +3,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 
 using erp.Views.Category;
+using erp.Views.Expenses;
+using erp.Views.Invoices;
 using erp.Views.Users;
 
 namespace erp
@@ -35,9 +37,7 @@ namespace erp
         }
 
         private void CurrentUserButton_Click(object sender, RoutedEventArgs e)
-        {
-            NavigateToCurrentUser();
-        }
+            => NavigateToCurrentUser();
 
         private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -52,16 +52,21 @@ namespace erp
                     NavigateToUsersPage();
                     break;
 
-                // ✅ الأصناف
                 case "Items":
                     MainFrame.Navigate(new CategoryListPage());
                     break;
 
+                case "Invoices":
+                    MainFrame.Navigate(new InvoicesListPage());
+                    break;
+
+                case "Expenses":
+                    MainFrame.Navigate(new ExpensesListPage());
+                    break;
+
                 // باقي الصفحات لسه تحت التطوير
                 case "Inventory":
-                case "Invoices":
                 case "Orders":
-                case "Expenses":
                 case "Suppliers":
                 case "Auth":
                 default:
@@ -75,9 +80,7 @@ namespace erp
             string pageName = tag switch
             {
                 "Inventory" => "المخزون",
-                "Invoices" => "الفواتير",
                 "Orders" => "الطلبات",
-                "Expenses" => "المصروفات",
                 "Suppliers" => "الموردين",
                 "Auth" => "المصادقة",
                 _ => "الصفحة"
@@ -122,8 +125,6 @@ namespace erp
         }
 
         private void Min_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
+            => WindowState = WindowState.Minimized;
     }
 }

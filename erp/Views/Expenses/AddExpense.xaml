@@ -1,0 +1,108 @@
+﻿<Page x:Class="erp.Views.Expenses.AddExpensePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Background="{StaticResource PageBgBrush}">
+
+    <!-- الصفحة بتتمدد مع الـ Frame -->
+    <Grid Margin="24">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- عنوان الصفحة -->
+        <TextBlock Text="إضافة مصروف جديد"
+                   FontSize="26"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource TextDarkBrush}"
+                   Margin="0,10,0,20"/>
+
+        <!-- الفورم -->
+        <Border Grid.Row="1"
+                Style="{StaticResource GlowGradientFrame}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+
+            <!-- كارت الفورم -->
+            <Border Style="{StaticResource InnerCardContainer}"
+                    Width="650"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Margin="0,40,0,0">
+
+                <StackPanel>
+
+                    <!-- المبلغ -->
+                    <TextBlock Text="المبلغ"
+                               FontSize="14"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Margin="0,0,0,6"/>
+
+                    <Border Style="{StaticResource GlowInputFrame}">
+                        <Border Style="{StaticResource GlowInputInner}">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Border>
+                    </Border>
+
+                    <!-- الوصف -->
+                    <TextBlock Text="الوصف"
+                               FontSize="14"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Margin="0,18,0,6"/>
+
+                    <Border Style="{StaticResource GlowInputFrame}">
+                        <Border Style="{StaticResource GlowInputInner}">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                     AcceptsReturn="True"
+                                     Height="90"
+                                     TextWrapping="Wrap"/>
+                        </Border>
+                    </Border>
+
+                    <!-- رسالة الخطأ -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="Red"
+                               Margin="0,12,0,0"
+                               Visibility="{Binding ErrorMessage,
+                                   Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
+                    <!-- رسالة النجاح -->
+                    <TextBlock Text="تم إضافة المصروف بنجاح ✔"
+                               Foreground="Green"
+                               Margin="0,12,0,0"
+                               Visibility="{Binding IsSuccess,
+                                   Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <!-- الأزرار -->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,28,0,0">
+
+                        <!-- زر الرجوع -->
+                        <Button Content="رجوع"
+                                Width="120"
+                                Margin="0,0,12,0"
+                                Style="{StaticResource DarkButtonStyle}"
+                                Click="BackToList_Click"/>
+
+                        <!-- زر الحفظ -->
+                        <Button Content="حفظ المصروف"
+                                Width="160"
+                                Style="{StaticResource DarkButtonStyle}"
+                                Command="{Binding SaveCommand}"
+                                IsEnabled="{Binding IsBusy,
+                                    Converter={StaticResource BoolToVisibilityConverter},
+                                    ConverterParameter=invert}"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</Page>
