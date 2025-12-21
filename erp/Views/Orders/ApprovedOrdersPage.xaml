@@ -1,0 +1,55 @@
+﻿<Page x:Class="EduGate.Views.Orders.ApprovedOrdersPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="clr-namespace:EduGate.Views.Orders"
+      Background="Transparent">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ✅ TopBar -->
+        <local:OrdersTopBar x:Name="OrdersTopBarControl"
+                            Grid.Row="0"/>
+        <!-- جدول الطلبات -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+            <DataGrid x:Name="OrdersDataGrid"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="رقم الطلب"
+                                        Binding="{Binding OrderId}"
+                                        Width="*"/>
+
+                    <DataGridTextColumn Header="العميل"
+                                        Binding="{Binding CustomerName}"
+                                        Width="*"/>
+
+                    <DataGridTextColumn Header="الإجمالي"
+                                        Binding="{Binding TotalAmount}"
+                                        Width="*"/>
+
+                    <DataGridTextColumn Header="التاريخ"
+                                        Binding="{Binding CreatedAt}"
+                                        Width="*"/>
+
+                    <DataGridTemplateColumn Header="تفاصيل">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="👁"
+                                        Width="40"
+                                        Style="{StaticResource DarkButtonStyle}"
+                                        Click="ViewDetails_Click"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+
+            </DataGrid>
+        </Border>
+    </Grid>
+</Page>

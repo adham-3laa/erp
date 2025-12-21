@@ -1,11 +1,11 @@
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-
+using EduGate.Views.Inventory;
 using erp.Views.Category;
 using erp.Views.Expenses;
 using erp.Views.Invoices;
 using erp.Views.Users;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace erp
 {
@@ -52,8 +52,8 @@ namespace erp
                     NavigateToUsersPage();
                     break;
 
-                case "Items":
-                    MainFrame.Navigate(new CategoryListPage());
+                case "Inventory":
+                    MainFrame.Navigate(new InventoryPage());
                     break;
 
                 case "Invoices":
@@ -64,8 +64,11 @@ namespace erp
                     MainFrame.Navigate(new ExpensesListPage());
                     break;
 
+                case "Items":
+                    MainFrame.Navigate(new CategoryListPage());
+                    break;
+
                 // باقي الصفحات لسه تحت التطوير
-                case "Inventory":
                 case "Orders":
                 case "Suppliers":
                 case "Auth":
@@ -79,7 +82,6 @@ namespace erp
         {
             string pageName = tag switch
             {
-                "Inventory" => "المخزون",
                 "Orders" => "الطلبات",
                 "Suppliers" => "الموردين",
                 "Auth" => "المصادقة",
@@ -111,8 +113,17 @@ namespace erp
 
         private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // Double click toggles maximize
+            if (e.ClickCount == 2)
+            {
+                Max_Click(sender, e);
+                return;
+            }
+
             if (e.ChangedButton == MouseButton.Left)
-                DragMove();
+            {
+                try { DragMove(); } catch { }
+            }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
