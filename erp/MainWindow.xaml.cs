@@ -2,6 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using EduGate.Views.Accountants;
+using erp.Views.Expenses;
+using erp.Views.Invoices;
 
 namespace EduGate
 {
@@ -40,9 +42,18 @@ namespace EduGate
                     break;
 
                 case 2: break; // المخزون
-                case 3: break; // الفواتير
+                case 3:
+                    AccountantsTopBarControl.Visibility = Visibility.Collapsed;
+                    MainFrame.Navigate(new InvoicesListPage());
+                    break; // الفواتير
+
                 case 4: break; // الطلبات
-                case 5: break; // المصروفات
+
+                case 5: // المصروفات
+                    AccountantsTopBarControl.Visibility = Visibility.Collapsed;
+                    MainFrame.Navigate(new ExpensesListPage());
+                    break;
+
                 case 6: break; // الأصناف
                 case 7: break; // الموردين
                 case 8: break; // المصادقة

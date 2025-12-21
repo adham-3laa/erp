@@ -1,0 +1,101 @@
+﻿<Page x:Class="erp.Views.Invoices.InvoiceDetailsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource PageBgBrush}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ================= Title ================= -->
+        <TextBlock Grid.Row="0"
+                   Text="تفاصيل الفاتورة"
+                   FontSize="26"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource TextDarkBrush}"
+                   Margin="0,0,0,20"/>
+
+        <!-- ================= Content ================= -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto">
+
+            <StackPanel>
+
+                <!-- ================= Invoice Info ================= -->
+                <Border Style="{StaticResource CardStyle}"
+                        Margin="0,0,0,20">
+
+                    <UniformGrid Columns="2" Margin="16">
+
+                        <TextBlock Text="نوع الفاتورة" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding Type}"/>
+
+                        <TextBlock Text="المستلم" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding RecipientName}"/>
+
+                        <TextBlock Text="الإجمالي" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding Amount}"/>
+
+                        <TextBlock Text="المدفوع" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding PaidAmount}"/>
+
+                        <TextBlock Text="المتبقي" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding RemainingAmount}"/>
+
+                        <TextBlock Text="تاريخ الإنشاء" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding GeneratedDate}"/>
+                    </UniformGrid>
+                </Border>
+
+                <!-- ================= Order Details ================= -->
+                <Border Style="{StaticResource CardStyle}"
+                        Margin="0,0,0,20">
+
+                    <Grid Margin="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Section Title -->
+                        <TextBlock Text="تفاصيل الطلب"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,12"/>
+
+                        <!-- Order Items Table -->
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding OrderItems}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  ColumnWidth="*">
+
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn Header="المنتج"
+                                                    Binding="{Binding ProductName}"/>
+
+                                <DataGridTextColumn Header="الكمية"
+                                                    Binding="{Binding Quantity}"/>
+
+                                <DataGridTextColumn Header="سعر الوحدة"
+                                                    Binding="{Binding UnitPrice}"/>
+
+                                <DataGridTextColumn Header="الإجمالي"
+                                                    Binding="{Binding TotalPrice}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <!-- ================= Back ================= -->
+                <Button Content="⬅ رجوع"
+                        Style="{StaticResource DarkButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Click="Back_Click"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

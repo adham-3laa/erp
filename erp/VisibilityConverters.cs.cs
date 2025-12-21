@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace EduGate
+namespace erp
 {
     public sealed class BoolToVisibilityConverter : IValueConverter
     {

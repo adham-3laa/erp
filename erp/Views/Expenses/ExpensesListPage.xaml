@@ -1,0 +1,91 @@
+﻿<Page x:Class="erp.Views.Expenses.ExpensesListPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      Background="{StaticResource PageBgBrush}">
+
+    <Grid Margin="24">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===== العنوان + الأزرار ===== -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="المصروفات"
+                       FontSize="26"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextDarkBrush}"/>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        >
+                <Button Content="مصروفات المحاسب"
+                        Width="160"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Command="{Binding LoadExpensesByAccountantCommand}"
+                        Click="ExpensesByAccountant_Click"/>
+
+                <!-- جلب مصروفات المستخدم -->
+                <Button Content="مصروفاتي"
+                        Width="140"
+                        Margin="0,0,10,0"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="MyExpenses_Click"/>
+
+
+                <!-- إضافة مصروف -->
+                <Button Content="إضافة مصروف"
+                        Width="140"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="AddExpense_Click"/>
+
+            </StackPanel>
+        </Grid>
+
+        <!-- ===== جدول المصروفات ===== -->
+        <Border Grid.Row="1"
+                Margin="0,20,0,0"
+                Style="{StaticResource CardStyle}">
+
+            <DataGrid ItemsSource="{Binding Expenses}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      HeadersVisibility="Column"
+                      RowHeight="44"
+                      IsReadOnly="True">
+
+                <DataGrid.Columns>
+
+                    <DataGridTextColumn Header="المبلغ"
+                                        Binding="{Binding Amount}"
+                                        Width="120"/>
+
+                    <DataGridTextColumn Header="الوصف"
+                                        Binding="{Binding Description}"
+                                        Width="*"/>
+
+                    <DataGridTextColumn Header="تاريخ الإنشاء"
+                                        Binding="{Binding CreatedAt, StringFormat=yyyy-MM-dd}"
+                                        Width="150"/>
+
+                    <DataGridTextColumn Header="اسم المحاسب"
+                                        Binding="{Binding AccountantName}"
+                                        Width="200"/>
+
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </Border>
+    </Grid>
+</Page>
