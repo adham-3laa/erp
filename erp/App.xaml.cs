@@ -27,7 +27,7 @@ namespace erp
             Api = new ApiClient(Http);
 
             // Services
-            Categories = new CategoryService(Api);
+            Categories = new CategoryService();
             //Accountants = new AccountantService(Http);
             Auth = new AuthService(Api, Session);
 
