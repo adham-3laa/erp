@@ -1,9 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using EduGate.Models;
 using EduGate.Services;
+using erp.Services;
+using erp.Services.Category;
 using erp.ViewModels.InventoryModels;
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Input;
 
 public class AddProductViewModel
 {
@@ -13,6 +16,9 @@ public class AddProductViewModel
     public int Quantity { get; set; }
     public string SKU { get; set; }
     public string Description { get; set; }
+
+    public static ApiClient Api { get; private set; } = null!;
+
 
     public string SupplierId { get; set; }
     public string CategoryId { get; set; }
@@ -62,9 +68,18 @@ public class AddProductViewModel
 
     private async void LoadCategories()
     {
-        var service = new CategoryService();
-        var data = await service.GetAllCategoriesAsync();
+        var service = new CategoryService(Api);
+        var data = await service.GetAllAsync();
+
+        Categories.Clear();
         foreach (var c in data)
-            Categories.Add(c);
+        {
+            Categories.Add(new Category
+            {
+                Id = c.Id,
+                Name = c.Name,
+            });
+        }
     }
+
 }

@@ -26,7 +26,7 @@ namespace erp.Views.Expenses
 
         private void BackToList_Click(object sender, RoutedEventArgs e)
         {
-            var mainWindow = Application.Current.MainWindow as EduGate.MainWindow;
+            var mainWindow = Application.Current.MainWindow as erp.MainWindow;
 
             // رجوع لصفحة قائمة المصروفات
             mainWindow?.MainFrame.Navigate(new ExpensesListPage());

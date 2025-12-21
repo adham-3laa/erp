@@ -103,8 +103,7 @@
                                  SelectionChanged="NavListBox_SelectionChanged"
                                  Style="{StaticResource NavListStyle}"
                                  ItemContainerStyle="{StaticResource NavItemStyle}"
-                                 Margin="8,0,8,0"
-                                 SelectionChanged="NavListBox_SelectionChanged_Inventory">
+                                 Margin="8,0,8,0">
 
                             <ListBoxItem Tag="Users" Content="👤 المستخدمين"/>
                             <ListBoxItem Tag="Inventory" Content="📦 المخزون"/>

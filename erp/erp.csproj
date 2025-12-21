@@ -17,8 +17,4 @@
 		<PackageReference Include="Refit" Version="9.0.2" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Compile Include="Converters\**\*.cs" />
-	</ItemGroup>
-
 </Project>

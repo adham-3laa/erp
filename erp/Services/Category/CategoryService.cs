@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using erp.DTOs;
 
-namespace erp.Services;
+namespace erp.Services.Category;
 
 public sealed class CategoryService
 {

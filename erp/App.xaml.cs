@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Windows;
+using erp.Services.Category;
 
 using erp.Services;
 
@@ -27,7 +28,7 @@ namespace erp
             Api = new ApiClient(Http);
 
             // Services
-            Categories = new CategoryService();
+            Categories = new CategoryService(Api);
             //Accountants = new AccountantService(Http);
             Auth = new AuthService(Api, Session);
 

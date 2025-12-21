@@ -20,7 +20,7 @@ namespace EduGate.Views.Inventory
 
         private void ShowProducts_Click(object sender, RoutedEventArgs e)
         {
-            (Application.Current.MainWindow as MainWindow)?.MainFrame.Navigate(new InventoryPage());
+            (Application.Current.MainWindow as erp.MainWindow)?.MainFrame.Navigate(new InventoryPage());
         }
     }
 }

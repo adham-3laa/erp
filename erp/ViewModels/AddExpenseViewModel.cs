@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 using erp.DTOS.ExpensesDTOS;
 using erp.Services;
 
@@ -24,7 +25,10 @@ namespace erp.ViewModels
             _expenseService = new ExpenseService();
 
 
-            SaveCommand = new RelayCommand(async _ => await SaveExpense(), _ => !IsBusy);
+            SaveCommand = new RelayCommand(
+                async () => await SaveExpense(),
+                () => !IsBusy
+            );
         }
 
         #region Properties
@@ -63,7 +67,7 @@ namespace erp.ViewModels
 
         #region Commands
 
-        public ICommand SaveCommand { get; }
+        public RelayCommand SaveCommand { get; }
 
         #endregion
 

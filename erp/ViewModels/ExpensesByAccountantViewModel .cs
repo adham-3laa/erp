@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 using erp.DTOS;
 using erp.DTOS.ExpensesDTOS;
 using erp.Services;
@@ -30,16 +31,16 @@ namespace erp.ViewModels
             set { _errorMessage = value; OnPropertyChanged(); }
         }
 
-        public ICommand LoadExpensesCommand { get; }
+        public RelayCommand LoadExpensesCommand { get; }
 
         public ExpensesByAccountantViewModel()
         {
             _expenseService = new ExpenseService();
 
-            LoadExpensesCommand = new RelayCommand(async _ =>
-            {
-                await LoadExpenses();
-            });
+            LoadExpensesCommand = new RelayCommand(
+     async () => await LoadExpenses()
+            );
+
 
             // تحميل تلقائي
             _ = LoadExpenses();

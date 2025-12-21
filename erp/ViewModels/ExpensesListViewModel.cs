@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 using erp.DTOS;
 using erp.DTOS.ExpensesDTOS;
 using erp.Services;
@@ -48,12 +49,12 @@ namespace erp.ViewModels
             _expenseService = new ExpenseService();
 
             LoadMyExpensesCommand =
-                new RelayCommand(async _ => await LoadMyExpenses());
+                new RelayCommand(async () => await LoadMyExpenses());
 
             LoadExpensesByAccountantCommand =
-                new RelayCommand(async _ => await LoadExpensesByAccountant());
+                new RelayCommand(async () => await LoadExpensesByAccountant());
 
-            AddExpenseCommand = new RelayCommand(_ =>
+            AddExpenseCommand = new RelayCommand(() =>
             {
                 var frame = System.Windows.Application.Current.MainWindow
                     .FindName("MainFrame") as System.Windows.Controls.Frame;

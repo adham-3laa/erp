@@ -1,9 +1,9 @@
-﻿using erp.ViewModels.InventoryModels;
+﻿//using erp.ViewModels.InventoryModels;
 
-public class CategoryService
-{
-    public async Task<List<Category>> GetAllCategoriesAsync()
-    {
-        return new List<Category>();
-    }
-}
+//public class CategoryService
+//{
+//    public async Task<List<Category>> GetAllCategoriesAsync()
+//    {
+//        return new List<Category>();
+//    }
+//}

@@ -1,4 +1,5 @@
-﻿using erp.DTOS.InvoicesDTOS;
+﻿using CommunityToolkit.Mvvm.Input;
+using erp.DTOS.InvoicesDTOS;
 using erp.Services;
 using System;
 using System.Collections.ObjectModel;
@@ -136,9 +137,10 @@ namespace erp.ViewModels.Invoices
 
         // ================= Commands =================
 
-        public ICommand LoadInvoicesCommand { get; }
-        public ICommand NextPageCommand { get; }
-        public ICommand PreviousPageCommand { get; }
+        public RelayCommand LoadInvoicesCommand { get; }
+        public RelayCommand NextPageCommand { get; }
+        public RelayCommand PreviousPageCommand { get; }
+
 
         // ================= Logic =================
 
@@ -187,8 +189,8 @@ namespace erp.ViewModels.Invoices
 
         private void RaisePagingCommands()
         {
-            (NextPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            (PreviousPageCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            NextPageCommand.NotifyCanExecuteChanged();
+            PreviousPageCommand.NotifyCanExecuteChanged();
         }
 
         // ================= INotify =================

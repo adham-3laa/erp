@@ -1,7 +1,6 @@
-﻿using erp.Commands;
+﻿using erp.Services.Category;
+using CommunityToolkit.Mvvm.Input;
 using erp.DTOs;
-using erp.ViewModels;
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,10 +9,23 @@ namespace erp.ViewModels.CategoryView;
 
 public sealed class CategoryEditViewModel : BaseViewModel
 {
+    private readonly CategoryService _categoryService;
+
     private CancellationTokenSource? _cts;
 
+    public CategoryEditViewModel(CategoryService categoryService)
+    {
+        _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+        SaveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
+    }
+
+    // ================== Properties ==================
     private string _id = "";
-    public string Id { get => _id; set => Set(ref _id, value); }
+    public string Id
+    {
+        get => _id;
+        set => SetProperty(ref _id, value);
+    }
 
     private string _name = "";
     public string Name
@@ -21,16 +33,24 @@ public sealed class CategoryEditViewModel : BaseViewModel
         get => _name;
         set
         {
-            if (Set(ref _name, value))
-                SaveCommand.RaiseCanExecuteChanged();
+            if (SetProperty(ref _name, value))
+                SaveCommand.NotifyCanExecuteChanged();
         }
     }
 
     private string? _description;
-    public string? Description { get => _description; set => Set(ref _description, value); }
+    public string? Description
+    {
+        get => _description;
+        set => SetProperty(ref _description, value);
+    }
 
     private bool _isEdit;
-    public bool IsEdit { get => _isEdit; private set => Set(ref _isEdit, value); }
+    public bool IsEdit
+    {
+        get => _isEdit;
+        private set => SetProperty(ref _isEdit, value);
+    }
 
     private bool _isBusy;
     public bool IsBusy
@@ -38,21 +58,22 @@ public sealed class CategoryEditViewModel : BaseViewModel
         get => _isBusy;
         private set
         {
-            if (Set(ref _isBusy, value))
-                SaveCommand.RaiseCanExecuteChanged();
+            if (SetProperty(ref _isBusy, value))
+                SaveCommand.NotifyCanExecuteChanged();
         }
     }
 
     private string? _error;
-    public string? Error { get => _error; private set => Set(ref _error, value); }
-
-    public AsyncRelayCommand SaveCommand { get; }
-
-    public CategoryEditViewModel()
+    public string? Error
     {
-        SaveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
+        get => _error;
+        private set => SetProperty(ref _error, value);
     }
 
+    // ================== Commands ==================
+    public AsyncRelayCommand SaveCommand { get; }
+
+    // ================== Methods ==================
     public void LoadForCreate()
     {
         IsEdit = false;
@@ -64,6 +85,7 @@ public sealed class CategoryEditViewModel : BaseViewModel
 
     public void LoadForEdit(CategoryDto dto)
     {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
         IsEdit = true;
         Id = dto.Id;
         Name = dto.Name;
@@ -71,8 +93,7 @@ public sealed class CategoryEditViewModel : BaseViewModel
         Error = null;
     }
 
-    private bool CanSave()
-        => !IsBusy && !string.IsNullOrWhiteSpace(Name);
+    private bool CanSave() => !IsBusy && !string.IsNullOrWhiteSpace(Name);
 
     private async Task SaveAsync()
     {
@@ -86,7 +107,7 @@ public sealed class CategoryEditViewModel : BaseViewModel
 
             if (!IsEdit)
             {
-                var created = await App.Categories.CreateAsync(
+                var created = await _categoryService.CreateAsync(
                     new CreateCategoryRequest { Name = Name.Trim(), Description = Description },
                     _cts.Token);
 
@@ -94,7 +115,7 @@ public sealed class CategoryEditViewModel : BaseViewModel
             }
             else
             {
-                var updated = await App.Categories.UpdateAsync(
+                var updated = await _categoryService.UpdateAsync(
                     new UpdateCategoryRequest { Id = Id, Name = Name.Trim(), Description = Description },
                     _cts.Token);
 
