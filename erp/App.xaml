@@ -7,8 +7,8 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
 
+            <ResourceDictionary.MergedDictionaries>
                 <!-- Material Design -->
                 <materialDesign:BundledTheme BaseTheme="Light"
                                              PrimaryColor="Blue"
@@ -16,11 +16,10 @@
 
                 <!-- ✅ Your Theme (فيه PrimaryBrush/CardBrush/DarkButtonStyle...) -->
                 <ResourceDictionary Source="Themes/ModernTheme.xaml"/>
-
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
-            <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <local:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
 
         </ResourceDictionary>

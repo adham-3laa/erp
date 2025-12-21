@@ -1,0 +1,89 @@
+﻿<Page x:Class="EduGate.Views.Inventory.EditProductPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource PageBgBrush}">
+
+    <Grid Margin="20">
+
+        <Border Style="{StaticResource GlowGradientFrame}"
+                HorizontalAlignment="Center"
+                Width="560">
+
+            <Border Style="{StaticResource InnerCardContainer}">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Title -->
+                    <TextBlock Text="تعديل المنتج"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryBrush}"
+                               Margin="0,0,0,14"/>
+
+                    <!-- اسم المنتج -->
+                    <StackPanel Grid.Row="1" Margin="0,8,0,0">
+                        <TextBlock Text="اسم المنتج"/>
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding Name}"/>
+                    </StackPanel>
+
+                    <!-- سعر البيع -->
+                    <StackPanel Grid.Row="2" Margin="0,10,0,0">
+                        <TextBlock Text="سعر البيع"/>
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding SalePrice}"/>
+                    </StackPanel>
+
+                    <!-- سعر الشراء -->
+                    <StackPanel Grid.Row="3" Margin="0,10,0,0">
+                        <TextBlock Text="سعر الشراء"/>
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding BuyPrice}"/>
+                    </StackPanel>
+
+                    <!-- الكمية -->
+                    <StackPanel Grid.Row="4" Margin="0,10,0,0">
+                        <TextBlock Text="الكمية"/>
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding Quantity}"/>
+                    </StackPanel>
+
+                    <!-- الوصف -->
+                    <StackPanel Grid.Row="5" Margin="0,10,0,0">
+                        <TextBlock Text="الوصف"/>
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding Description}"
+                                 Height="80"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"/>
+                    </StackPanel>
+
+                    <!-- Actions -->
+                    <StackPanel Grid.Row="6"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,16,0,0">
+
+                        <Button Content="حفظ التعديلات"
+                                Style="{StaticResource DarkButtonStyle}"
+                                Width="140"
+                                Click="Save_Click"/>
+
+                        
+                    </StackPanel>
+
+                </Grid>
+
+            </Border>
+        </Border>
+    </Grid>
+</Page>

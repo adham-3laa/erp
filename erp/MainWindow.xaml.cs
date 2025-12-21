@@ -2,6 +2,9 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using EduGate.Views.Accountants;
+using EduGate.Views.Inventory;
+using EduGate.Views.Orders;
+//using EduGate.Views.Orders;
 
 namespace EduGate
 {
@@ -39,9 +42,14 @@ namespace EduGate
                     MainFrame.Navigate(new AllAccountantsPage());
                     break;
 
-                case 2: break; // المخزون
+                case 2:
+                    MainFrame.Navigate(new InventoryPage()); 
+                    break; // المخزون
                 case 3: break; // الفواتير
-                case 4: break; // الطلبات
+                case 4:
+                    //OrdersTopBarControl.Visibility = Visibility.Visible;
+                    MainFrame.Navigate(new ApprovedOrdersPage());
+                    break; // الطلبات
                 case 5: break; // المصروفات
                 case 6: break; // الأصناف
                 case 7: break; // الموردين
@@ -72,6 +80,20 @@ namespace EduGate
             }
 
             try { DragMove(); } catch { }
+        }
+
+        // INVENTORY SECTION 
+        private void NavListBox_SelectionChanged_Inventory(object sender, SelectionChangedEventArgs e)
+        {
+            if (NavListBox.SelectedItem is not ListBoxItem item)
+                return;
+
+            switch (item.Content.ToString())
+            {
+                case "📦 المخزون":
+                    MainFrame.Navigate(new InventoryPage());
+                    break;
+            }
         }
     }
 }
