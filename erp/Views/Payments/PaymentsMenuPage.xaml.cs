@@ -28,16 +28,13 @@ namespace erp.Views.Payments
 
         private void CustomersPayments_Click(object sender, RoutedEventArgs e)
         {
-            ((MainWindow)Application.Current.MainWindow)
-                .MainFrame
-                .Navigate(new PaymentsFromCustomersPage());
+            this.NavigationService?.Navigate(new PaymentsFromCustomersPage());
         }
 
         private void SuppliersPayments_Click(object sender, RoutedEventArgs e)
         {
-            ((MainWindow)Application.Current.MainWindow)
-                .MainFrame
-                .Navigate(new Views.Payments.PaySupplierPage());
+            this.NavigationService?.Navigate(new PaySupplierPage());
         }
+
     }
 }
