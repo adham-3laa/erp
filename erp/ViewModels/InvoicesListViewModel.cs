@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace erp.ViewModels.Invoices
 {
@@ -30,60 +29,67 @@ namespace erp.ViewModels.Invoices
 
         // ================= Filters =================
 
+        // 🔍 بحث عام
         private string _search;
         public string Search
         {
             get => _search;
-            set
-            {
-                _search = value;
-                OnPropertyChanged();
-            }
+            set { _search = value; OnPropertyChanged(); }
         }
 
+        // 🧾 نوع الفاتورة
         private string _invoiceType;
         public string InvoiceType
         {
             get => _invoiceType;
-            set
-            {
-                _invoiceType = value;
-                OnPropertyChanged();
-            }
+            set { _invoiceType = value; OnPropertyChanged(); }
         }
 
-        private string _query;
-        public string Query
+        // 🆔 رقم الطلب
+        private string _orderId;
+        public string OrderId
         {
-            get => _query;
-            set
-            {
-                _query = value;
-                OnPropertyChanged();
-            }
+            get => _orderId;
+            set { _orderId = value; OnPropertyChanged(); }
         }
 
+        // 👤 رقم أو اسم المستلم
+        private string _recipientQuery;
+        public string RecipientQuery
+        {
+            get => _recipientQuery;
+            set { _recipientQuery = value; OnPropertyChanged(); }
+        }
+
+        // 📅 من تاريخ
         private DateTime? _fromDate;
         public DateTime? FromDate
         {
             get => _fromDate;
-            set
-            {
-                _fromDate = value;
-                OnPropertyChanged();
-            }
+            set { _fromDate = value; OnPropertyChanged(); }
         }
 
+        // 📅 إلى تاريخ
         private DateTime? _toDate;
         public DateTime? ToDate
         {
             get => _toDate;
-            set
-            {
-                _toDate = value;
-                OnPropertyChanged();
-            }
+            set { _toDate = value; OnPropertyChanged(); }
         }
+
+        // 🧾 آخر فاتورة (نعم / لا)
+        private string _isLastInvoice;
+        public string IsLastInvoice
+        {
+            get => _isLastInvoice;
+            set { _isLastInvoice = value; OnPropertyChanged(); }
+        }
+
+        // تحويل القيمة العربية إلى bool? علشان الـ API
+        private bool? IsLastInvoiceBool =>
+            IsLastInvoice == "نعم" ? true :
+            IsLastInvoice == "لا" ? false :
+            (bool?)null;
 
         // ================= Paging =================
 
@@ -103,11 +109,7 @@ namespace erp.ViewModels.Invoices
         public int PageSize
         {
             get => _pageSize;
-            set
-            {
-                _pageSize = value;
-                OnPropertyChanged();
-            }
+            set { _pageSize = value; OnPropertyChanged(); }
         }
 
         private bool _hasNextPage = true;
@@ -128,11 +130,7 @@ namespace erp.ViewModels.Invoices
         public bool IsLoading
         {
             get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
+            set { _isLoading = value; OnPropertyChanged(); }
         }
 
         // ================= Commands =================
@@ -140,7 +138,6 @@ namespace erp.ViewModels.Invoices
         public RelayCommand LoadInvoicesCommand { get; }
         public RelayCommand NextPageCommand { get; }
         public RelayCommand PreviousPageCommand { get; }
-
 
         // ================= Logic =================
 
@@ -152,18 +149,21 @@ namespace erp.ViewModels.Invoices
                 Invoices.Clear();
 
                 var data = await _invoiceService.GetInvoices(
-                    Search,
-                    InvoiceType,
-                    Query,
-                    FromDate,
-                    ToDate,
-                    Page,
-                    PageSize);
+                    search: Search,
+                    invoiceType: InvoiceType,
+                    query: RecipientQuery,     // رقم أو اسم المستلم
+                    orderId: OrderId,          // رقم الطلب
+                    lastInvoice: IsLastInvoiceBool,
+                    fromDate: FromDate,
+                    toDate: ToDate,
+                    page: Page,
+                    pageSize: PageSize
+                );
 
                 foreach (var invoice in data)
                     Invoices.Add(invoice);
 
-                // لو عدد النتائج أقل من PageSize → مفيش صفحة بعدها
+                // لو أقل من PageSize يبقى مفيش صفحة بعدها
                 HasNextPage = data.Count == PageSize;
             }
             finally

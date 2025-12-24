@@ -1,0 +1,31 @@
+﻿<Page x:Class="erp.Views.Payments.PaymentsMenuPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      FlowDirection="RightToLeft"
+      Background="{StaticResource PageBgBrush}">
+
+    <Grid Margin="24">
+        <Border Style="{StaticResource CardStyle}" Padding="24">
+            <StackPanel>
+
+                <TextBlock Text="المدفوعات"
+                           FontSize="26"
+                           FontWeight="Bold"
+                           Margin="0,0,0,24"/>
+
+                <!-- مدفوعات العميل ومندوب المبيعات -->
+                <Button Content="مدفوعات العميل و مندوب المبيعات"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Margin="0,0,0,16"
+                        Click="CustomersPayments_Click"/>
+                
+
+                <!-- الدفع للمورد -->
+                <Button Content="الدفع للمورد"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="SuppliersPayments_Click"/>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

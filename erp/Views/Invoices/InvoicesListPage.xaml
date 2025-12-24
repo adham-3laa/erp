@@ -1,27 +1,31 @@
 ﻿<Page x:Class="erp.Views.Invoices.InvoicesListPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      FlowDirection="RightToLeft"
       Background="{StaticResource PageBgBrush}">
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
-            <!-- Title -->
             <RowDefinition Height="Auto"/>
-
-            <!-- Filters -->
             <RowDefinition Height="Auto"/>
-
-            <!-- Table -->
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ================= Page Title ================= -->
-        <TextBlock Grid.Row="0"
-                   Text="إدارة الفواتير"
-                   FontSize="26"
-                   FontWeight="Bold"
-                   Foreground="{StaticResource TextDarkBrush}"
-                   Margin="0,0,0,20"/>
+        <!-- ================= Header ================= -->
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,0,20">
+
+            <TextBlock Text="إدارة الفواتير" 
+                       FontSize="26"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource TextDarkBrush}"
+                       VerticalAlignment="Center"
+                       DockPanel.Dock="Left"/>
+
+
+        </StackPanel>
 
         <!-- ================= Filters ================= -->
         <Border Grid.Row="1"
@@ -30,8 +34,8 @@
 
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
@@ -40,13 +44,10 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Search -->
+                <!-- 🔍 بحث عام -->
                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
-                    <TextBlock Text="بحث عام"
-                               FontSize="12"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="2,0,0,6"/>
-
+                    <TextBlock Text="بحث عام" Padding="0,0,0,5"
+                               Foreground="{StaticResource TextMutedBrush}"/>
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
                             <TextBox Style="{StaticResource GlowTextBox}"
@@ -55,105 +56,117 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Invoice Type -->
+                <!-- 🧾 نوع الفاتورة -->
                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,12">
-                    <TextBlock Text="نوع الفاتورة"
-                               FontSize="12"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="2,0,0,6"/>
-
+                    <TextBlock Text="نوع الفاتورة" Padding="0,0,0,5"
+                               Foreground="{StaticResource TextMutedBrush}"/>
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
-                            <ComboBox Background="Transparent"
-                                      BorderThickness="0"
-                                      SelectedItem="{Binding InvoiceType}">
-                                <ComboBoxItem Content="CustomerInvoice"/>
-                                <ComboBoxItem Content="SalesRepInvoice"/>
+                            <ComboBox SelectedItem="{Binding InvoiceType}">
+                                <ComboBoxItem Content="فواتير العملاء"/>
+                                <ComboBoxItem Content="فواتير العمولات"/>
+                                <ComboBoxItem Content="فواتير الموردين"/>
+                                <ComboBoxItem Content="فواتير المرتجعات"/>
                             </ComboBox>
                         </Border>
                     </Border>
                 </StackPanel>
 
-                <!-- Query -->
+                <!-- 🆔 رقم الطلب -->
                 <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
-                    <TextBlock Text="رقم الطلب / اسم المستلم"
-                               FontSize="12"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="2,0,0,6"/>
-
+                    <TextBlock Text="رقم الطلب" Padding="0,0,0,5"
+                               Foreground="{StaticResource TextMutedBrush}"/>
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
                             <TextBox Style="{StaticResource GlowTextBox}"
-                                     Text="{Binding Query}"/>
+                                     Text="{Binding OrderId}"/>
                         </Border>
                     </Border>
                 </StackPanel>
 
-                <!-- From Date -->
+                <!-- 👤 رقم / اسم المستلم -->
                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,0">
-                    <TextBlock Text="من تاريخ"
-                               FontSize="12"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="2,0,0,6"/>
-
+                    <TextBlock Text="رقم أو اسم المستلم" Padding="0,0,0,5"
+                               Foreground="{StaticResource TextMutedBrush}"/>
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
-                            <DatePicker Background="Transparent"
-                                        BorderThickness="0"
-                                        SelectedDate="{Binding FromDate}"/>
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding RecipientQuery}"/>
                         </Border>
                     </Border>
                 </StackPanel>
 
-                <!-- To Date -->
+                <!-- 📅 من تاريخ -->
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,12,0">
-                    <TextBlock Text="إلى تاريخ"
-                               FontSize="12"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="2,0,0,6"/>
-
+                    <TextBlock Text="من تاريخ" Padding="0,0,0,5"
+                               Foreground="{StaticResource TextMutedBrush}"/>
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
-                            <DatePicker Background="Transparent"
-                                        BorderThickness="0"
-                                        SelectedDate="{Binding ToDate}"/>
+                            <DatePicker SelectedDate="{Binding FromDate}"/>
                         </Border>
                     </Border>
                 </StackPanel>
 
-                <!-- Search Button -->
+                <!-- 📅 إلى تاريخ + آخر فاتورة -->
                 <StackPanel Grid.Row="1" Grid.Column="2">
-                    <TextBlock Text=" " Margin="0,0,0,6"/>
-                    <Button Content="بحث"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Command="{Binding LoadInvoicesCommand}"/>
+                    <TextBlock Text="إلى تاريخ" Padding="0,0,0,5"
+                               Foreground="{StaticResource TextMutedBrush}"/>
+                    <Border Style="{StaticResource GlowInputFrame}" Margin="0,0,0,8">
+                        <Border Style="{StaticResource GlowInputInner}">
+                            <DatePicker SelectedDate="{Binding ToDate}"/>
+                        </Border>
+                    </Border>
+
+                    <TextBlock Text="آخر فاتورة" Padding="0,0,0,5"
+                               Foreground="{StaticResource TextMutedBrush}"/>
+                    <Border Style="{StaticResource GlowInputFrame}">
+                        <Border Style="{StaticResource GlowInputInner}">
+                            <ComboBox SelectedItem="{Binding IsLastInvoice}">
+                                <ComboBoxItem Content=""/>
+                                <ComboBoxItem Content="نعم"/>
+                                <ComboBoxItem Content="لا"/>
+                            </ComboBox>
+                        </Border>
+                    </Border>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ================= Invoices Table ================= -->
+        <!-- 🔎 زر البحث -->
+        <Button Grid.Row="1"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,24"
+                Content="بحث"
+                Width="120"
+                Style="{StaticResource DarkButtonStyle}"
+                Command="{Binding LoadInvoicesCommand}"/>
+
+        <!-- ================= Table ================= -->
         <Border Grid.Row="2" Style="{StaticResource CardStyle}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- DataGrid -->
                 <DataGrid Grid.Row="0"
                           ItemsSource="{Binding Invoices}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
                           ColumnWidth="*"
-                          MouseDoubleClick="InvoicesGrid_DoubleClick">
+                          Style="{StaticResource ProDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource ProDataGridHeaderStyle}"
+                          RowStyle="{StaticResource ProDataGridRowStyle}"
+                          CellStyle="{StaticResource ProDataGridCellStyle}">
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="النوع" Binding="{Binding Type}" />
-                        <DataGridTextColumn Header="المستلم" Binding="{Binding RecipientName}" />
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding Amount}" />
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount}" />
-                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount}" />
-                        <DataGridTextColumn Header="التاريخ" Binding="{Binding GeneratedDate}" />
+                        <DataGridTextColumn Header="النوع" Binding="{Binding Type}"/>
+                        <DataGridTextColumn Header="المستلم" Binding="{Binding RecipientName}"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding Amount}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount}"/>
+                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount}"/>
+                        <DataGridTextColumn Header="التاريخ" Binding="{Binding GeneratedDate}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
@@ -161,25 +174,19 @@
                 <StackPanel Grid.Row="1"
                             Orientation="Horizontal"
                             HorizontalAlignment="Center"
-                            Margin="0,16,0,0">
+                            Margin="0,12,0,0">
 
-                    <Button Content="⟨ Previous"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Margin="6,0"
-                            Command="{Binding PreviousPageCommand}"/>
+                    <Button Content="السابق"
+                            Command="{Binding PreviousPageCommand}"
+                            Style="{StaticResource DarkButtonStyle}"/>
 
-                    <Border Padding="14,6"
-                            CornerRadius="10"
-                            Background="{StaticResource PageBgBrush}"
-                            Margin="6,0">
-                        <TextBlock Text="{Binding Page}"
-                                   FontWeight="SemiBold"/>
-                    </Border>
+                    <TextBlock Text="{Binding Page}"
+                               Margin="16,0"
+                               VerticalAlignment="Center"/>
 
-                    <Button Content="Next ⟩"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Margin="6,0"
-                            Command="{Binding NextPageCommand}"/>
+                    <Button Content="التالي"
+                            Command="{Binding NextPageCommand}"
+                            Style="{StaticResource DarkButtonStyle}"/>
                 </StackPanel>
             </Grid>
         </Border>
