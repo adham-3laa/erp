@@ -21,15 +21,15 @@ public sealed class AuthService
     // POST /api/Auth/login
     // =========================
     public async Task<(HttpStatusCode StatusCode, LoginResponse? Result)> LoginAsync(
-        LoginRequest req, CancellationToken ct = default)
+      LoginRequest req, CancellationToken ct = default)
     {
         var (status, result) =
-            await _api.PostWithStatusAsync<LoginResponse>("api/Auth/login", req, ct);
+            await _api.PostWithStatusAsync<LoginResponse>("/api/Auth/login", req, ct);
 
-        // حفظ التوكن لو login كامل
         if (status == HttpStatusCode.OK &&
             result?.Success == true &&
-            !string.IsNullOrWhiteSpace(result.Auth?.Token))
+            result.Auth is not null &&
+            !string.IsNullOrWhiteSpace(result.Auth.Token))
         {
             _session.AccessToken = result.Auth.Token;
             _session.RefreshToken = result.Auth.RefreshToken;
@@ -39,26 +39,23 @@ public sealed class AuthService
         return (status, result);
     }
 
-    // =========================
-    // POST /api/Auth/logout
-    // =========================
     public async Task<ApiResultResponse?> LogoutAsync(CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(_session.AccessToken))
-        {
             return new ApiResultResponse(true, "Already logged out.");
-        }
 
         var authedHttp = ApiClient.CreateHttpClient(_session.AccessToken);
         var authedApi = new ApiClient(authedHttp);
 
         var (status, res) =
-            await authedApi.PostWithStatusAsync<ApiResultResponse>(
-                "api/Auth/logout", new { }, ct);
+            await authedApi.PostWithStatusAsync<ApiResultResponse>("/api/Auth/logout", new { }, ct);
 
         if (status == HttpStatusCode.OK && res?.Success == true)
             _session.Clear();
 
         return res;
     }
+
+
 }
+

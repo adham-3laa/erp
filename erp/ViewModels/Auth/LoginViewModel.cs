@@ -1,10 +1,11 @@
-﻿using System;
+﻿using erp.Commands;
+using erp.DTOS.Auth.Requests;
+using erp.Services;
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using erp.Commands;
-using erp.DTOS.Auth.Requests;
-using erp.Services;
+using System.Windows;
 
 namespace erp.ViewModels.Auth;
 
@@ -81,6 +82,17 @@ public sealed class LoginViewModel : BaseViewModel
             var (status, result) = await _auth.LoginAsync(
                 new LoginRequest(Email.Trim(), Password),
                 _cts.Token);
+            //test
+            var tokenPreview = string.IsNullOrWhiteSpace(result?.Auth?.Token)
+           ? "NULL ❌"
+           : result.Auth.Token[..Math.Min(15, result.Auth.Token.Length)] + " ✅";
+
+            MessageBox.Show(
+                $"Status Code: {(int)status}\n" +
+                $"Success: {result?.Success}\n" +
+                $"Token Preview: {tokenPreview}",
+                "Swagger ↔ API ↔ WPF Test"
+            );
 
             // التحقق من نجاح تسجيل الدخول
             if (status == HttpStatusCode.OK && result?.Success == true && !string.IsNullOrWhiteSpace(result.Auth?.Token))
