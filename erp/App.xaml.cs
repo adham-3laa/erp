@@ -1,8 +1,8 @@
 using System.Net.Http;
 using System.Windows;
-using erp.Services.Category;
-
 using erp.Services;
+using erp.Services.Category;
+using erp.Views.Auth;
 
 namespace erp
 {
@@ -11,7 +11,6 @@ namespace erp
         public static HttpClient Http { get; private set; } = null!;
         public static ApiClient Api { get; private set; } = null!;
         public static CategoryService Categories { get; private set; } = null!;
-        //public static AccountantService Accountants { get; private set; } = null!;
 
         // Auth
         public static IAuthSession Session { get; private set; } = null!;
@@ -29,12 +28,11 @@ namespace erp
 
             // Services
             Categories = new CategoryService(Api);
-            //Accountants = new AccountantService(Http);
             Auth = new AuthService(Api, Session);
 
-            // Show main window
-            var mainWindow = new MainWindow();
-            mainWindow.Show();
+            // Show login window first
+            var loginWindow = new LoginWindow();
+            loginWindow.Show();
         }
     }
 }

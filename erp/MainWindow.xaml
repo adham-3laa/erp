@@ -36,7 +36,8 @@
         </Style>
     </Window.Resources>
 
-    <Grid Background="Transparent">
+    <Grid x:Name="RootGrid"
+          Background="Transparent">
         <!-- Outer rounded shell -->
         <Border CornerRadius="26"
                 Background="#F5F6FA"
@@ -49,7 +50,8 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- ===== Sidebar ===== -->
-                <Border Grid.Column="0"
+                <Border x:Name="Sidebar"
+                        Grid.Column="0"
                         CornerRadius="26,0,0,26"
                         Background="{StaticResource SidebarGradient}"
                         MouseLeftButtonDown="Sidebar_MouseLeftButtonDown">

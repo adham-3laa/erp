@@ -30,7 +30,7 @@ namespace EduGate.Views.Inventory
             NavigationService?.Navigate(new AddNewItem());
         }
 
-        // جلب كل المنتجات وعرضها في DataGrid مع Pagination
+        // ================== تحميل المنتجات ==================
         private async void LoadProducts()
         {
             try
@@ -40,13 +40,19 @@ namespace EduGate.Views.Inventory
                 LoadProductsPage();
                 ErrorTextBlock.Visibility = Visibility.Collapsed;
             }
-            catch (System.Exception ex)
+            catch
             {
-                ErrorTextBlock.Text = "حدث خطأ أثناء جلب المنتجات: " + ex.Message;
+                // ✅ داتا وهمية مؤقتة للتجربة
+                _products = GetDummyProducts();
+                _currentPage = 1;
+                LoadProductsPage();
+
+                ErrorTextBlock.Text = "⚠️ تم تحميل بيانات تجريبية (API غير متصل)";
                 ErrorTextBlock.Visibility = Visibility.Visible;
             }
         }
 
+        // ================== Pagination ==================
         private void LoadProductsPage()
         {
             if (_products == null) return;
@@ -67,11 +73,17 @@ namespace EduGate.Views.Inventory
             LoadProducts();
         }
 
+        // ================== Delete ==================
         private async void DeleteProduct_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.DataContext is Product product)
             {
-                var result = MessageBox.Show($"هل تريد حذف المنتج {product.Name}؟", "تأكيد الحذف", MessageBoxButton.YesNo);
+                var result = MessageBox.Show(
+                    $"هل تريد حذف المنتج {product.Name}؟",
+                    "تأكيد الحذف",
+                    MessageBoxButton.YesNo
+                );
+
                 if (result == MessageBoxResult.Yes)
                 {
                     bool success = await _inventoryService.DeleteProductAsync(product.ProductId);
@@ -83,6 +95,7 @@ namespace EduGate.Views.Inventory
             }
         }
 
+        // ================== Edit ==================
         private void EditProduct_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.DataContext is Product product)
@@ -91,6 +104,7 @@ namespace EduGate.Views.Inventory
             }
         }
 
+        // ================== Search ==================
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_products == null) return;
@@ -104,9 +118,11 @@ namespace EduGate.Views.Inventory
             else
             {
                 var filtered = _products
-                    .Where(p => p.ProductId.ToString().Contains(search) ||
-                                (p.Name != null && p.Name.Contains(search)) ||
-                                (p.Supplier != null && p.Supplier.Contains(search)))
+                    .Where(p =>
+                        p.ProductId.ToString().Contains(search) ||
+                        (p.Name != null && p.Name.Contains(search)) ||
+                        (p.Supplier != null && p.Supplier.Contains(search))
+                    )
                     .ToList();
 
                 ProductsDataGrid.ItemsSource = filtered;
@@ -114,7 +130,7 @@ namespace EduGate.Views.Inventory
             }
         }
 
-        // Pagination Buttons
+        // ================== Pagination Buttons ==================
         private void FirstPage_Click(object sender, RoutedEventArgs e)
         {
             _currentPage = 1;
@@ -143,6 +159,41 @@ namespace EduGate.Views.Inventory
         {
             _currentPage = _totalPages;
             LoadProductsPage();
+        }
+
+        // ================== Dummy Data ==================
+        private List<Product> GetDummyProducts()
+        {
+            return new List<Product>
+            {
+                new Product
+                {
+                    ProductId = 1,
+                    Name = "لاب توب Dell",
+                    Quantity = 15,
+                    SalePrice = 18000,
+                    BuyPrice = 15000,
+                    Supplier = "شركة النور"
+                },
+                new Product
+                {
+                    ProductId = 2,
+                    Name = "ماوس Logitech",
+                    Quantity = 50,
+                    SalePrice = 450,
+                    BuyPrice = 300,
+                    Supplier = "Tech Store"
+                },
+                new Product
+                {
+                    ProductId = 3,
+                    Name = "كيبورد ميكانيكال",
+                    Quantity = 30,
+                    SalePrice = 1200,
+                    BuyPrice = 850,
+                    Supplier = "Gear Hub"
+                }
+            };
         }
     }
 }

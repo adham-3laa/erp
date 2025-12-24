@@ -20,7 +20,7 @@ namespace erp
             erp.Services.NavigationService.Initialize(MainFrame);
 
             // افتح صفحة المستخدمين عند بدء التشغيل
-            NavigateToUsersPage();
+            MainFrame.Content = null;
         }
 
         // ====== Navigation Methods ======
