@@ -1,0 +1,89 @@
+﻿<Page x:Class="erp.Views.Payments.PaySupplierPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:vm="clr-namespace:erp.ViewModels"
+      FlowDirection="RightToLeft"
+      Background="{StaticResource PageBgBrush}">
+
+    <Page.DataContext>
+        <vm:PaySupplierViewModel/>
+    </Page.DataContext>
+
+    <Grid Margin="24">
+        <Border Style="{StaticResource CardStyle}">
+            <StackPanel>
+
+                <!-- ================= Title ================= -->
+                <TextBlock Text="الدفع للمورد"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           Margin="0,0,0,24"/>
+
+                <!-- Supplier Invoice ID -->
+                <TextBlock Text="رقم فاتورة المورد" Padding="0,0,0,10"
+                           Foreground="{StaticResource TextMutedBrush}"/>
+                <Border Style="{StaticResource GlowInputFrame}">
+                    <Border Style="{StaticResource GlowInputInner}">
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding SupplierInvoiceId}"/>
+                    </Border>
+                </Border>
+
+                <!-- Paid Amount -->
+                <TextBlock Text="المبلغ المدفوع" Padding="0,0,0,10"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           Margin="0,16,0,0"/>
+                <Border Style="{StaticResource GlowInputFrame}">
+                    <Border Style="{StaticResource GlowInputInner}">
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding PaidAmount}"/>
+                    </Border>
+                </Border>
+
+                <!-- Button -->
+                <Button Content="تنفيذ الدفع"
+                        Margin="0,24,0,24"
+                        Height="44"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Command="{Binding PayCommand}"/>
+
+                <!-- ================= Result ================= -->
+                <Border Style="{StaticResource CardStyle}" Padding="16">
+                    <StackPanel>
+
+                        <TextBlock Text="تفاصيل الفاتورة"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   Margin="0,0,0,12"/>
+
+                        <TextBlock Text="{Binding Result.Supplier}"/>
+
+                        <Separator Margin="0,12,0,12"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="قيمة الفاتورة: " FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Result.Amount}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="إجمالي المدفوع: " FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Result.PaidAmount}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="المتبقي: " FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Result.RemainingAmount}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="اسم المورد: " FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Result.Supplier}"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

@@ -108,6 +108,7 @@
                             <ListBoxItem Tag="Users" Content="👤 المستخدمين"/>
                             <ListBoxItem Tag="Inventory" Content="📦 المخزون"/>
                             <ListBoxItem Tag="Invoices" Content="🧾 الفواتير"/>
+                            <ListBoxItem Tag="Payments" Content="💳 المدفوعات"/>
                             <ListBoxItem Tag="Orders" Content="🛒 الطلبات"/>
                             <ListBoxItem Tag="Expenses" Content="💰 المصروفات"/>
                             <ListBoxItem Tag="Items" Content="🏷️ الأصناف"/>

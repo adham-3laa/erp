@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using erp.DTOS.InvoicesDTOS;
 using erp.ViewModels.Invoices;
+using erp.Views.Expenses;
 
 namespace erp.Views.Invoices
 {
@@ -35,6 +36,7 @@ namespace erp.Views.Invoices
                 NavigationService.Navigate(new InvoiceDetailsPage(invoice));
             }
         }
+
 
     }
 }
