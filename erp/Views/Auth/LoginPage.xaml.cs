@@ -1,20 +1,38 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using erp.ViewModels.Auth;
 
 namespace erp.Views.Auth;
 
 public partial class LoginPage : Page
 {
-    public LoginPage()
+    private readonly Window _parentWindow;
+
+    public LoginPage(Window parentWindow)
     {
         InitializeComponent();
-        DataContext = new LoginViewModel(App.Auth);
+        _parentWindow = parentWindow;
+
+        // ربط الـ ViewModel مع Action عند نجاح تسجيل الدخول
+        DataContext = new LoginViewModel(App.Auth, OnLoginSuccess);
     }
 
-    private void Login_Click(object sender, System.Windows.RoutedEventArgs e)
+    private void Login_Click(object sender, RoutedEventArgs e)
     {
-        // PasswordBox مش بيعمل Binding مباشر
         if (DataContext is LoginViewModel vm)
+        {
             vm.Password = Pwd.Password;
+
+            if (vm.LoginCommand.CanExecute(null))
+                vm.LoginCommand.Execute(null);
+        }
+    }
+
+    private void OnLoginSuccess()
+    {
+        // فتح MainWindow وإغلاق LoginWindow
+        var mainWindow = new MainWindow();
+        mainWindow.Show();
+        _parentWindow.Close();
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using erp.DTOs;
+using erp.DTOS.Auth.Requests;
+using erp.DTOS.Auth.Responses;
 
 namespace erp.Services;
 
@@ -19,21 +20,18 @@ public sealed class AuthService
     // =========================
     // POST /api/Auth/login
     // =========================
-    public async Task<(HttpStatusCode StatusCode, LoginResult? Result)> LoginAsync(
+    public async Task<(HttpStatusCode StatusCode, LoginResponse? Result)> LoginAsync(
         LoginRequest req, CancellationToken ct = default)
     {
         var (status, result) =
-            await _api.PostWithStatusAsync<LoginResult>("api/Auth/login", req, ct);
+            await _api.PostWithStatusAsync<LoginResponse>("api/Auth/login", req, ct);
 
-        // ✅ نعتبر Login ناجح فقط لو:
-        // 1) HTTP 200
-        // 2) Success = true
-        // 3) Token موجود
+        // حفظ التوكن لو login كامل
         if (status == HttpStatusCode.OK &&
             result?.Success == true &&
             !string.IsNullOrWhiteSpace(result.Auth?.Token))
         {
-            _session.AccessToken = result.Auth!.Token;
+            _session.AccessToken = result.Auth.Token;
             _session.RefreshToken = result.Auth.RefreshToken;
             _session.TokenExpiry = result.Auth.TokenExpiry;
         }
@@ -44,24 +42,18 @@ public sealed class AuthService
     // =========================
     // POST /api/Auth/logout
     // =========================
-    public async Task<ApiResponse<string>?> LogoutAsync(CancellationToken ct = default)
+    public async Task<ApiResultResponse?> LogoutAsync(CancellationToken ct = default)
     {
-        // لو مفيش Token → Already logged out
         if (string.IsNullOrWhiteSpace(_session.AccessToken))
         {
-            return new ApiResponse<string>
-            {
-                Success = true,
-                Message = "Already logged out."
-            };
+            return new ApiResultResponse(true, "Already logged out.");
         }
 
-        // ApiClient جديد بهيدر Authorization
         var authedHttp = ApiClient.CreateHttpClient(_session.AccessToken);
         var authedApi = new ApiClient(authedHttp);
 
         var (status, res) =
-            await authedApi.PostWithStatusAsync<ApiResponse<string>>(
+            await authedApi.PostWithStatusAsync<ApiResultResponse>(
                 "api/Auth/logout", new { }, ct);
 
         if (status == HttpStatusCode.OK && res?.Success == true)

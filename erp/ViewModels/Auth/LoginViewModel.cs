@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using erp.Commands;
-using erp.DTOs;
+using erp.DTOS.Auth.Requests;
 using erp.Services;
 
 namespace erp.ViewModels.Auth;
@@ -11,14 +11,14 @@ namespace erp.ViewModels.Auth;
 public sealed class LoginViewModel : BaseViewModel
 {
     private readonly AuthService _auth;
+    private readonly Action _onLoginSuccess;
     private CancellationTokenSource? _cts;
 
-    public LoginViewModel(AuthService auth)
+    public LoginViewModel(AuthService auth, Action onLoginSuccess)
     {
         _auth = auth;
-
+        _onLoginSuccess = onLoginSuccess;
         LoginCommand = new AsyncRelayCommand(LoginAsync, CanLogin);
-        LogoutCommand = new AsyncRelayCommand(LogoutAsync, () => !IsBusy);
     }
 
     private string _email = "";
@@ -50,18 +50,18 @@ public sealed class LoginViewModel : BaseViewModel
         private set
         {
             if (Set(ref _isBusy, value))
-            {
                 LoginCommand.RaiseCanExecuteChanged();
-                LogoutCommand.RaiseCanExecuteChanged();
-            }
         }
     }
 
     private string? _message;
-    public string? Message { get => _message; private set => Set(ref _message, value); }
+    public string? Message
+    {
+        get => _message;
+        private set => Set(ref _message, value);
+    }
 
     public AsyncRelayCommand LoginCommand { get; }
-    public AsyncRelayCommand LogoutCommand { get; }
 
     private bool CanLogin() =>
         !IsBusy &&
@@ -72,7 +72,6 @@ public sealed class LoginViewModel : BaseViewModel
     {
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
-
         Message = null;
 
         try
@@ -80,31 +79,29 @@ public sealed class LoginViewModel : BaseViewModel
             IsBusy = true;
 
             var (status, result) = await _auth.LoginAsync(
-                new LoginRequest { Email = Email.Trim(), Password = Password },
+                new LoginRequest(Email.Trim(), Password),
                 _cts.Token);
 
-            // ✅ نجاح فعلي (200 + token)
-            if (status == HttpStatusCode.OK &&
-                result?.Success == true &&
-                !string.IsNullOrWhiteSpace(result.Auth?.Token))
+            // التحقق من نجاح تسجيل الدخول
+            if (status == HttpStatusCode.OK && result?.Success == true && !string.IsNullOrWhiteSpace(result.Auth?.Token))
             {
-                Message = "✅ Login Successful";
+                _onLoginSuccess.Invoke();
                 return;
             }
 
-            // ✅ 202 (OTP/Confirm) - انت مش هتدعمه دلوقتي
-            if (status == HttpStatusCode.Accepted)
+            // لو success = false أو أي خطأ في البيانات
+            if (result != null && result.Success == false)
             {
-                Message = $"⚠ {result?.Message ?? "Login needs OTP/confirmation."} (Not supported الآن)";
+                Message = $"❌ {result.Message ?? "البريد الإلكتروني أو كلمة المرور خاطئة"}";
                 return;
             }
 
-            // باقي الحالات
-            Message = $"❌ {result?.Message ?? "Login failed."} ({result?.ErrorCode ?? "N/A"})";
+            // أي حالة ثانية
+            Message = "❌ فشل تسجيل الدخول. تحقق من بياناتك";
         }
         catch (Exception ex)
         {
-            Message = ex.Message;
+            Message = $"❌ حدث خطأ: {ex.Message}";
         }
         finally
         {
@@ -112,21 +109,4 @@ public sealed class LoginViewModel : BaseViewModel
         }
     }
 
-    private async Task LogoutAsync()
-    {
-        try
-        {
-            IsBusy = true;
-            var res = await _auth.LogoutAsync();
-            Message = res?.Message ?? "Logged out.";
-        }
-        catch (Exception ex)
-        {
-            Message = ex.Message;
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
 }
