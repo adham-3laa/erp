@@ -1,0 +1,219 @@
+﻿<Page x:Class="erp.Views.Dashboard.DashboardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:vm="clr-namespace:erp.ViewModels.Dashboard"
+      Background="{StaticResource PageBgBrush}"
+      FlowDirection="RightToLeft">
+
+    <Page.DataContext>
+        <vm:DashboardViewModel/>
+    </Page.DataContext>
+
+    <Page.Resources>
+
+        <DropShadowEffect x:Key="PrimaryGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="22"
+                          ShadowDepth="0"
+                          Opacity="0.55"/>
+
+        <DropShadowEffect x:Key="PrimaryShadow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="14"
+                          ShadowDepth="2"
+                          Opacity="0.28"/>
+
+        <Style x:Key="NeonCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryShadow}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Effect" Value="{StaticResource PrimaryGlow}"/>
+                    <Setter Property="BorderThickness" Value="1.6"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- TextBlock style for centering text inside columns -->
+        <Style x:Key="CenterCellTextStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Style to center column headers -->
+        <Style x:Key="CenterHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        </Style>
+
+        <!-- DataGrid cell centering -->
+        <Style x:Key="CenterCellStyle" TargetType="DataGridCell">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,3"/>
+        </Style>
+
+        <!-- Small refresh button -->
+        <Style x:Key="SmallIconButton" TargetType="Button" BasedOn="{StaticResource DarkButtonStyle}">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+    </Page.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Centered Header -->
+        <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="2"
+                    Content="↻"
+                    ToolTip="Refresh"
+                    Command="{Binding RefreshCommand}"
+                    Style="{StaticResource SmallIconButton}"
+                    HorizontalAlignment="Right"/>
+
+            <TextBlock Grid.Column="1"
+                       Text="لوحة التحكم"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource PrimaryBrush}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+            <Border Grid.Column="0" Width="36" Height="32" Opacity="0"/>
+        </Grid>
+
+        <!-- Dashboard Cards -->
+        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,12">
+
+            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="إجمالي مبيعات اليوم" Opacity="0.75"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalSalesToday}" FontSize="20" FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryBrush}"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="إجمالي ربح اليوم" Opacity="0.75"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalProfitToday}" FontSize="20" FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryBrush}"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="عدد الطلبات المعلّقة" Opacity="0.75"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding PendingOrdersCount}" FontSize="20" FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryBrush}"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="الطلبات المعتمدة اليوم" Opacity="0.75"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding ApprovedOrdersCountToday}" FontSize="20" FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryBrush}"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+        </UniformGrid>
+
+        <!-- Low Stock Table Section -->
+        <Border Grid.Row="2" Style="{StaticResource NeonCardStyle}" Padding="14">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Centered Low Stock Header -->
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="1"
+                               Text="المنتجات منخفضة المخزون"
+                               FontSize="17"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding LowStockCount, StringFormat=عدد العناصر: {0}}"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Opacity="0.8"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- DataGrid with centered headers and centered cells -->
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding LowStockProducts}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          ColumnHeaderStyle="{StaticResource CenterHeaderStyle}"
+                          CellStyle="{StaticResource CenterCellStyle}"
+                          GridLinesVisibility="All"
+                          CanUserAddRows="False">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="المنتج"
+                                            Binding="{Binding ProductName}"
+                                            ElementStyle="{StaticResource CenterCellTextStyle}"
+                                            Width="*"/>
+
+                        <DataGridTextColumn Header="كود الصنف (SKU)"
+                                            Binding="{Binding Sku}"
+                                            ElementStyle="{StaticResource CenterCellTextStyle}"
+                                            Width="*"/>
+
+                        <DataGridTextColumn Header="الكمية الحالية"
+                                            Binding="{Binding CurrentQuantity}"
+                                            ElementStyle="{StaticResource CenterCellTextStyle}"
+                                            Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+</Page>

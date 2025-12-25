@@ -12,6 +12,8 @@ namespace erp
         public static ApiClient Api { get; private set; } = null!;
         public static CategoryService Categories { get; private set; } = null!;
 
+        public static DashboardService Dashboard { get; private set; } = null!;
+
         // Auth
         public static IAuthSession Session { get; private set; } = null!;
         public static AuthService Auth { get; private set; } = null!;
@@ -27,6 +29,9 @@ namespace erp
 
             Categories = new CategoryService(Api);
             Auth = new AuthService(Api, Session);
+
+            // ✅ يعتمد على ApiClient عشان Bearer Token
+            Dashboard = new DashboardService(Api);
 
             var loginWindow = new LoginWindow();
             loginWindow.Show();
