@@ -14,34 +14,52 @@ public sealed class CategoryService
     public CategoryService(ApiClient api)
         => _api = api ?? throw new ArgumentNullException(nameof(api));
 
-    // GET /api/Categories/GetAllCategories
-    public Task<List<CategoryDto>> GetAllAsync(CancellationToken ct = default)
-        => _api.GetAsync<List<CategoryDto>>("/api/Categories/GetAllCategories", ct);
+    // GET /api/Categories/GetAllCategories  => { ..., "value": [ ... ] }
+    public async Task<List<CategoryDto>> GetAllAsync(CancellationToken ct = default)
+    {
+        var res = await _api.GetAsync<ApiListResponse<List<CategoryDto>>>(
+            "/api/Categories/GetAllCategories", ct);
 
-    // GET /api/Categories/GetCategoryById?id=...
-    public Task<CategoryDto> GetByIdAsync(string id, CancellationToken ct = default)
+        return res.Value ?? new List<CategoryDto>();
+    }
+
+    // GET /api/Categories/GetCategoryById?id=...  (نتوقع يرجّع Category داخل value أو object مشابه)
+    public async Task<CategoryDto?> GetByIdAsync(string id, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(id))
             throw new ArgumentException("Category id is required.", nameof(id));
 
-        return _api.GetAsync<CategoryDto>(
+        // في أغلب APIs عندكم بيرجع Wrapper، لو طلع شكل مختلف هظبطه فورًا
+        var res = await _api.GetAsync<ApiListResponse<CategoryDto>>(
             $"/api/Categories/GetCategoryById?id={Uri.EscapeDataString(id)}", ct);
+
+        return res.Value;
     }
 
-    // POST /api/Categories/CreateCategory
-    public Task<CategoryDto> CreateAsync(CreateCategoryRequest req, CancellationToken ct = default)
+    // POST /api/Categories/CreateCategory  => { ..., "categoryid": "..." }
+    public async Task<string> CreateAsync(CreateCategoryRequest req, CancellationToken ct = default)
     {
         if (req is null) throw new ArgumentNullException(nameof(req));
 
-        return _api.PostAsync<CategoryDto>("/api/Categories/CreateCategory", req, ct);
+        var res = await _api.PostAsync<CreateCategoryApiResponse>(
+            "/api/Categories/CreateCategory", req, ct);
+
+        if (string.IsNullOrWhiteSpace(res.CategoryId))
+            throw new InvalidOperationException(res.Message ?? "CreateCategory returned empty categoryid.");
+
+        return res.CategoryId;
     }
 
     // PUT /api/Categories/UpdateCategory
-    public Task<CategoryDto> UpdateAsync(UpdateCategoryRequest req, CancellationToken ct = default)
+    // (مبدئيًا نخليه يرجع CategoryDto? بنفس Wrapper، لو endpoint بتاع Update بيرجع شكل تاني ابعته واظبطه)
+    public async Task<CategoryDto?> UpdateAsync(UpdateCategoryRequest req, CancellationToken ct = default)
     {
         if (req is null) throw new ArgumentNullException(nameof(req));
 
-        return _api.PutAsync<CategoryDto>("/api/Categories/UpdateCategory", req, ct);
+        var res = await _api.PutAsync<ApiListResponse<CategoryDto>>(
+            "/api/Categories/UpdateCategory", req, ct);
+
+        return res.Value;
     }
 
     // DELETE /api/Categories/DeleteCategory?id=...

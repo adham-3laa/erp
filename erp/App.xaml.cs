@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Windows;
 using erp.Services;
 using erp.Services.Category;
@@ -20,17 +20,14 @@ namespace erp
         {
             base.OnStartup(e);
 
-            // Initialize session + clients
             Session = new AuthSession();
 
-            Http = ApiClient.CreateHttpClient(Session.AccessToken);
-            Api = new ApiClient(Http);
+            Http = ApiClient.CreateHttpClient("http://be-positive.runasp.net/");
+            Api = new ApiClient(Http, Session);
 
-            // Services
             Categories = new CategoryService(Api);
             Auth = new AuthService(Api, Session);
 
-            // Show login window first
             var loginWindow = new LoginWindow();
             loginWindow.Show();
         }

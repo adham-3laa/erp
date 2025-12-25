@@ -10,8 +10,12 @@ namespace erp.ViewModels.CategoryView;
 public sealed class CategoryEditViewModel : BaseViewModel
 {
     private readonly CategoryService _categoryService;
-
     private CancellationTokenSource? _cts;
+
+    // ✅ Parameterless ctor عشان XAML يقدر ينشئ الـ VM
+    public CategoryEditViewModel() : this(App.Categories)
+    {
+    }
 
     public CategoryEditViewModel(CategoryService categoryService)
     {
@@ -85,7 +89,8 @@ public sealed class CategoryEditViewModel : BaseViewModel
 
     public void LoadForEdit(CategoryDto dto)
     {
-        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        if (dto is null) throw new ArgumentNullException(nameof(dto));
+
         IsEdit = true;
         Id = dto.Id;
         Name = dto.Name;
@@ -107,19 +112,58 @@ public sealed class CategoryEditViewModel : BaseViewModel
 
             if (!IsEdit)
             {
-                var created = await _categoryService.CreateAsync(
-                    new CreateCategoryRequest { Name = Name.Trim(), Description = Description },
+                // ✅ Create بيرجع categoryId فقط
+                var newId = await _categoryService.CreateAsync(
+                    new CreateCategoryRequest
+                    {
+                        Name = Name.Trim(),
+                        Description = Description
+                    },
                     _cts.Token);
 
-                LoadForEdit(created);
+                // ✅ هات الداتا كاملة عشان صفحة التعديل ما تبقاش فاضية
+                var dto = await _categoryService.GetByIdAsync(newId, _cts.Token);
+
+                if (dto is null)
+                {
+                    // Fallback لو GetById رجع null
+                    LoadForEdit(new CategoryDto
+                    {
+                        Id = newId,
+                        Name = Name.Trim(),
+                        Description = Description
+                    });
+                }
+                else
+                {
+                    LoadForEdit(dto);
+                }
             }
             else
             {
                 var updated = await _categoryService.UpdateAsync(
-                    new UpdateCategoryRequest { Id = Id, Name = Name.Trim(), Description = Description },
+                    new UpdateCategoryRequest
+                    {
+                        Id = Id,
+                        Name = Name.Trim(),
+                        Description = Description
+                    },
                     _cts.Token);
 
-                LoadForEdit(updated);
+                // بعض APIs ممكن ترجع null.. فنعمل fallback على البيانات الحالية
+                if (updated is null)
+                {
+                    LoadForEdit(new CategoryDto
+                    {
+                        Id = Id,
+                        Name = Name.Trim(),
+                        Description = Description
+                    });
+                }
+                else
+                {
+                    LoadForEdit(updated);
+                }
             }
         }
         catch (OperationCanceledException) { }

@@ -1,16 +1,17 @@
-﻿using erp.ViewModels;
-using erp.Commands;
+﻿using erp.Commands;
 using erp.DTOs;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using erp.Services.Category;
 
 namespace erp.ViewModels.CategoryView;
 
 public sealed class CategoryListViewModel : BaseViewModel
 {
+    private readonly CategoryService _categoryService;
     private CancellationTokenSource? _cts;
 
     public ObservableCollection<CategoryDto> Items { get; } = new();
@@ -50,8 +51,15 @@ public sealed class CategoryListViewModel : BaseViewModel
     public AsyncRelayCommand RefreshCommand { get; }
     public AsyncRelayCommand DeleteSelectedCommand { get; }
 
-    public CategoryListViewModel()
+    // ✅ NEW: parameterless ctor عشان XAML يقدر ينشئ الـ VM
+    public CategoryListViewModel() : this(App.Categories)
     {
+    }
+
+    public CategoryListViewModel(CategoryService categoryService)
+    {
+        _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+
         RefreshCommand = new AsyncRelayCommand(RefreshAsync, () => !IsBusy);
         DeleteSelectedCommand = new AsyncRelayCommand(DeleteSelectedAsync, () => !IsBusy && Selected != null);
     }
@@ -66,7 +74,7 @@ public sealed class CategoryListViewModel : BaseViewModel
             IsBusy = true;
             Error = null;
 
-            var list = await App.Categories.GetAllAsync(_cts.Token);
+            var list = await _categoryService.GetAllAsync(_cts.Token);
             Items.Clear();
             foreach (var c in list)
                 Items.Add(c);
@@ -102,7 +110,7 @@ public sealed class CategoryListViewModel : BaseViewModel
             IsBusy = true;
             Error = null;
 
-            await App.Categories.DeleteAsync(Selected.Id, _cts.Token);
+            await _categoryService.DeleteAsync(Selected.Id, _cts.Token);
 
             Items.Remove(Selected);
             Selected = null;
