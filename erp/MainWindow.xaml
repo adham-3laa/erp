@@ -10,8 +10,7 @@
         AllowsTransparency="True"
         WindowStyle="None">
 
-
-	<Window.Resources>
+    <Window.Resources>
         <!-- إضافة Style بسيط للأزرار -->
         <Style x:Key="SimpleButton" TargetType="Button">
             <Setter Property="Background" Value="#1E1B4B"/>
@@ -25,9 +24,9 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
+                        <Border Background="{TemplateBinding Background}"
                                 CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" 
+                            <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -107,6 +106,9 @@
                                  ItemContainerStyle="{StaticResource NavItemStyle}"
                                  Margin="8,0,8,0">
 
+                            <!-- ✅ NEW -->
+                            <ListBoxItem Tag="Dashboard" Content="📊 الداشبورد"/>
+
                             <ListBoxItem Tag="Users" Content="👤 المستخدمين"/>
                             <ListBoxItem Tag="Inventory" Content="📦 المخزون"/>
                             <ListBoxItem Tag="Invoices" Content="🧾 الفواتير"/>
@@ -118,36 +120,6 @@
                             <ListBoxItem Tag="Auth" Content="🔐 المصادقة"/>
 
                         </ListBox>
-
-                        <!-- User Profile Button --><!--
-                        <Button Grid.Row="3"
-                                x:Name="CurrentUserButton"
-                                Content="👤 حسابي"
-                                Foreground="White"
-                                FontSize="14"
-                                FontWeight="SemiBold"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Margin="20,0,20,10"
-                                Padding="12"
-                                Cursor="Hand"
-                                Click="CurrentUserButton_Click">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Bd"
-                                            CornerRadius="12"
-                                            Background="Transparent">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Bd" Property="Background" Value="#20FFFFFF"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>-->
 
                         <!-- Window Controls -->
                         <StackPanel Grid.Row="3"

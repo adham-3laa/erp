@@ -4,6 +4,7 @@ using erp.Views.Expenses;
 using erp.Views.Invoices;
 using erp.Views.Payments;
 using erp.Views.Users;
+using erp.Views.Dashboard;     // ✅ NEW
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,11 +20,17 @@ namespace erp
             // تهيئة NavigationService
             erp.Services.NavigationService.Initialize(MainFrame);
 
-            // افتح صفحة المستخدمين عند بدء التشغيل
-            MainFrame.Content = null;
+            // ✅ افتح Dashboard أول ما البرنامج يبدأ (اختياري)
+            NavigateToDashboard();
         }
 
         // ====== Navigation Methods ======
+
+        public void NavigateToDashboard()
+        {
+            MainFrame.Navigate(new DashboardPage());
+            SelectNavItem("Dashboard");
+        }
 
         public void NavigateToUsersPage()
         {
@@ -49,6 +56,10 @@ namespace erp
 
             switch (tag)
             {
+                case "Dashboard":
+                    NavigateToDashboard();
+                    break;
+
                 case "Users":
                     NavigateToUsersPage();
                     break;
@@ -87,6 +98,7 @@ namespace erp
         {
             string pageName = tag switch
             {
+                "Dashboard" => "الداشبورد",
                 "Orders" => "الطلبات",
                 "Suppliers" => "الموردين",
                 "Auth" => "المصادقة",
