@@ -6,4 +6,5 @@ public sealed class ApiListResponse<T>
     public string? Message { get; set; }
     public string? TraceId { get; set; }
     public T? Value { get; set; }
+    public List<T> Items { get; set; }
 }

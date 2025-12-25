@@ -7,27 +7,23 @@
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- TopBar -->
             <RowDefinition Height="Auto"/>
-            <!-- Error + Search -->
             <RowDefinition Height="*"/>
-            <!-- DataGrid -->
             <RowDefinition Height="Auto"/>
-            <!-- Pagination -->
         </Grid.RowDefinitions>
 
-        <!-- ✅ TopBar ثابت -->
+        <!-- TopBar -->
         <local:InventoryTopBar x:Name="InventoryTopBarControl" Grid.Row="0"/>
 
-        <!-- رسالة الخطأ + Search bar + Refresh -->
-        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,10">
+        <!-- Error + Search -->
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10">
             <TextBlock x:Name="ErrorTextBlock"
                        Foreground="Red"
                        FontSize="14"
                        Visibility="Collapsed"
                        Margin="0,0,0,10"/>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal">
                 <Border Style="{StaticResource GlowInputFrame}">
                     <Border Style="{StaticResource GlowInputInner}">
                         <Grid>
@@ -48,63 +44,163 @@
                 </Border>
 
                 <Button Content="🔄"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Width="60"
+                        Width="50"
                         Margin="10,0,0,0"
+                        Style="{StaticResource DarkButtonStyle}"
                         Click="RefreshButton_Click"/>
             </StackPanel>
         </StackPanel>
 
-        <!-- جدول المنتجات -->
+        <!-- DataGrid -->
         <Border Grid.Row="2" Style="{StaticResource CardStyle}">
             <DataGrid x:Name="ProductsDataGrid"
                       AutoGenerateColumns="False"
                       CanUserAddRows="False"
                       IsReadOnly="True"
                       HeadersVisibility="Column">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding ProductId}" Width="*"/>
-                    <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*"/>
-                    <DataGridTextColumn Header="سعر البيع" Binding="{Binding SalePrice}" Width="*"/>
-                    <DataGridTextColumn Header="سعر الشراء" Binding="{Binding BuyPrice}" Width="*"/>
-                    <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="*"/>
-                    <DataGridTextColumn Header="الصنف" Binding="{Binding Category}" Width="*"/>
-                    <DataGridTextColumn Header="المورد" Binding="{Binding Supplier}" Width="*"/>
 
-                    <!-- ✏️ تعديل -->
-                    <DataGridTemplateColumn Header="تعديل">
+                <DataGrid.Columns>
+
+                    <!-- ID -->
+                    <DataGridTextColumn Header="ID"
+                                        Binding="{Binding ProductId}"
+                                        Width="*">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.HeaderStyle>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Name -->
+                    <DataGridTextColumn Header="اسم المنتج"
+                                        Binding="{Binding Name}"
+                                        Width="*">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.HeaderStyle>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Price -->
+                    <DataGridTextColumn Header="سعر البيع"
+                                        Binding="{Binding SalePrice}"
+                                        Width="*">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.HeaderStyle>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Category -->
+                    <DataGridTextColumn Header="الصنف"
+                                        Binding="{Binding Category}"
+                                        Width="*">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.HeaderStyle>
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Edit -->
+                    <DataGridTemplateColumn Header="تعديل" Width="50">
+                        <DataGridTemplateColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTemplateColumn.HeaderStyle>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="✏️"
-                                        Width="40"
+                                <Button Content="✏"
+                                        Width="22"
+                                        Height="22"
+                                        Padding="0"
+                                        FontSize="12"
+                                        FontFamily="Segoe UI Emoji"
                                         Style="{StaticResource DarkButtonStyle}"
+                                        HorizontalAlignment="Center"
                                         Click="EditProduct_Click"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <!-- 🗑 حذف -->
-                    <DataGridTemplateColumn Header="حذف">
+                    <!-- Delete -->
+                    <DataGridTemplateColumn Header="حذف" Width="50">
+                        <DataGridTemplateColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTemplateColumn.HeaderStyle>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="🗑"
-                                        Width="40"
+                                        Width="22"
+                                        Height="22"
+                                        Padding="0"
+                                        FontSize="12"
+                                        FontFamily="Segoe UI Emoji"
                                         Style="{StaticResource DarkButtonStyle}"
+                                        HorizontalAlignment="Center"
                                         Click="DeleteProduct_Click"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
 
         <!-- Pagination -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-            <Button Content="&lt;&lt;" Width="60" Click="FirstPage_Click"/>
-            <Button Content="&lt;" Width="60" Margin="5,0" Click="PrevPage_Click"/>
-            <TextBlock x:Name="PageTextBlock" VerticalAlignment="Center" Margin="5,0"/>
-            <Button Content=">" Width="60" Margin="5,0" Click="NextPage_Click"/>
-            <Button Content=">>" Width="60" Click="LastPage_Click"/>
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,10">
+
+            <Button Content="&lt;&lt;"
+                    Width="45"
+                    Click="FirstPage_Click"/>
+
+            <Button Content="&lt;"
+                    Width="45"
+                    Margin="5,0"
+                    Click="PrevPage_Click"/>
+
+            <TextBlock x:Name="PageTextBlock"
+                       VerticalAlignment="Center"
+                       Margin="5,0"/>
+
+            <Button Content="&gt;"
+                    Width="45"
+                    Margin="5,0"
+                    Click="NextPage_Click"/>
+
+            <Button Content="&gt;&gt;"
+                    Width="45"
+                    Click="LastPage_Click"/>
         </StackPanel>
+
     </Grid>
 </Page>

@@ -1,8 +1,12 @@
 ﻿using EduGate.Models;
+using erp;
+using erp.DTOS.Inventory.Responses;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace EduGate.Services
@@ -15,54 +19,56 @@ namespace EduGate.Services
         {
             _client = new HttpClient
             {
-                BaseAddress = new Uri("https://your-api-base-url") // ضع هنا رابط الـ API الصحيح
+                BaseAddress = new Uri("http://be-positive.runasp.net")
             };
         }
 
-        // 1️⃣ جلب كل المنتجات
         public async Task<List<Product>> GetAllProductsAsync()
         {
-            return await _client.GetFromJsonAsync<List<Product>>("/api/Inventory/GetAllproducts");
+            _client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+
+            var response = await _client.GetAsync("/api/Inventory/GetAllproducts?skip=0&take=100");
+            response.EnsureSuccessStatusCode();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<InventoryItemResponse>>>(jsonString, options);
+
+            return apiResponse?.value.Select(p => new Product
+            {
+                ProductId = p.productid,
+                Name = p.productname,
+                SalePrice = (int)p.sellprice, // لو انت عايز تخليه int للـ DataGrid
+                Category = p.categoryid ?? ""
+            }).ToList() ?? new List<Product>();
+
         }
 
-        // 2️⃣ جلب منتج واحد حسب المعرف
-        public async Task<Product> GetProductByIdAsync(int id)
+        public async Task<bool> DeleteProductAsync(string id)
         {
-            return await _client.GetFromJsonAsync<Product>($"/api/Inventory/products?id={id}");
-        }
+            _client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
 
-        // 3️⃣ إنشاء منتج جديد
-        public async Task<bool> CreateProductAsync(Product product)
-        {
-            var response = await _client.PostAsJsonAsync("/api/Inventory/products", product);
-            return response.IsSuccessStatusCode;
-        }
-
-        // 4️⃣ تحديث منتج موجود
-        public async Task<bool> UpdateProductAsync(Product product)
-        {
-            var response = await _client.PutAsJsonAsync("/api/Inventory/products", product);
-            return response.IsSuccessStatusCode;
-        }
-
-        // 5️⃣ حذف منتج حسب المعرف
-        public async Task<bool> DeleteProductAsync(int id)
-        {
             var response = await _client.DeleteAsync($"/api/Inventory/products?id={id}");
             return response.IsSuccessStatusCode;
         }
 
-        // 6️⃣ زيادة كمية المخزون
-        public async Task<bool> UpdateStockInAsync(int productId, int quantityToAdd)
+        public async Task AddProductAsync(object body)
         {
-            var data = new { ProductId = productId, Quantity = quantityToAdd };
-            var response = await _client.PostAsJsonAsync("/api/Inventory/products/stock/in", data);
-            return response.IsSuccessStatusCode;
+            _client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+
+            await _client.PostAsJsonAsync("/api/Inventory/products", body);
         }
 
-        internal async Task AddProductAsync(object value)
+        public async Task UpdateProductAsync(Product product)
         {
-            throw new NotImplementedException();
+
+            _client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+            await _client.PutAsJsonAsync("/api/Inventory/products", product);
         }
     }
 }
