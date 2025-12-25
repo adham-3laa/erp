@@ -8,6 +8,7 @@ namespace erp.Views.Dashboard
         public DashboardPage()
         {
             InitializeComponent();
+
             Loaded += async (_, __) =>
             {
                 if (DataContext is DashboardViewModel vm)

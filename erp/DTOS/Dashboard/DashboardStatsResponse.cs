@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace erp.DTOS.Dashboard
@@ -34,15 +33,15 @@ namespace erp.DTOS.Dashboard
     public sealed class LowStockProductDto
     {
         [JsonPropertyName("productid")]
-        public Guid ProductId { get; set; }
+        public string ProductId { get; set; } = "";
 
         [JsonPropertyName("productname")]
-        public string? ProductName { get; set; }
+        public string ProductName { get; set; } = "";
 
         [JsonPropertyName("currentquantity")]
         public int CurrentQuantity { get; set; }
 
         [JsonPropertyName("sku")]
-        public string? Sku { get; set; }
+        public string Sku { get; set; } = "";
     }
 }

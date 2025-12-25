@@ -1,10 +1,10 @@
-﻿using System;
+﻿using erp.Commands;
+using erp.DTOS.Dashboard;
+using erp.Services;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
-using erp.Commands;
-using erp.DTOS.Dashboard;
-using erp.Services.Dashboard;
 
 namespace erp.ViewModels.Dashboard
 {
@@ -13,6 +13,7 @@ namespace erp.ViewModels.Dashboard
         private readonly DashboardService _dashboardService;
         private CancellationTokenSource? _cts;
 
+        // ✅ ctor فاضي عشان XAML
         public DashboardViewModel() : this(App.Dashboard) { }
 
         public DashboardViewModel(DashboardService dashboardService)
@@ -25,33 +26,24 @@ namespace erp.ViewModels.Dashboard
 
         public ObservableCollection<LowStockProductDto> LowStockProducts { get; } = new();
 
-        private decimal _totalSalesToday;
-        public decimal TotalSalesToday
+        private int _lowStockCount;
+        public int LowStockCount
         {
-            get => _totalSalesToday;
-            set => Set(ref _totalSalesToday, value);
+            get => _lowStockCount;
+            private set => Set(ref _lowStockCount, value);
         }
+
+        private decimal _totalSalesToday;
+        public decimal TotalSalesToday { get => _totalSalesToday; set => Set(ref _totalSalesToday, value); }
 
         private decimal _totalProfitToday;
-        public decimal TotalProfitToday
-        {
-            get => _totalProfitToday;
-            set => Set(ref _totalProfitToday, value);
-        }
+        public decimal TotalProfitToday { get => _totalProfitToday; set => Set(ref _totalProfitToday, value); }
 
         private int _pendingOrdersCount;
-        public int PendingOrdersCount
-        {
-            get => _pendingOrdersCount;
-            set => Set(ref _pendingOrdersCount, value);
-        }
+        public int PendingOrdersCount { get => _pendingOrdersCount; set => Set(ref _pendingOrdersCount, value); }
 
         private int _approvedOrdersCountToday;
-        public int ApprovedOrdersCountToday
-        {
-            get => _approvedOrdersCountToday;
-            set => Set(ref _approvedOrdersCountToday, value);
-        }
+        public int ApprovedOrdersCountToday { get => _approvedOrdersCountToday; set => Set(ref _approvedOrdersCountToday, value); }
 
         private bool _isBusy;
         public bool IsBusy
@@ -65,11 +57,7 @@ namespace erp.ViewModels.Dashboard
         }
 
         private string? _error;
-        public string? Error
-        {
-            get => _error;
-            private set => Set(ref _error, value);
-        }
+        public string? Error { get => _error; private set => Set(ref _error, value); }
 
         public async Task RefreshAsync()
         {
@@ -91,6 +79,8 @@ namespace erp.ViewModels.Dashboard
                 LowStockProducts.Clear();
                 foreach (var p in stats.LowStockProducts)
                     LowStockProducts.Add(p);
+
+                LowStockCount = LowStockProducts.Count;
             }
             catch (Exception ex)
             {

@@ -2,7 +2,6 @@
 using System.Windows;
 using erp.Services;
 using erp.Services.Category;
-using erp.Services.Dashboard;
 using erp.Views.Auth;
 
 namespace erp
@@ -13,7 +12,6 @@ namespace erp
         public static ApiClient Api { get; private set; } = null!;
         public static CategoryService Categories { get; private set; } = null!;
 
-        // ✅ لازم تضيف دي
         public static DashboardService Dashboard { get; private set; } = null!;
 
         // Auth
@@ -32,8 +30,8 @@ namespace erp
             Categories = new CategoryService(Api);
             Auth = new AuthService(Api, Session);
 
-            // ✅ كده هتشتغل
-            Dashboard = new DashboardService(Http);
+            // ✅ يعتمد على ApiClient عشان Bearer Token
+            Dashboard = new DashboardService(Api);
 
             var loginWindow = new LoginWindow();
             loginWindow.Show();
