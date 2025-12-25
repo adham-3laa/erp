@@ -10,9 +10,22 @@ namespace erp.ViewModels
 {
     public class UpdateUserViewModel : BaseViewModel
     {
-        private readonly UserService _userService = new UserService(App.Api);
+        private readonly UserService _userService;
         private readonly string _userId;
         private UserDto _user;
+
+        public UpdateUserViewModel(string userId)
+        {
+            _userId = userId;
+            _userService = App.Users;
+
+            SaveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
+            CancelCommand = new RelayCommand(Cancel);
+
+            LoadUserAsync();
+        }
+
+        // ================= PROPERTIES =================
 
         private string _fullname;
         public string Fullname
@@ -22,6 +35,7 @@ namespace erp.ViewModels
             {
                 SetProperty(ref _fullname, value);
                 OnPropertyChanged(nameof(Initials));
+                ((AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
             }
         }
 
@@ -60,74 +74,66 @@ namespace erp.ViewModels
         public bool IsLoading
         {
             get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
+            set
+            {
+                SetProperty(ref _isLoading, value);
+                ((AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+            }
         }
 
         public string Initials
         {
             get
             {
-                if (string.IsNullOrEmpty(Fullname))
+                if (string.IsNullOrWhiteSpace(Fullname))
                     return "??";
 
-                var parts = Fullname.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length >= 2)
-                    return $"{parts[0][0]}{parts[1][0]}".ToUpper();
-                else if (parts.Length == 1 && parts[0].Length >= 2)
-                    return $"{parts[0][0]}{parts[0][1]}".ToUpper();
-
-                return "??";
+                var parts = Fullname.Split(' ');
+                return parts.Length >= 2
+                    ? $"{parts[0][0]}{parts[1][0]}".ToUpper()
+                    : Fullname.Length >= 2
+                        ? $"{Fullname[0]}{Fullname[1]}".ToUpper()
+                        : "??";
             }
         }
 
-        public ICommand LoadUserCommand { get; }
+        // ================= COMMANDS =================
+
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public UpdateUserViewModel(string userId)
-        {
-            _userId = userId;
+        // ================= LOGIC =================
 
-            LoadUserCommand = new RelayCommand(async () => await LoadUserAsync());
-            SaveCommand = new RelayCommand(async () => await SaveAsync(), CanSave);
-            CancelCommand = new RelayCommand(() => Cancel());
-
-            LoadUserCommand.Execute(null);
-        }
-
-        private async Task LoadUserAsync()
+        private async void LoadUserAsync()
         {
             IsLoading = true;
 
             _user = await _userService.GetUserByIdAsync(_userId);
 
-            if (_user != null)
-            {
-                Fullname = _user.Fullname;
-                SelectedUserType = _user.UserType;
-                IsActive = _user.IsActive;
-                ImagePath = _user.ImagePath;
-            }
-            else
+            if (_user == null)
             {
                 MessageBox.Show("فشل تحميل بيانات المستخدم", "خطأ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 NavigationService.NavigateToUsers();
+                return;
             }
+
+            Fullname = _user.Fullname;
+            SelectedUserType = _user.UserType;
+            IsActive = _user.IsActive;
+            ImagePath = _user.ImagePath;
 
             IsLoading = false;
         }
 
         private bool CanSave()
-        {
-            return !string.IsNullOrWhiteSpace(Fullname) && !IsLoading;
-        }
+            => !string.IsNullOrWhiteSpace(Fullname) && !IsLoading;
 
         private async Task SaveAsync()
         {
             IsLoading = true;
 
-            var updateDto = new UserUpdateDto
+            var dto = new UserUpdateDto
             {
                 Fullname = Fullname,
                 UserType = SelectedUserType,
@@ -135,21 +141,21 @@ namespace erp.ViewModels
                 ImagePath = ImagePath
             };
 
-            var result = await _userService.UpdateUserAsync(_userId, updateDto);
+            var result = await _userService.UpdateUserAsync(_userId, dto);
+
+            IsLoading = false;
 
             if (result != null)
             {
-                MessageBox.Show($"تم تحديث المستخدم {result.Fullname} بنجاح",
+                MessageBox.Show("تم تحديث المستخدم بنجاح",
                     "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
                 NavigationService.NavigateToUsers();
             }
             else
             {
-                MessageBox.Show("فشل تحديث المستخدم. تأكد من البيانات وحاول مرة أخرى",
+                MessageBox.Show("فشل تحديث المستخدم",
                     "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            IsLoading = false;
         }
 
         private void Cancel()

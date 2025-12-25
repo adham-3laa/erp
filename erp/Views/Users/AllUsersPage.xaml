@@ -218,17 +218,18 @@
                                             <!-- Actions -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="16">
                                                 <!-- Status Toggle -->
-                                                <ToggleButton IsChecked="{Binding IsActive}"
-                                                              IsEnabled="{Binding DataContext.IsLoading, 
-                                                              RelativeSource={RelativeSource AncestorType=UserControl}, 
-                                                              Converter={StaticResource InverseBoolConverter}}"
-                                                              Command="{Binding DataContext.ToggleStatusCommand, 
-                                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                              CommandParameter="{Binding Id}"
-                                                              ToolTip="{Binding IsActive, Converter={StaticResource StatusTooltipConverter}}"
-                                                              Width="60"
-                                                              Height="32"
-                                                              Margin="0,0,8,0">
+                                                <ToggleButton
+    IsChecked="{Binding IsActive, Mode=OneWay}"
+    IsEnabled="{Binding DataContext.IsLoading,
+                RelativeSource={RelativeSource AncestorType=UserControl},
+                Converter={StaticResource InverseBoolConverter}}"
+    Command="{Binding DataContext.ToggleStatusCommand,
+              RelativeSource={RelativeSource AncestorType=UserControl}}"
+    CommandParameter="{Binding Id}"
+    ToolTip="{Binding IsActive, Converter={StaticResource StatusTooltipConverter}}"
+    Width="60"
+    Height="32"
+    Margin="0,0,8,0">
                                                     <ToggleButton.Style>
                                                         <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
                                                             <Setter Property="Template">

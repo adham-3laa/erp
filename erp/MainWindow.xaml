@@ -116,6 +116,7 @@
                             <ListBoxItem Tag="Expenses" Content="💰 المصروفات"/>
                             <ListBoxItem Tag="Items" Content="🏷️ الأصناف"/>
                             <ListBoxItem Tag="Suppliers" Content="🚚 الموردين"/>
+                            <ListBoxItem Tag="Reports" Content="📊 التقارير"/>
                             <ListBoxItem Tag="Auth" Content="🔐 المصادقة"/>
 
                         </ListBox>

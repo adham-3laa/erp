@@ -21,16 +21,7 @@ namespace erp.DTOS
     }
 
 
-    public class UserPostDto
-    {
-        public string Fullname { get; set; }
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public string Phonenumber { get; set; }
-        public string Password { get; set; }
-        [JsonPropertyName("usertype")]
-        public string UserType { get; set; }
-    }
+    
 
     public class UserStatusDto
     {

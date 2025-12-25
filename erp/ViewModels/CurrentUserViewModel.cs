@@ -119,51 +119,65 @@ namespace erp.ViewModels
         private void OnEditProfile()
         {
             Debug.WriteLine("[CurrentUser] Edit profile button clicked");
-            MessageBox.Show("صفحة تعديل الملف الشخصي قيد التطوير", "قريباً",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            if (CurrentUser == null || string.IsNullOrEmpty(CurrentUser.Id))
+            {
+                HasError = true;
+                ErrorMessage = "تعذر تحميل بيانات المستخدم";
+                return;
+            }
+
+            // 👈 الانتقال لصفحة تحديث المستخدم
+            NavigationService.NavigateToUpdateUser(CurrentUser.Id);
         }
 
-        private void OnChangePassword()
-        {
-            Debug.WriteLine("[CurrentUser] Change password button clicked");
 
-            try
-            {
-                // التحقق من وجود بيانات المستخدم
-                if (CurrentUser == null || string.IsNullOrEmpty(CurrentUser.Id))
-                {
-                    ErrorMessage = "تعذر تحميل بيانات المستخدم. الرجاء المحاولة مرة أخرى.";
-                    return;
-                }
+        private void OnChangePassword()
+{
+    Debug.WriteLine("[CurrentUser] Change password button clicked");
+
+    try
+    {
+        // التحقق من وجود بيانات المستخدم
+        if (CurrentUser == null || string.IsNullOrEmpty(CurrentUser.Id))
+        {
+            ErrorMessage = "تعذر تحميل بيانات المستخدم. الرجاء المحاولة مرة أخرى.";
+            return;
+        }
 
                 // فتح نافذة تغيير كلمة المرور
-                var changePasswordWindow = new ChangePasswordWindow(CurrentUser.Id)
+                var changePasswordWindow = new ChangePasswordWindow(
+             CurrentUser.Id,
+             App.Session   // 👈 نفس Session المستخدم في ApiClient
+         )
                 {
                     Owner = Application.Current.MainWindow,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 };
 
+                changePasswordWindow.ShowDialog();
+
                 var result = changePasswordWindow.ShowDialog();
 
-                if (result == true)
-                {
-                    // تم تغيير كلمة المرور بنجاح
-                    Debug.WriteLine("[CurrentUser] تم تغيير كلمة المرور بنجاح");
-
-                    // يمكنك إضافة رسالة نجاح هنا إذا أردت
-                    // SuccessMessage = "تم تغيير كلمة المرور بنجاح!";
-                }
-                else if (result == false)
-                {
-                    Debug.WriteLine("[CurrentUser] ألغى المستخدم العملية");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[CurrentUser] خطأ في فتح نافذة تغيير كلمة المرور: {ex.Message}");
-                ErrorMessage = $"حدث خطأ: {ex.Message}";
-            }
+        if (result == true)
+        {
+            // تم تغيير كلمة المرور بنجاح
+            Debug.WriteLine("[CurrentUser] تم تغيير كلمة المرور بنجاح");
+            
+            // يمكنك إضافة رسالة نجاح هنا إذا أردت
+            // SuccessMessage = "تم تغيير كلمة المرور بنجاح!";
         }
+        else if (result == false)
+        {
+            Debug.WriteLine("[CurrentUser] ألغى المستخدم العملية");
+        }
+    }
+    catch (Exception ex)
+    {
+        Debug.WriteLine($"[CurrentUser] خطأ في فتح نافذة تغيير كلمة المرور: {ex.Message}");
+        ErrorMessage = $"حدث خطأ: {ex.Message}";
+    }
+}
         // إضافة خاصية جديدة
         private string _successMessage;
         public string SuccessMessage

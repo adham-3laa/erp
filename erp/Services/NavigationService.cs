@@ -19,9 +19,7 @@ namespace erp.Services
 
         public static void NavigateToCreateUser()
         {
-            // تحتاج لإنشاء CreateUserPage أولاً
-            // _mainFrame?.Navigate(new CreateUserPage());
-            _mainFrame?.Navigate(new AllUsersPage()); // مؤقتاً
+            _mainFrame?.Navigate(new CreateUserPage());
         }
 
         public static void NavigateToUpdateUser(string userId)
@@ -37,9 +35,7 @@ namespace erp.Services
         public static void NavigateBack()
         {
             if (_mainFrame?.CanGoBack == true)
-            {
                 _mainFrame.GoBack();
-            }
         }
     }
 }

@@ -8,14 +8,18 @@ namespace erp
 {
     public partial class App : Application
     {
+
+        public static IAuthSession AuthSession { get; } = new AuthSession();
         public static HttpClient Http { get; private set; } = null!;
         public static ApiClient Api { get; private set; } = null!;
         public static CategoryService Categories { get; private set; } = null!;
+        public static UserService Users { get; private set; } = null!; // ✅ إضافة
+
 
         public static DashboardService Dashboard { get; private set; } = null!;
 
         // Auth
-        public static IAuthSession Session { get; private set; } = null!;
+        public static IAuthSession Session { get; private set; }
         public static AuthService Auth { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
@@ -28,6 +32,7 @@ namespace erp
             Api = new ApiClient(Http, Session);
 
             Categories = new CategoryService(Api);
+            Users = new UserService(Api);              // ✅ تهيئة
             Auth = new AuthService(Api, Session);
 
             // ✅ يعتمد على ApiClient عشان Bearer Token
@@ -36,6 +41,5 @@ namespace erp
             var loginWindow = new LoginWindow();
             loginWindow.Show();
         }
-
     }
 }

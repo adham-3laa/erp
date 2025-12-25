@@ -233,7 +233,8 @@ namespace erp.ViewModels
         private async Task ToggleStatusAsync(string userId)
         {
             var user = Users.FirstOrDefault(u => u.Id == userId);
-            if (user == null) return;
+            if (user == null || IsLoading)
+                return;
 
             var confirm = MessageBox.Show(
                 $"هل تريد تغيير حالة المستخدم ({user.Fullname})؟",
@@ -245,14 +246,35 @@ namespace erp.ViewModels
             if (confirm != MessageBoxResult.Yes)
                 return;
 
-            if (await _userService.ToggleUserStatusAsync(userId))
+            try
             {
-                user.IsActive = !user.IsActive;
-                OnPropertyChanged(nameof(ActiveCount));
+                IsLoading = true;
+
+                var success = await _userService.ToggleUserStatusAsync(userId);
+
+                if (success)
+                {
+                    // التغيير هنا فقط بعد نجاح الـ API
+                    user.IsActive = !user.IsActive;
+                    OnPropertyChanged(nameof(ActiveCount));
+                }
+                else
+                {
+                    MessageBox.Show("فشل تغيير حالة المستخدم");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("فشل تغيير حالة المستخدم");
+                MessageBox.Show(
+                    ex.Message,
+                    "خطأ",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
