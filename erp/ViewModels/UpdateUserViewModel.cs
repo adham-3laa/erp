@@ -10,7 +10,7 @@ namespace erp.ViewModels
 {
     public class UpdateUserViewModel : BaseViewModel
     {
-        private readonly UserService _userService = new();
+        private readonly UserService _userService = new UserService(App.Api);
         private readonly string _userId;
         private UserDto _user;
 

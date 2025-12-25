@@ -6,52 +6,134 @@
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       mc:Ignorable="d"
       d:DesignHeight="600"
-      d:DesignWidth="800">
+      d:DesignWidth="800"
+      Title="المستخدم الحالي">
 
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- أنماط مخصصة للأزرار -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E1B4B"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#0F0E24"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0A091F"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#1E1B4B"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </Page.Resources>
 
     <Grid Background="Transparent">
+
         <!-- Loading Overlay -->
-        <Border Background="#80FFFFFF"
-                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-                Panel.ZIndex="100">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="200" Height="6"/>
+        <Border Background="#80000000"
+                Panel.ZIndex="1000"
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <materialDesign:PackIcon Kind="Loading" 
+                                         Width="48" 
+                                         Height="48" 
+                                         Foreground="White"
+                                         RenderTransformOrigin="0.5,0.5">
+                    <materialDesign:PackIcon.RenderTransform>
+                        <RotateTransform Angle="0"/>
+                    </materialDesign:PackIcon.RenderTransform>
+                    <materialDesign:PackIcon.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation From="0" To="360" 
+                                                   Duration="0:0:1" 
+                                                   RepeatBehavior="Forever"
+                                                   Storyboard.TargetProperty="RenderTransform.Angle"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </materialDesign:PackIcon.Triggers>
+                </materialDesign:PackIcon>
                 <TextBlock Text="جاري تحميل بيانات المستخدم..." 
+                           Foreground="White" 
                            Margin="0,12,0,0"
-                           Foreground="#6B7280"/>
+                           FontSize="14"/>
             </StackPanel>
         </Border>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
+        <!-- Main Content -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                      Padding="16">
             <Grid>
+
                 <!-- Back Button -->
                 <Button Command="{Binding BackCommand}"
-        HorizontalAlignment="Left"
-        VerticalAlignment="Top"
-        Width="40"
-        Height="40"
-        Margin="0,0,0,16"
-        Background="#1E1B4B"
-        Foreground="White"
-        BorderThickness="0"
-        Cursor="Hand"
-        >
-                    <materialDesign:PackIcon Kind="ArrowRight" Width="24" Height="24"/>
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Width="40"
+                        Height="40"
+                        Background="#1E1B4B"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        ToolTip="رجوع"
+                        Margin="8">
+                    <materialDesign:PackIcon Kind="ArrowRight"
+                                             Width="24"
+                                             Height="24"/>
                 </Button>
 
                 <!-- Title -->
-                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,16">
-                    <materialDesign:PackIcon Kind="AccountCircle" 
-                                             Width="32" 
+                <StackPanel HorizontalAlignment="Center"
+                            Margin="0,0,0,16">
+                    <materialDesign:PackIcon Kind="AccountCircle"
+                                             Width="32"
                                              Height="32"
                                              Foreground="#1E1B4B"
                                              HorizontalAlignment="Center"/>
-                    <TextBlock Text="المستخدم الحالي"
+                    <TextBlock Text="الملف الشخصي"
                                FontSize="20"
                                FontWeight="SemiBold"
                                Foreground="#111827"
                                HorizontalAlignment="Center"
                                Margin="0,8,0,0"/>
+                    <TextBlock Text="عرض وتعديل بيانات حسابك"
+                               FontSize="14"
+                               Foreground="#6B7280"
+                               HorizontalAlignment="Center"
+                               Margin="0,4,0,0"/>
                 </StackPanel>
 
                 <!-- User Card -->
@@ -60,131 +142,271 @@
                         BorderThickness="1"
                         BorderBrush="#E8EAF2"
                         Padding="24"
-                        Margin="0,60,0,16">
-                    <Grid FlowDirection="LeftToRight">
+                        Margin="0,60,0,16"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        Width="700">
 
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Avatar -->
-                        <Border Grid.Column="1"
-                                Margin="580,47,40,303"
-                                CornerRadius="50"
-                                Background="#1E1B4B">
+                        <!-- Avatar Section -->
+                        <Border Grid.Row="0" Grid.Column="0"
+                                Grid.RowSpan="2"
+                                Width="120"
+                                Height="120"
+                                CornerRadius="60"
+                                Background="#1E1B4B"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Margin="0,0,24,0">
+                            <!-- الأحرف الأولى (Initials) -->
                             <TextBlock Text="{Binding Initials}"
                                        Foreground="White"
-                                       FontSize="28"
+                                       FontSize="32"
                                        FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
 
-                        <!-- User Info -->
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="{Binding CurrentUser.Fullname}"
-                                       FontSize="20"
+                        <!-- User Basic Info -->
+                        <StackPanel Grid.Row="0" Grid.Column="1"
+                                    Margin="0,0,0,16">
+
+                            <TextBlock Text="{Binding CurrentUser.Fullname, TargetNullValue='الاسم غير محدد'}"
+                                       FontSize="24"
                                        FontWeight="SemiBold"
                                        Foreground="#111827"
                                        Margin="0,0,0,8"/>
 
-                            <WrapPanel Margin="0,0,0,16">
+                            <WrapPanel Margin="0,0,0,12">
+                                <!-- Status Badge -->
                                 <Border Background="{Binding UserStatusColor}"
                                         Padding="8,4"
                                         CornerRadius="8"
-                                        Margin="0,0,12,0">
+                                        Margin="0,0,8,0">
                                     <TextBlock Text="{Binding UserStatusText}"
                                                Foreground="White"
                                                FontWeight="Medium"
                                                FontSize="12"/>
                                 </Border>
 
+                                <!-- User Type Badge -->
                                 <Border Background="#1E1B4B"
                                         Padding="8,4"
-                                        CornerRadius="8">
-                                    <TextBlock Text="{Binding CurrentUser.UserType}"
+                                        CornerRadius="8"
+                                        Margin="0,0,8,0">
+                                    <TextBlock Text="{Binding CurrentUser.UserType, TargetNullValue='نوع غير محدد'}"
                                                Foreground="White"
                                                FontWeight="Medium"
                                                FontSize="12"/>
                                 </Border>
+
+                                <!-- Farms Count Badge -->
+                                <Border Background="#10B981"
+                                        Padding="8,4"
+                                        CornerRadius="8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Farm"
+                                                                 Width="14"
+                                                                 Height="14"
+                                                                 Foreground="White"
+                                                                 Margin="0,0,4,0"/>
+                                        <TextBlock Text="{Binding CurrentUser.FarmsCount, StringFormat='{}{0} مزرعة'}"
+                                                   Foreground="White"
+                                                   FontWeight="Medium"
+                                                   FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
                             </WrapPanel>
-
-                            <!-- Basic Info -->
-                            <StackPanel Margin="0,0,0,16">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="Auto" MinWidth="504"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Username -->
-                                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
-                                        <TextBlock Text="اسم المستخدم" FontSize="12" Foreground="#6B7280"/>
-                                        <TextBlock Text="{Binding CurrentUser.Username}" 
-                                                   FontSize="14" 
-                                                   Foreground="#111827"
-                                                   Margin="0,4,0,0"/>
-                                    </StackPanel>
-
-                                    <!-- Email -->
-                                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
-                                        <TextBlock Text="البريد الإلكتروني" FontSize="12" Foreground="#6B7280"/>
-                                        <TextBlock Text="{Binding CurrentUser.Email}" 
-                                                   FontSize="14" 
-                                                   Foreground="#111827"
-                                                   Margin="0,4,0,0"/>
-                                    </StackPanel>
-
-                                    <!-- Phone -->
-                                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,0">
-                                        <TextBlock Text="رقم الهاتف" FontSize="12" Foreground="#6B7280"/>
-                                        <TextBlock Text="{Binding CurrentUser.Phonenumber}" 
-                                                   FontSize="14" 
-                                                   Foreground="#111827"
-                                                   Margin="0,4,0,0"/>
-                                    </StackPanel>
-
-                                    <!-- Registration Date -->
-                                    <StackPanel Grid.Row="1" Grid.Column="1">
-                                        <TextBlock Text="تاريخ التسجيل" FontSize="12" Foreground="#6B7280"/>
-                                        <TextBlock Text="{Binding FormattedDate}" 
-                                                   FontSize="14" 
-                                                   Foreground="#111827"
-                                                   Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-
-                            <!-- Action Buttons -->
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="628" Height="37">
-                                <Button Command="{Binding ChangePasswordCommand}"
-                                        Content="تغيير كلمة المرور"
-                                        Background="#1E1B4B"
-                                        Foreground="White"
-                                        Padding="16,10"
-                                        Margin="0,0,8,0"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        />
-
-                                <Button Command="{Binding EditProfileCommand}"
-                                        Content="تعديل الملف الشخصي"
-                                        Background="#1E1B4B"
-                                        Foreground="White"
-                                        Padding="16,10"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        />
-                            </StackPanel>
                         </StackPanel>
+
+                        <!-- User Details -->
+                        <Grid Grid.Row="1" Grid.Column="1"
+                              Margin="0,16,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Username -->
+                            <StackPanel Grid.Row="0" Grid.Column="0"
+                                        Margin="0,0,12,12">
+                                <TextBlock Text="اسم المستخدم"
+                                           FontSize="12"
+                                           Foreground="#6B7280"/>
+                                <Border Background="#F9FAFB"
+                                        CornerRadius="8"
+                                        Padding="12,8"
+                                        Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding CurrentUser.Username, TargetNullValue='غير محدد'}"
+                                               FontSize="14"
+                                               Foreground="#111827"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Email -->
+                            <StackPanel Grid.Row="0" Grid.Column="1"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="البريد الإلكتروني"
+                                           FontSize="12"
+                                           Foreground="#6B7280"/>
+                                <Border Background="#F9FAFB"
+                                        CornerRadius="8"
+                                        Padding="12,8"
+                                        Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding CurrentUser.Email, TargetNullValue='غير محدد'}"
+                                               FontSize="14"
+                                               Foreground="#111827"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Phone -->
+                            <StackPanel Grid.Row="1" Grid.Column="0"
+                                        Margin="0,0,12,12">
+                                <TextBlock Text="رقم الهاتف"
+                                           FontSize="12"
+                                           Foreground="#6B7280"/>
+                                <Border Background="#F9FAFB"
+                                        CornerRadius="8"
+                                        Padding="12,8"
+                                        Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding CurrentUser.Phonenumber, TargetNullValue='غير محدد'}"
+                                               FontSize="14"
+                                               Foreground="#111827"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Registration Date -->
+                            <StackPanel Grid.Row="1" Grid.Column="1"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="تاريخ التسجيل"
+                                           FontSize="12"
+                                           Foreground="#6B7280"/>
+                                <Border Background="#F9FAFB"
+                                        CornerRadius="8"
+                                        Padding="12,8"
+                                        Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding FormattedDate}"
+                                               FontSize="14"
+                                               Foreground="#111827"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Account Creation Info -->
+                            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                <TextBlock Text="معلومات الحساب"
+                                           FontSize="12"
+                                           Foreground="#6B7280"/>
+                                <Border Background="#F9FAFB"
+                                        CornerRadius="8"
+                                        Padding="12,8"
+                                        Margin="0,4,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="CalendarClock"
+                                                                 Width="16"
+                                                                 Height="16"
+                                                                 Foreground="#6B7280"
+                                                                 Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding CurrentUser.DateOfCreation, StringFormat='تم إنشاء الحساب في {0:yyyy-MM-dd HH:mm}'}"
+                                                   FontSize="14"
+                                                   Foreground="#111827"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
+                </Border>
+
+                <!-- Action Buttons -->
+                <Border Background="White"
+                        CornerRadius="16"
+                        BorderThickness="1"
+                        BorderBrush="#E8EAF2"
+                        Padding="24"
+                        Margin="0,420,0,16"
+                        HorizontalAlignment="Center"
+                        Width="700">
+                    <StackPanel>
+                        <TextBlock Text="إدارة الحساب"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="#111827"
+                                   Margin="0,0,0,16"/>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+
+                            <!-- Change Password Button -->
+                            <Button Command="{Binding ChangePasswordCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Width="180"
+                                    Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Key"
+                                                             Width="20"
+                                                             Height="20"
+                                                             Margin="0,0,8,0"/>
+                                    <TextBlock Text="تغيير كلمة المرور"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Edit Profile Button -->
+                            <Button Command="{Binding EditProfileCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Width="180">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="AccountEdit"
+                                                             Width="20"
+                                                             Height="20"
+                                                             Margin="0,0,8,0"/>
+                                    <TextBlock Text="تعديل الملف الشخصي"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
                 </Border>
             </Grid>
         </ScrollViewer>
+
+        <!-- Error Message -->
+        <Border Background="#FEF2F2"
+                BorderBrush="#FCA5A5"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="12"
+                Margin="16"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Panel.ZIndex="999">
+            <StackPanel Orientation="Horizontal">
+                <materialDesign:PackIcon Kind="AlertCircle"
+                                         Width="20"
+                                         Height="20"
+                                         Foreground="#DC2626"
+                                         Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#DC2626"
+                           FontSize="14"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

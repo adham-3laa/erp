@@ -182,4 +182,20 @@ public sealed class ApiClient
         throw new HttpRequestException(
             $"Request failed: {(int)res.StatusCode} {res.ReasonPhrase}\n{body}");
     }
+    // ?? ApiClient.cs ??? ??? ??????:
+
+    public async Task<T> PatchAsync<T>(string url, object body, CancellationToken ct = default)
+    {
+        using var req = new HttpRequestMessage(new HttpMethod("PATCH"), url)
+        {
+            Content = ToJsonContent(body)
+        };
+        ApplyAuth(req);
+
+        using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
+        await EnsureSuccess(res).ConfigureAwait(false);
+
+        var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        return DeserializeOrThrow<T>(json);
+    }
 }

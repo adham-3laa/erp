@@ -31,5 +31,6 @@ namespace erp
             var loginWindow = new LoginWindow();
             loginWindow.Show();
         }
+
     }
 }

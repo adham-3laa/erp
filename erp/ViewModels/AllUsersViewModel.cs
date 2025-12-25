@@ -15,7 +15,8 @@ namespace erp.ViewModels
 {
     public class AllUsersViewModel : BaseViewModel
     {
-        private readonly UserService _userService = new UserService();
+        private readonly UserService _userService =
+            new UserService(App.Api);
         private Timer _searchTimer;
 
         public AllUsersViewModel()
@@ -206,7 +207,9 @@ namespace erp.ViewModels
                 }
 
                 TotalCount = res.TotalCount;
-                TotalPages = (int)Math.Ceiling((double)res.FilteredCount / 20);
+                TotalPages = res.FilteredCount == 0
+                    ? 1
+                    : (int)Math.Ceiling(res.FilteredCount / 20.0);
 
                 OnPropertyChanged(nameof(ActiveCount));
                 OnPropertyChanged(nameof(HasNextPage));

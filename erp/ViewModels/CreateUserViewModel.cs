@@ -11,7 +11,7 @@ namespace erp.ViewModels
 {
     public class CreateUserViewModel : BaseViewModel
     {
-        private readonly UserService _userService = new();
+        private readonly UserService _userService = new UserService(App.Api);
 
         private string _fullname;
         public string Fullname

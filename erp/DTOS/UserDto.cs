@@ -1,20 +1,4 @@
-﻿//using System;
-
-//namespace erp.DTOS
-//{
-//    public class UserDto
-//    {
-//        public string Id { get; set; }
-//        public string Fullname { get; set; }
-//        public string Username { get; set; }
-//        public string Email { get; set; }
-//        public string Phonenumber { get; set; }
-//        public string UserType { get; set; }
-//        public bool IsActive { get; set; }
-//        public string ImagePath { get; set; }
-//        public DateTime DateOfCreation { get; set; }
-//        public int FarmsCount { get; set; }
-//    }
+﻿
 
 using System;
 using System.ComponentModel;
@@ -26,10 +10,16 @@ namespace erp.DTOS
 {
     public class UserResponseDto
     {
+        [JsonPropertyName("users")]
         public List<UserDto> Users { get; set; }
+
+        [JsonPropertyName("totalcount")]
         public int TotalCount { get; set; }
+
+        [JsonPropertyName("filteredcount")]
         public int FilteredCount { get; set; }
     }
+
 
     public class UserPostDto
     {
@@ -60,6 +50,7 @@ namespace erp.DTOS
         public string Phonenumber { get; set; }
         [JsonPropertyName("usertype")]
         public string UserType { get; set; }
+        [JsonPropertyName("isactive")]
         private bool _isActive;
         public bool IsActive
         {
@@ -73,6 +64,7 @@ namespace erp.DTOS
                 }
             }
         }
+
 
         public string ImagePath { get; set; }
 
