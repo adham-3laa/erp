@@ -18,7 +18,13 @@ public partial class CategoryEditPage : Page
         Loaded += (_, __) =>
         {
             if (DataContext is CategoryEditViewModel vm)
+            {
                 vm.LoadForCreate();
+
+                // ✅ subscribe once
+                vm.RequestClose -= OnRequestClose;
+                vm.RequestClose += OnRequestClose;
+            }
         };
     }
 
@@ -31,13 +37,26 @@ public partial class CategoryEditPage : Page
         Loaded += (_, __) =>
         {
             if (DataContext is CategoryEditViewModel vm)
+            {
                 vm.LoadForEdit(dto);
+
+                vm.RequestClose -= OnRequestClose;
+                vm.RequestClose += OnRequestClose;
+            }
         };
+    }
+
+    private async void OnRequestClose()
+    {
+        // ✅ ارجع لليست واعمل Refresh
+        if (_listVm != null)
+            await _listVm.RefreshAsync();
+
+        NavigationService?.GoBack();
     }
 
     private async void Back_Click(object sender, RoutedEventArgs e)
     {
-        // رجوع لليست + refresh (لو متاحة)
         if (_listVm != null)
             await _listVm.RefreshAsync();
 
