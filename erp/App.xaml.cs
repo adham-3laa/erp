@@ -8,12 +8,16 @@ namespace erp
 {
     public partial class App : Application
     {
+
+        public static IAuthSession AuthSession { get; } = new AuthSession();
         public static HttpClient Http { get; private set; } = null!;
         public static ApiClient Api { get; private set; } = null!;
         public static CategoryService Categories { get; private set; } = null!;
+        public static UserService Users { get; private set; } = null!; // ✅ إضافة
+
 
         // Auth
-        public static IAuthSession Session { get; private set; } = null!;
+        public static IAuthSession Session { get; private set; }
         public static AuthService Auth { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
@@ -26,11 +30,11 @@ namespace erp
             Api = new ApiClient(Http, Session);
 
             Categories = new CategoryService(Api);
+            Users = new UserService(Api);              // ✅ تهيئة
             Auth = new AuthService(Api, Session);
 
             var loginWindow = new LoginWindow();
             loginWindow.Show();
         }
-
     }
 }

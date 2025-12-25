@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Web;
+using System.Text.Json; // أضف هذا
+
 
 namespace erp.Services
 {
@@ -15,13 +17,14 @@ namespace erp.Services
         }
 
         // ===================== CREATE USER =====================
-        public async Task<UserDto> CreateUserAsync(UserPostDto userDto)
+        public async Task<CreateUserResponseDto> CreateUserAsync(UserPostDto userDto)
         {
-            return await _api.PostAsync<UserDto>(
+            return await _api.PostAsync<CreateUserResponseDto>(
                 $"api/users/create?userType={userDto.UserType}",
                 userDto
             );
         }
+
 
         // ===================== UPDATE USER =====================
         public async Task<UserDto> UpdateUserAsync(string id, UserUpdateDto updateDto)
@@ -60,31 +63,29 @@ namespace erp.Services
         }
         // ===================== CHANGE PASSWORD =====================
 
+        // ===================== CHANGE PASSWORD =====================
         public async Task<ChangePasswordResponseDto> ChangePasswordAsync(
-      string userId,
-      string newPassword)
+            string userId,
+            string newPassword)
         {
-            Debug.WriteLine($"[UserService] Change password for {userId}");
-
+            // الباك إند متوقع string مش object
             return await _api.PatchAsync<ChangePasswordResponseDto>(
                 $"api/users/change-password?id={userId}",
-                $"\"{newPassword}\""
+                newPassword
             );
         }
-
-
 
         // ===================== TOGGLE STATUS =====================
         public async Task<bool> ToggleUserStatusAsync(string userId)
         {
-            var result = await _api.PostAsync<object>(
-    $"api/users/toggle-active?id={userId}",
-    null
-);
+            await _api.PatchAsync<object>(
+                $"api/users/toggle-active?id={userId}",
+                new { }   // body فاضي
+            );
 
-            return result != null;
-
+            return true;
         }
+
 
         // ===================== DELETE =====================
         public async Task<bool> DeleteUserAsync(string userId)

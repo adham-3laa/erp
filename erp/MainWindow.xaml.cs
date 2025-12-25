@@ -41,10 +41,12 @@ namespace erp
 
         private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (NavListBox.SelectedItem is not ListBoxItem selectedItem) return;
+            if (NavListBox.SelectedItem is not ListBoxItem selectedItem)
+                return;
 
             var tag = selectedItem.Tag as string;
-            if (string.IsNullOrWhiteSpace(tag)) return;
+            if (string.IsNullOrWhiteSpace(tag))
+                return;
 
             switch (tag)
             {
@@ -68,7 +70,11 @@ namespace erp
                     MainFrame.Navigate(new CategoryListPage());
                     break;
 
-                // باقي الصفحات لسه تحت التطوير
+                // 👇 هنا تضيف التقارير
+                case "Reports":
+                    MainFrame.Navigate(new erp.Views.Reports.SalesReportPage());
+                    break;
+
                 case "Orders":
                 case "Suppliers":
                 case "Auth":
@@ -77,6 +83,7 @@ namespace erp
                     break;
             }
         }
+
 
         private static void ShowUnderDevelopment(string tag)
         {

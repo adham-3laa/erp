@@ -4,6 +4,7 @@ namespace erp.DTOS
 {
     public class UserUpdateDto
     {
+        [JsonPropertyName("fullname")]
         public string Fullname { get; set; }
 
         [JsonPropertyName("usertype")]

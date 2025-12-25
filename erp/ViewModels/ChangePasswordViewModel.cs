@@ -1,93 +1,97 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
+using erp.DTOS;
 using erp.Services;
-using erp.Views.Users;
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Input;
 
 namespace erp.ViewModels
 {
-    public class ChangePasswordViewModel : ObservableObject
+    public class ChangePasswordViewModel : BaseViewModel
     {
         private readonly UserService _userService;
         private readonly string _userId;
 
-        private string _newPassword;
-        private string _confirmPassword;
-        private bool _isLoading;
-        private string _errorMessage;
-        private string _successMessage;
+        public Action? CloseAction { get; set; }
 
+        // ⬅️ لاحظ: بنستقبل الـ session من الخارج
+        public ChangePasswordViewModel(string userId, IAuthSession authSession)
+        {
+            _userId = userId;
+
+            var api = new ApiClient(
+                ApiClient.CreateHttpClient(),
+                authSession
+            );
+
+            _userService = new UserService(api);
+
+            ChangePasswordCommand = new AsyncRelayCommand(ChangePasswordAsync);
+            CancelCommand = new RelayCommand(() => CloseAction?.Invoke());
+        }
+
+        // ================= PROPERTIES =================
+
+        private string _newPassword;
         public string NewPassword
         {
             get => _newPassword;
             set => SetProperty(ref _newPassword, value);
         }
 
-        public string ConfirmPassword
-        {
-            get => _confirmPassword;
-            set => SetProperty(ref _confirmPassword, value);
-        }
-
+        private bool _isLoading;
         public bool IsLoading
         {
             get => _isLoading;
-            set
-            {
-                SetProperty(ref _isLoading, value);
-                ChangePasswordCommand.NotifyCanExecuteChanged();
-            }
+            set => SetProperty(ref _isLoading, value);
         }
 
+        private bool _hasError;
+        public bool HasError
+        {
+            get => _hasError;
+            set => SetProperty(ref _hasError, value);
+        }
+
+        private string _errorMessage;
         public string ErrorMessage
         {
             get => _errorMessage;
-            set
-            {
-                SetProperty(ref _errorMessage, value);
-                OnPropertyChanged(nameof(HasError));
-            }
+            set => SetProperty(ref _errorMessage, value);
         }
 
+        private bool _hasSuccess;
+        public bool HasSuccess
+        {
+            get => _hasSuccess;
+            set => SetProperty(ref _hasSuccess, value);
+        }
+
+        private string _successMessage;
         public string SuccessMessage
         {
             get => _successMessage;
-            set
-            {
-                SetProperty(ref _successMessage, value);
-                OnPropertyChanged(nameof(HasSuccess));
-            }
+            set => SetProperty(ref _successMessage, value);
         }
 
-        public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
-        public bool HasSuccess => !string.IsNullOrWhiteSpace(SuccessMessage);
+        // ================= COMMANDS =================
 
-        public RelayCommand ChangePasswordCommand { get; }
-        public RelayCommand CancelCommand { get; }
+        public ICommand ChangePasswordCommand { get; }
+        public ICommand CancelCommand { get; }
 
-        public ChangePasswordViewModel(string userId)
-        {
-            _userId = userId;
-            _userService = new UserService(App.Api);
-
-            ChangePasswordCommand = new RelayCommand(
-                async () => await ChangePasswordAsync(),
-                () => !IsLoading);
-
-            CancelCommand = new RelayCommand(CloseWindow);
-        }
+        // ================= LOGIC =================
 
         private async Task ChangePasswordAsync()
         {
-            ErrorMessage = string.Empty;
-            SuccessMessage = string.Empty;
+            HasError = false;
+            HasSuccess = false;
 
-            if (!ValidateInput())
+            if (string.IsNullOrWhiteSpace(NewPassword))
+            {
+                HasError = true;
+                ErrorMessage = "كلمة المرور الجديدة مطلوبة";
                 return;
+            }
 
             try
             {
@@ -98,64 +102,26 @@ namespace erp.ViewModels
                     NewPassword
                 );
 
-                if (response != null && response.StatusCode == 200)
+                if (response.StatusCode == 200)
                 {
+                    HasSuccess = true;
                     SuccessMessage = "تم تغيير كلمة المرور بنجاح";
-                    NewPassword = string.Empty;
-                    ConfirmPassword = string.Empty;
-
-                    await Task.Delay(1200);
-                    CloseWindow();
                 }
                 else
                 {
-                    ErrorMessage = response?.Message ?? "فشل تغيير كلمة المرور";
+                    HasError = true;
+                    ErrorMessage = response.Message;
                 }
             }
             catch (Exception ex)
             {
+                HasError = true;
                 ErrorMessage = ex.Message;
-                Debug.WriteLine(ex);
             }
             finally
             {
                 IsLoading = false;
             }
-        }
-
-        private bool ValidateInput()
-        {
-            if (string.IsNullOrWhiteSpace(NewPassword))
-            {
-                ErrorMessage = "ادخل كلمة المرور الجديدة";
-                return false;
-            }
-
-            if (NewPassword.Length < 6)
-            {
-                ErrorMessage = "كلمة المرور لازم 6 حروف على الأقل";
-                return false;
-            }
-
-            if (NewPassword != ConfirmPassword)
-            {
-                ErrorMessage = "كلمتين المرور مش متطابقين";
-                return false;
-            }
-
-            return true;
-        }
-
-        private void CloseWindow()
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var window = Application.Current.Windows
-                    .OfType<ChangePasswordWindow>()
-                    .FirstOrDefault(w => w.DataContext == this);
-
-                window?.Close();
-            });
         }
     }
 }

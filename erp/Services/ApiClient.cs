@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -182,8 +182,6 @@ public sealed class ApiClient
         throw new HttpRequestException(
             $"Request failed: {(int)res.StatusCode} {res.ReasonPhrase}\n{body}");
     }
-    // ?? ApiClient.cs ??? ??? ??????:
-
     public async Task<T> PatchAsync<T>(string url, object body, CancellationToken ct = default)
     {
         using var req = new HttpRequestMessage(new HttpMethod("PATCH"), url)
@@ -198,4 +196,5 @@ public sealed class ApiClient
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         return DeserializeOrThrow<T>(json);
     }
+
 }

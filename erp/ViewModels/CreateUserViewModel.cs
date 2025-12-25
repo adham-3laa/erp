@@ -1,17 +1,51 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using erp.DTOS;
 using erp.Services;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-
 namespace erp.ViewModels
 {
-    public class CreateUserViewModel : BaseViewModel
+    public class CreateUserViewModel : ObservableObject
     {
-        private readonly UserService _userService = new UserService(App.Api);
+        private readonly UserService _userService;
+
+        public CreateUserViewModel()
+        {
+            _userService = App.Users;
+
+            UserTypes = new ObservableCollection<string>
+{
+    "SystemAdmin",
+    "User",
+    "Customer",
+    "SalesRep",
+    "StoreManager",
+    "Supplier",
+    "Accountant"
+};
+
+
+            SelectedUserType = "SystemAdmin";
+
+            CreateCommand = new AsyncRelayCommand(CreateUserAsync);
+            CancelCommand = new RelayCommand(OnCancel);
+        }
+
+        // ================== PROPERTIES ==================
+
+        public ObservableCollection<string> UserTypes { get; }
+
+        private string _selectedUserType;
+        public string SelectedUserType
+        {
+            get => _selectedUserType;
+            set => SetProperty(ref _selectedUserType, value);
+        }
 
         private string _fullname;
         public string Fullname
@@ -34,32 +68,8 @@ namespace erp.ViewModels
             set => SetProperty(ref _phoneNumber, value);
         }
 
-        private string _password;
-        public string Password
-        {
-            get => _password;
-            set => SetProperty(ref _password, value);
-        }
-
-        private string _confirmPassword;
-        public string ConfirmPassword
-        {
-            get => _confirmPassword;
-            set => SetProperty(ref _confirmPassword, value);
-        }
-
-        public ObservableCollection<string> UserTypes { get; } = new()
-        {
-            "SystemAdmin", "User", "Customer", "SalesRep",
-            "StoreManager", "Supplier", "Accountant"
-        };
-
-        private string _selectedUserType = "User";
-        public string SelectedUserType
-        {
-            get => _selectedUserType;
-            set => SetProperty(ref _selectedUserType, value);
-        }
+        public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
 
         private bool _isLoading;
         public bool IsLoading
@@ -68,66 +78,99 @@ namespace erp.ViewModels
             set => SetProperty(ref _isLoading, value);
         }
 
+        private string _errorMessage;
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
+        }
+
+        private bool _hasError;
+        public bool HasError
+        {
+            get => _hasError;
+            set => SetProperty(ref _hasError, value);
+        }
+
+        // ================== COMMANDS ==================
+
         public ICommand CreateCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public CreateUserViewModel()
-        {
-            CreateCommand = new RelayCommand(async () => await CreateAsync(), CanCreate);
-            CancelCommand = new RelayCommand(() => Cancel());
-        }
+        // ================== LOGIC ==================
 
-        private bool CanCreate()
+        private async Task CreateUserAsync()
         {
-            return !string.IsNullOrWhiteSpace(Fullname) &&
-                   !string.IsNullOrWhiteSpace(Email) &&
-                   !string.IsNullOrWhiteSpace(Password) &&
-                   Password == ConfirmPassword &&
-                   !IsLoading;
-        }
+            HasError = false;
 
-        private async Task CreateAsync()
-        {
-            if (Password != ConfirmPassword)
-            {
-                MessageBox.Show("كلمات المرور غير متطابقة", "خطأ",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+            if (!Validate())
                 return;
-            }
 
-            IsLoading = true;
-
-            var userDto = new UserPostDto
+            try
             {
-                Fullname = Fullname,
-                Email = Email,
-                Password = Password,
-                UserType = SelectedUserType,
-                Phonenumber = PhoneNumber
-            };
+                IsLoading = true;
 
-            var result = await _userService.CreateUserAsync(userDto);
+                var dto = new UserPostDto
+                {
+                    Fullname = Fullname,
+                    Email = Email,
+                    Password = Password,
+                    PhoneNumber = PhoneNumber,
+                    UserType = SelectedUserType
+                };
 
-            if (result != null)
-            {
-                MessageBox.Show($"تم إنشاء المستخدم {result.Fullname} بنجاح",
-                    "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
-                ClearForm();
-                NavigationService.NavigateToUsers();
+                var result = await _userService.CreateUserAsync(dto);
+
+                if (result != null && result.StatusCode == 200)
+                {
+                    MessageBox.Show(
+                        "تم إنشاء المستخدم بنجاح",
+                        "نجاح",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    ClearForm();
+                }
+                else
+                {
+                    HasError = true;
+                    ErrorMessage = result?.Message ?? "حدث خطأ أثناء إنشاء المستخدم";
+                }
+
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("فشل إنشاء المستخدم. تأكد من البيانات وحاول مرة أخرى",
-                    "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                HasError = true;
+                ErrorMessage = ex.Message;
             }
-
-            IsLoading = false;
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
-        private void Cancel()
+        private bool Validate()
         {
-            ClearForm();
-            NavigationService.NavigateToUsers();
+            if (string.IsNullOrWhiteSpace(Fullname))
+                return Fail("الاسم الكامل مطلوب");
+
+            if (string.IsNullOrWhiteSpace(Email))
+                return Fail("البريد الإلكتروني مطلوب");
+
+            if (string.IsNullOrWhiteSpace(Password))
+                return Fail("كلمة المرور مطلوبة");
+
+            if (Password != ConfirmPassword)
+                return Fail("كلمتا المرور غير متطابقتين");
+
+            return true;
+        }
+
+        private bool Fail(string message)
+        {
+            HasError = true;
+            ErrorMessage = message;
+            return false;
         }
 
         private void ClearForm()
@@ -137,7 +180,11 @@ namespace erp.ViewModels
             PhoneNumber = string.Empty;
             Password = string.Empty;
             ConfirmPassword = string.Empty;
-            SelectedUserType = "User";
+        }
+
+        private void OnCancel()
+        {
+            ClearForm();
         }
     }
 }

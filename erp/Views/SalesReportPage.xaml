@@ -1,0 +1,151 @@
+﻿<Page x:Class="erp.Views.Reports.SalesReportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      FlowDirection="RightToLeft">
+
+    <!-- ===== Local Resources (عشان مفيش XamlParseException) ===== -->
+    <Page.Resources>
+
+        <!-- Button Style -->
+        <Style x:Key="SimpleButton" TargetType="Button">
+            <Setter Property="Background" Value="#1E1B4B"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Loading Converter -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+    </Page.Resources>
+
+    <!-- ===== Page Layout ===== -->
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===== Header ===== -->
+        <StackPanel Margin="0,0,0,20">
+            <TextBlock Text="📊 تقرير المبيعات"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#111827"/>
+
+            <TextBlock Text="عرض إجمالي المبيعات وعدد الطلبات خلال فترة زمنية"
+                       FontSize="14"
+                       Foreground="#6B7280"
+                       Margin="0,6,0,0"/>
+        </StackPanel>
+
+        <!-- ===== Filters ===== -->
+        <Border Grid.Row="1"
+                Background="White"
+                CornerRadius="14"
+                BorderThickness="1"
+                BorderBrush="#E8EAF2"
+                Padding="16"
+                Margin="0,0,0,20">
+
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center">
+
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="من تاريخ"
+                               FontSize="12"
+                               Foreground="#6B7280"/>
+                    <DatePicker SelectedDate="{Binding FromDate}"
+                                Height="36"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="إلى تاريخ"
+                               FontSize="12"
+                               Foreground="#6B7280"/>
+                    <DatePicker SelectedDate="{Binding ToDate}"
+                                Height="36"/>
+                </StackPanel>
+
+                <Button Content="تحميل التقرير"
+                        Command="{Binding LoadReportCommand}"
+                        Style="{StaticResource SimpleButton}"
+                        Height="36"
+                        Margin="12,18,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Loading ===== -->
+        <ProgressBar Grid.Row="1"
+                     Height="4"
+                     IsIndeterminate="True"
+                     Visibility="{Binding IsLoading,
+                     Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+        <!-- ===== Report Cards ===== -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Total Sales -->
+            <Border Grid.Column="0"
+                    Margin="8"
+                    Padding="24"
+                    CornerRadius="18"
+                    Background="#1E1B4B">
+
+                <StackPanel>
+                    <TextBlock Text="إجمالي المبيعات"
+                               Foreground="#E5E7EB"
+                               FontSize="14"/>
+
+                    <TextBlock Text="{Binding Report.TotalSales,
+                               StringFormat='{}{0:N0} ج.م'}"
+                               Foreground="White"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Total Orders -->
+            <Border Grid.Column="1"
+                    Margin="8"
+                    Padding="24"
+                    CornerRadius="18"
+                    Background="#10B981">
+
+                <StackPanel>
+                    <TextBlock Text="عدد الطلبات"
+                               Foreground="#ECFDF5"
+                               FontSize="14"/>
+
+                    <TextBlock Text="{Binding Report.TotalOrders}"
+                               Foreground="White"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>
