@@ -12,17 +12,19 @@ namespace erp.Services;
 public sealed class ApiClient
 {
     private readonly HttpClient _http;
+    private readonly IAuthSession? _session;
 
     private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public ApiClient(HttpClient http)
+    // session optional
+    public ApiClient(HttpClient http, IAuthSession? session = null)
     {
         _http = http ?? throw new ArgumentNullException(nameof(http));
+        _session = session;
 
-        // Ensure Accept header exists once
         if (_http.DefaultRequestHeaders.Accept.Count == 0)
         {
             _http.DefaultRequestHeaders.Accept.Clear();
@@ -31,11 +33,7 @@ public sealed class ApiClient
         }
     }
 
-    // Factory: HttpClient واحد للتطبيق
-    // NOTE: BaseAddress optional (default = be-positive) to match teammate behavior, but keep config external if possible.
-    public static HttpClient CreateHttpClient(
-        string? bearerToken = null,
-        string baseUrl = "http://be-positive.runasp.net/")
+    public static HttpClient CreateHttpClient(string baseUrl = "http://be-positive.runasp.net/")
     {
         var http = new HttpClient
         {
@@ -47,22 +45,19 @@ public sealed class ApiClient
         http.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/json"));
 
-        if (!string.IsNullOrWhiteSpace(bearerToken))
-        {
-            http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", bearerToken);
-        }
-
         return http;
     }
 
     // =========================
-    // HTTP helpers (existing)
+    // Basic HTTP helpers
     // =========================
 
     public async Task<T> GetAsync<T>(string url, CancellationToken ct = default)
     {
-        using var res = await _http.GetAsync(url, ct).ConfigureAwait(false);
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        ApplyAuth(req);
+
+        using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
         await EnsureSuccess(res).ConfigureAwait(false);
 
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -71,8 +66,13 @@ public sealed class ApiClient
 
     public async Task<T> PostAsync<T>(string url, object body, CancellationToken ct = default)
     {
-        using var content = ToJsonContent(body);
-        using var res = await _http.PostAsync(url, content, ct).ConfigureAwait(false);
+        using var req = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = ToJsonContent(body)
+        };
+        ApplyAuth(req);
+
+        using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
         await EnsureSuccess(res).ConfigureAwait(false);
 
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -81,8 +81,13 @@ public sealed class ApiClient
 
     public async Task<T> PutAsync<T>(string url, object body, CancellationToken ct = default)
     {
-        using var content = ToJsonContent(body);
-        using var res = await _http.PutAsync(url, content, ct).ConfigureAwait(false);
+        using var req = new HttpRequestMessage(HttpMethod.Put, url)
+        {
+            Content = ToJsonContent(body)
+        };
+        ApplyAuth(req);
+
+        using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
         await EnsureSuccess(res).ConfigureAwait(false);
 
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -91,22 +96,32 @@ public sealed class ApiClient
 
     public async Task DeleteAsync(string url, CancellationToken ct = default)
     {
-        using var res = await _http.DeleteAsync(url, ct).ConfigureAwait(false);
+        using var req = new HttpRequestMessage(HttpMethod.Delete, url);
+        ApplyAuth(req);
+
+        using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
         await EnsureSuccess(res).ConfigureAwait(false);
     }
 
     // =========================
-    // NEW: WithStatus helpers
+    // Optional: WithStatus
     // =========================
 
     public Task<(HttpStatusCode StatusCode, T? Body)> PostWithStatusAsync<T>(
         string url, object body, CancellationToken ct = default)
         => SendJsonWithStatusAsync<T>(HttpMethod.Post, url, body, ct);
 
+    public Task<(HttpStatusCode StatusCode, T? Body)> PutWithStatusAsync<T>(
+        string url, object body, CancellationToken ct = default)
+        => SendJsonWithStatusAsync<T>(HttpMethod.Put, url, body, ct);
+
     public async Task<(HttpStatusCode StatusCode, T? Body)> GetWithStatusAsync<T>(
         string url, CancellationToken ct = default)
     {
-        using var res = await _http.GetAsync(url, ct).ConfigureAwait(false);
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        ApplyAuth(req);
+
+        using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         if (!res.IsSuccessStatusCode)
@@ -126,6 +141,7 @@ public sealed class ApiClient
         {
             Content = ToJsonContent(body)
         };
+        ApplyAuth(req);
 
         using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -136,6 +152,16 @@ public sealed class ApiClient
         return (res.StatusCode, DeserializeOrDefault<T>(json));
     }
 
+    private void ApplyAuth(HttpRequestMessage req)
+    {
+        if (_session == null) return;
+
+        var token = _session.AccessToken;
+        if (string.IsNullOrWhiteSpace(token)) return;
+
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+
     private static StringContent ToJsonContent(object body)
         => new(JsonSerializer.Serialize(body, _jsonOptions), Encoding.UTF8, "application/json");
 
@@ -144,7 +170,9 @@ public sealed class ApiClient
            ?? throw new InvalidOperationException("Empty/invalid JSON response.");
 
     private static T? DeserializeOrDefault<T>(string json)
-        => string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, _jsonOptions);
+        => string.IsNullOrWhiteSpace(json)
+            ? default
+            : JsonSerializer.Deserialize<T>(json, _jsonOptions);
 
     private static async Task EnsureSuccess(HttpResponseMessage res)
     {
