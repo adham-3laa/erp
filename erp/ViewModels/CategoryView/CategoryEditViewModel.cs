@@ -1,5 +1,5 @@
-﻿using erp.Services.Category;
-using CommunityToolkit.Mvvm.Input;
+﻿using erp.Commands;
+using erp.Services.Category;
 using erp.DTOs;
 using System;
 using System.Threading;
@@ -12,10 +12,11 @@ public sealed class CategoryEditViewModel : BaseViewModel
     private readonly CategoryService _categoryService;
     private CancellationTokenSource? _cts;
 
-    // ✅ Parameterless ctor عشان XAML يقدر ينشئ الـ VM
-    public CategoryEditViewModel() : this(App.Categories)
-    {
-    }
+    // ✅ Event: الصفحة هتسمعه وترجع لليست
+    public event Action? RequestClose;
+
+    // ✅ Parameterless ctor عشان XAML
+    public CategoryEditViewModel() : this(App.Categories) { }
 
     public CategoryEditViewModel(CategoryService categoryService)
     {
@@ -28,7 +29,7 @@ public sealed class CategoryEditViewModel : BaseViewModel
     public string Id
     {
         get => _id;
-        set => SetProperty(ref _id, value);
+        set => Set(ref _id, value);
     }
 
     private string _name = "";
@@ -37,8 +38,8 @@ public sealed class CategoryEditViewModel : BaseViewModel
         get => _name;
         set
         {
-            if (SetProperty(ref _name, value))
-                SaveCommand.NotifyCanExecuteChanged();
+            if (Set(ref _name, value))
+                SaveCommand.RaiseCanExecuteChanged();
         }
     }
 
@@ -46,14 +47,14 @@ public sealed class CategoryEditViewModel : BaseViewModel
     public string? Description
     {
         get => _description;
-        set => SetProperty(ref _description, value);
+        set => Set(ref _description, value);
     }
 
     private bool _isEdit;
     public bool IsEdit
     {
         get => _isEdit;
-        private set => SetProperty(ref _isEdit, value);
+        private set => Set(ref _isEdit, value);
     }
 
     private bool _isBusy;
@@ -62,8 +63,8 @@ public sealed class CategoryEditViewModel : BaseViewModel
         get => _isBusy;
         private set
         {
-            if (SetProperty(ref _isBusy, value))
-                SaveCommand.NotifyCanExecuteChanged();
+            if (Set(ref _isBusy, value))
+                SaveCommand.RaiseCanExecuteChanged();
         }
     }
 
@@ -71,7 +72,7 @@ public sealed class CategoryEditViewModel : BaseViewModel
     public string? Error
     {
         get => _error;
-        private set => SetProperty(ref _error, value);
+        private set => Set(ref _error, value);
     }
 
     // ================== Commands ==================
@@ -112,7 +113,7 @@ public sealed class CategoryEditViewModel : BaseViewModel
 
             if (!IsEdit)
             {
-                // ✅ Create بيرجع categoryId فقط
+                // Create
                 var newId = await _categoryService.CreateAsync(
                     new CreateCategoryRequest
                     {
@@ -121,27 +122,14 @@ public sealed class CategoryEditViewModel : BaseViewModel
                     },
                     _cts.Token);
 
-                // ✅ هات الداتا كاملة عشان صفحة التعديل ما تبقاش فاضية
-                var dto = await _categoryService.GetByIdAsync(newId, _cts.Token);
-
-                if (dto is null)
-                {
-                    // Fallback لو GetById رجع null
-                    LoadForEdit(new CategoryDto
-                    {
-                        Id = newId,
-                        Name = Name.Trim(),
-                        Description = Description
-                    });
-                }
-                else
-                {
-                    LoadForEdit(dto);
-                }
+                // ✅ بعد الإضافة: ارجع لليست بدل ما تفضل في صفحة التعديل
+                RequestClose?.Invoke();
+                return;
             }
             else
             {
-                var updated = await _categoryService.UpdateAsync(
+                // Update
+                await _categoryService.UpdateAsync(
                     new UpdateCategoryRequest
                     {
                         Id = Id,
@@ -150,20 +138,9 @@ public sealed class CategoryEditViewModel : BaseViewModel
                     },
                     _cts.Token);
 
-                // بعض APIs ممكن ترجع null.. فنعمل fallback على البيانات الحالية
-                if (updated is null)
-                {
-                    LoadForEdit(new CategoryDto
-                    {
-                        Id = Id,
-                        Name = Name.Trim(),
-                        Description = Description
-                    });
-                }
-                else
-                {
-                    LoadForEdit(updated);
-                }
+                // ✅ بعد التعديل: برضه ارجع لليست (لو عايز)
+                RequestClose?.Invoke();
+                return;
             }
         }
         catch (OperationCanceledException) { }

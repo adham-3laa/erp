@@ -10,41 +10,154 @@
         AllowsTransparency="True"
         WindowStyle="None">
 
+    <Window.Resources>
+
+        <!-- اللون الأساسي -->
+        <SolidColorBrush x:Key="PrimaryIndigoBrush" Color="#1E1B4B"/>
+
+        <!-- Glow Effects -->
+        <DropShadowEffect x:Key="PrimaryGlow"
+                          Color="#FF6D28D9"
+                          BlurRadius="28"
+                          ShadowDepth="0"
+                          Opacity="0.65"/>
+
+        <DropShadowEffect x:Key="PrimaryGlowStrong"
+                          Color="#FF6D28D9"
+                          BlurRadius="38"
+                          ShadowDepth="0"
+                          Opacity="0.45"/>
+
+        <!-- Style للإطار الخارجي -->
+        <Style x:Key="OuterGlowBorderStyle" TargetType="Border">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryIndigoBrush}"/>
+            <Setter Property="CornerRadius" Value="26"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryGlowStrong}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Effect" Value="{StaticResource PrimaryGlow}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Container الداخلي -->
+        <Style x:Key="GlowPageContainer" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryIndigoBrush}"/>
+            <Setter Property="Padding" Value="30"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryGlowStrong}"/>
+        </Style>
+
+        <!-- Glow للـ Inputs -->
+        <Style x:Key="GlowFieldBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryIndigoBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="Effect" Value="{StaticResource PrimaryGlow}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- TextBox -->
+        <Style x:Key="RoundedTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- PasswordBox -->
+        <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- زر تسجيل الدخول -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Width" Value="364"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryIndigoBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
     <Grid Background="Transparent">
-        <!-- Outer rounded shell -->
-        <Border CornerRadius="26"
-                Background="#F5F6FA"
-                Effect="{StaticResource WindowShadow}">
+
+        <!-- الإطار الخارجي الأساسي مع Glow -->
+        <Border Style="{StaticResource OuterGlowBorderStyle}"
+                Background="#F5F6FA">
 
             <Grid Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="48"/>
-                    <!-- Header -->
                     <RowDefinition Height="*"/>
-                    <!-- Content -->
                 </Grid.RowDefinitions>
 
-                <!-- Close Button -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Margin="0,0,10,0">
-                    <Button Width="48" Height="40"
-                            Background="#E11D48" Foreground="White"
-                            BorderThickness="0"
-                            Content="✕"
-                            FontSize="14"
-                            FontWeight="Bold"
-                            Cursor="Hand"
+                <!-- زر الإغلاق X على اليمين -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Grid.Row="0"
+                            Margin="0,0,500,0">
+                    <Button Content="✕"
+                            Width="44" Height="38"
+                            Style="{StaticResource PrimaryButton}"
+                            Background="#E11D48"
                             Click="Close_Click"/>
                 </StackPanel>
 
-                <!-- Main Content -->
+                <!-- المحتوى الداخلي -->
                 <Border Grid.Row="1"
-                        Background="White"
-                        CornerRadius="18"
-                        BorderThickness="1"
-                        BorderBrush="#E8EAF2"
-                        Padding="30">
+                        Style="{StaticResource GlowPageContainer}">
 
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Width="400">
 
                         <TextBlock Text="تسجيل الدخول"
                                    FontSize="26"
@@ -58,33 +171,14 @@
                                        Width="140"
                                        VerticalAlignment="Center"
                                        FontWeight="SemiBold"/>
-                            <TextBox x:Name="EmailBox"
-                                     Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
-                                     Height="40"
-                                     Width="240"
-                                     Padding="8"
-                                     VerticalContentAlignment="Center"
-                                     Background="White"
-                                     BorderBrush="#CCC"
-                                     BorderThickness="1">
-                                <TextBox.Style>
-                                    <Style TargetType="TextBox">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="TextBox">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                            CornerRadius="8"
-                                                            SnapsToDevicePixels="True">
-                                                        <ScrollViewer x:Name="PART_ContentHost"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </TextBox.Style>
-                            </TextBox>
+
+                            <Border Style="{StaticResource GlowFieldBorder}" Width="240" Height="44">
+                                <Border Background="White" CornerRadius="10" Margin="2">
+                                    <TextBox x:Name="EmailBox"
+                                             Style="{StaticResource RoundedTextBox}"
+                                             Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Border>
+                            </Border>
                         </StackPanel>
 
                         <!-- Password -->
@@ -93,53 +187,20 @@
                                        Width="140"
                                        VerticalAlignment="Center"
                                        FontWeight="SemiBold"/>
-                            <PasswordBox x:Name="Pwd"
-                                         Height="40"
-                                         Width="240"
-                                         Padding="8"
-                                         VerticalContentAlignment="Center"
-                                         Background="White"
-                                         BorderBrush="#CCC"
-                                         BorderThickness="1">
-                                <PasswordBox.Style>
-                                    <Style TargetType="PasswordBox">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="PasswordBox">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                            CornerRadius="8"
-                                                            SnapsToDevicePixels="True">
-                                                        <ScrollViewer x:Name="PART_ContentHost"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </PasswordBox.Style>
-                            </PasswordBox>
+
+                            <Border Style="{StaticResource GlowFieldBorder}" Width="240" Height="44">
+                                <Border Background="White" CornerRadius="10" Margin="2">
+                                    <PasswordBox x:Name="Pwd"
+                                                 Style="{StaticResource RoundedPasswordBox}"/>
+                                </Border>
+                            </Border>
                         </StackPanel>
 
                         <!-- Login Button -->
                         <Button Content="تسجيل الدخول"
-                                Height="42"
-                                Width="364"
-                                Background="#1E1B4B"
-                                Foreground="White"
-                                FontWeight="SemiBold"
+                                Style="{StaticResource PrimaryButton}"
                                 Click="Login_Click"
-                                HorizontalAlignment="Center">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="8"
-                                            BorderThickness="0">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                                HorizontalAlignment="Center"/>
 
                         <!-- Message -->
                         <TextBlock Text="{Binding Message}"
@@ -147,6 +208,7 @@
                                    FontWeight="SemiBold"
                                    TextAlignment="Center"
                                    Margin="0,20,0,0"/>
+
                     </StackPanel>
 
                 </Border>
