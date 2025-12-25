@@ -35,5 +35,14 @@ namespace erp.Services
                 $"api/Reports/sales?fromDate={from}&toDate={to}"
             );
         }
+        public async Task<StockMovementReportDto?> GetStockMovementAsync(string productId)
+        {
+            if (string.IsNullOrWhiteSpace(productId))
+                throw new ArgumentException("ProductId is required");
+
+            return await _api.GetAsync<StockMovementReportDto>(
+                $"api/Reports/stock-movement?productId={productId}"
+            );
+        }
     }
 }
