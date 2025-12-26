@@ -1,5 +1,6 @@
 ﻿using EduGate.Models;
 using EduGate.Services;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -7,96 +8,88 @@ namespace EduGate.Views.Inventory
 {
     public partial class AddNewItem : Page
     {
-        private readonly InventoryService _inventoryService = new();
+        private readonly InventoryService _service = new();
+        private readonly List<Product> _products = new();
+
+        private int _count;
+        private int _index;
 
         public AddNewItem()
         {
             InitializeComponent();
-            DataContext = new Product();
         }
 
-        private async void SaveProduct_Click(object sender, RoutedEventArgs e)
+        // زرار "إدخال عدد المنتجات"
+        private void ShowCount_Click(object sender, RoutedEventArgs e)
         {
-            var product = (Product)DataContext;
+            IntroPanel.Visibility = Visibility.Collapsed;
+            CountPanel.Visibility = Visibility.Visible;
+        }
 
-            // ✅ Validation
-            if (!IsValid(product))
+        // زرار "ابدأ"
+        private void StartWizard_Click(object sender, RoutedEventArgs e)
+        {
+            if (!int.TryParse(CountTextBox.Text, out _count) || _count <= 0)
+            {
+                MessageBox.Show("من فضلك أدخل رقم صحيح");
                 return;
+            }
 
+            _products.Clear();
+            for (int i = 0; i < _count; i++)
+                _products.Add(new Product());
+
+            CountPanel.Visibility = Visibility.Collapsed;
+            FormPanel.Visibility = Visibility.Visible;
+
+            _index = 0;
+            LoadCurrent();
+        }
+
+        private void LoadCurrent()
+        {
+            DataContext = _products[_index];
+            StepTitle.Text = $"المنتج {_index + 1} من {_count}";
+
+            NextBtn.Visibility = _index == _count - 1
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+
+            SaveBtn.Visibility = _index == _count - 1
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        private void Next_Click(object sender, RoutedEventArgs e)
+        {
+            if (_index < _count - 1)
+            {
+                _index++;
+                LoadCurrent();
+            }
+        }
+
+        private void Prev_Click(object sender, RoutedEventArgs e)
+        {
+            if (_index > 0)
+            {
+                _index--;
+                LoadCurrent();
+            }
+        }
+
+        private async void Save_Click(object sender, RoutedEventArgs e)
+        {
             try
             {
-                await _inventoryService.AddProductAsync(product);
-
-                MessageBox.Show("تم إضافة المنتج بنجاح ✅", "نجاح",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
+                await _service.AddProductsWithCategoryNameAsync(_products);
+                MessageBox.Show("تم إضافة المنتجات بنجاح ✅");
                 NavigationService.GoBack();
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show(
-                    "حدث خطأ أثناء الإضافة:\n" + ex.Message,
-                    "خطأ",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Show(ex.Message);
             }
-        }
-
-        private bool IsValid(Product product)
-        {
-            if (string.IsNullOrWhiteSpace(product.Name))
-            {
-                ShowError("من فضلك أدخل اسم المنتج");
-                return false;
-            }
-
-            else if (string.IsNullOrWhiteSpace(product.SKU))
-            {
-                ShowError("من فضلك أدخل SKU");
-                return false;
-            }
-
-            else if (product.SalePrice <= 0)
-            {
-                ShowError("سعر البيع لازم يكون أكبر من صفر");
-                return false;
-            }
-
-            else if (product.BuyPrice <= 0)
-            {
-                ShowError("سعر الشراء لازم يكون أكبر من صفر");
-                return false;
-            }
-
-            else if (product.Quantity <= 0)
-            {
-                ShowError("الكمية لازم تكون أكبر من صفر");
-                return false;
-            }
-
-            else if (product.Supplier == null)
-            {
-                ShowError("من فضلك اختر المورد");
-                return false;
-            }
-
-            else if (product.Category == null)
-            {
-                ShowError("من فضلك اختر الصنف");
-                return false;
-            }
-
-            // ❌ الوصف اختياري → مفيش Validation عليه
-            return true;
-        }
-
-        private void ShowError(string message)
-        {
-            MessageBox.Show(
-                message,
-                "تنبيه",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
         }
     }
 }

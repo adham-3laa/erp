@@ -33,35 +33,35 @@
                     <StackPanel Grid.Row="1" Margin="0,8,0,0">
                         <TextBlock Text="اسم المنتج"/>
                         <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding Name}"/>
+                                 Text="{Binding Name, Mode=TwoWay}"/>
                     </StackPanel>
 
                     <!-- سعر البيع -->
                     <StackPanel Grid.Row="2" Margin="0,10,0,0">
                         <TextBlock Text="سعر البيع"/>
                         <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding SalePrice}"/>
+                                 Text="{Binding SalePrice, Mode=TwoWay}"/>
                     </StackPanel>
 
                     <!-- سعر الشراء -->
                     <StackPanel Grid.Row="3" Margin="0,10,0,0">
                         <TextBlock Text="سعر الشراء"/>
                         <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding BuyPrice}"/>
+                                 Text="{Binding BuyPrice, Mode=TwoWay}"/>
                     </StackPanel>
 
                     <!-- الكمية -->
                     <StackPanel Grid.Row="4" Margin="0,10,0,0">
                         <TextBlock Text="الكمية"/>
                         <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding Quantity}"/>
+                                 Text="{Binding Quantity, Mode=TwoWay}"/>
                     </StackPanel>
 
                     <!-- الوصف -->
                     <StackPanel Grid.Row="5" Margin="0,10,0,0">
                         <TextBlock Text="الوصف"/>
                         <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding Description}"
+                                 Text="{Binding Description, Mode=TwoWay}"
                                  Height="80"
                                  TextWrapping="Wrap"
                                  AcceptsReturn="True"/>
@@ -77,8 +77,6 @@
                                 Style="{StaticResource DarkButtonStyle}"
                                 Width="140"
                                 Click="Save_Click"/>
-
-                        
                     </StackPanel>
 
                 </Grid>

@@ -13,9 +13,10 @@ namespace EduGate.Views.Inventory
         public EditProductPage(Product product)
         {
             InitializeComponent();
-            _inventoryService = new InventoryService();
 
+            _inventoryService = new InventoryService();
             _product = product;
+
             DataContext = _product;
         }
 
@@ -23,19 +24,31 @@ namespace EduGate.Views.Inventory
         {
             try
             {
+                if (_product.SalePrice <= 0)
+                {
+                    MessageBox.Show("سعر البيع غير صالح");
+                    return;
+                }
+
+                if (_product.BuyPrice <= 0)
+                    _product.BuyPrice = _product.SalePrice;
+
+                if (_product.Quantity <= 0)
+                    _product.Quantity = 1;
+
+                if (string.IsNullOrWhiteSpace(_product.SKU))
+                    _product.SKU = "N/A";
+
                 await _inventoryService.UpdateProductAsync(_product);
                 MessageBox.Show("تم تحديث المنتج بنجاح ✅");
                 NavigationService.GoBack();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("خطأ أثناء التحديث: " + ex.Message);
             }
         }
 
-        private void Back_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService.GoBack();
-        }
+
     }
 }
