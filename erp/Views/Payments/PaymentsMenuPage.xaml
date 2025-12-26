@@ -20,10 +20,7 @@
                         Click="CustomersPayments_Click"/>
                 
 
-                <!-- الدفع للمورد -->
-                <Button Content="الدفع للمورد"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Click="SuppliersPayments_Click"/>
+                
 
             </StackPanel>
         </Border>

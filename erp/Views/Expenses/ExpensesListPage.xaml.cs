@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using erp.ViewModels;
 
 namespace erp.Views.Expenses
@@ -26,26 +14,22 @@ namespace erp.Views.Expenses
 
         private void AddExpense_Click(object sender, RoutedEventArgs e)
         {
-            // التنقل لصفحة إضافة مصروف داخل MainFrame
-            var frame = System.Windows.Application.Current.MainWindow
-                        .FindName("MainFrame") as Frame;
-
-            frame?.Navigate(new AddExpensePage());
+            var window = Window.GetWindow(this) as MainWindow;
+            window?.MainFrame.Navigate(new AddExpensePage());
         }
+
         private void MyExpenses_Click(object sender, RoutedEventArgs e)
         {
-            var frame = System.Windows.Application.Current.MainWindow
-                .FindName("MainFrame") as Frame;
-
-            frame?.Navigate(new MyExpensesPage());
+            var window = Window.GetWindow(this) as MainWindow;
+            window?.MainFrame.Navigate(new MyExpensesPage());
         }
+
         private void ExpensesByAccountant_Click(object sender, RoutedEventArgs e)
         {
-            var frame = System.Windows.Application.Current.MainWindow
-                .FindName("MainFrame") as Frame;
-
-            frame?.Navigate(new ExpensesByAccountantPage());
+            var accountantUserId = "acc-1001"; // الـ Id الثابت للمحاسب الوحيد
+            var window = Window.GetWindow(this) as MainWindow;
+            window?.MainFrame.Navigate(new ExpensesByAccountantPage(accountantUserId));
         }
+
     }
 }
-

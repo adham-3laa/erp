@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using erp.DTOS.InvoicesDTOS;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using erp.DTOS.InvoicesDTOS;
 
 namespace erp.Views.Invoices
 {
@@ -22,11 +11,30 @@ namespace erp.Views.Invoices
         {
             InitializeComponent();
             DataContext = invoice;
+
+            // التحكم في زر الدفع
+            PayButton.IsEnabled = invoice.RemainingAmount > 0;
         }
 
-        private void Back_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void Back_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.GoBack();
+            var nav = NavigationService.GetNavigationService(this);
+            if (nav?.CanGoBack == true)
+                nav.GoBack();
+        }
+
+        private void Pay_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is InvoiceResponseDto invoice)
+            {
+                if (invoice.RemainingAmount <= 0)
+                    return;
+
+                var nav = NavigationService.GetNavigationService(this);
+                nav?.Navigate(
+                    new erp.Views.Payments.PaySupplierInvoicePage(invoice.Id)
+                );
+            }
         }
     }
 }

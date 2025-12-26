@@ -31,10 +31,10 @@ namespace erp.Views.Payments
             this.NavigationService?.Navigate(new PaymentsFromCustomersPage());
         }
 
-        private void SuppliersPayments_Click(object sender, RoutedEventArgs e)
-        {
-            this.NavigationService?.Navigate(new PaySupplierPage());
-        }
+        //private void SuppliersPayments_Click(object sender, RoutedEventArgs e)
+        //{
+        //    this.NavigationService?.Navigate(new PaySupplierPage());
+        //}
 
     }
 }
