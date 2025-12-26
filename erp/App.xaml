@@ -11,6 +11,9 @@
                                              PrimaryColor="Blue"
                                              SecondaryColor="Teal"/>
                 <ResourceDictionary Source="Themes/ModernTheme.xaml"/>
+                <materialDesign:BundledTheme BaseTheme="Light"
+                                 PrimaryColor="Indigo"
+                                 SecondaryColor="DeepPurple"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->

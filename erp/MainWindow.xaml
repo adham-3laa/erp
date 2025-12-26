@@ -118,6 +118,7 @@
                             <ListBoxItem Tag="Items" Content="🏷️ الأصناف"/>
                             <ListBoxItem Tag="Suppliers" Content="🚚 الموردين"/>
                             <ListBoxItem Tag="Reports" Content="📊 التقارير"/>
+                            <ListBoxItem Tag="Returns" Content="↩️ المرتجعات"/>
                             <ListBoxItem Tag="Auth" Content="🔐 المصادقة"/>
 
                         </ListBox>
