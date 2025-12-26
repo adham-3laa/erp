@@ -1,28 +1,28 @@
 ﻿<Page x:Class="erp.Views.Returns.ReturnsOrderItemsView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Returns">
+      Title="المرتجعات"
+      FlowDirection="RightToLeft">
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ===== OrderId Input ===== -->
+        <!-- ===== إدخال رقم الطلب ===== -->
         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-            <TextBlock Text="Order Id:" VerticalAlignment="Center"/>
+            <TextBlock Text="رقم الطلب:" VerticalAlignment="Center"/>
             <TextBox x:Name="OrderIdTextBox"
                      Width="350"
                      Margin="10,0,10,0"/>
-            <Button Content="Load"
+            <Button Content="تحميل"
                     Width="80"
                     Click="Load_Click"/>
         </StackPanel>
 
-        <!-- ===== Items ===== -->
-        <ScrollViewer Grid.Row="2">
+        <!-- ===== الأصناف ===== -->
+        <ScrollViewer Grid.Row="1">
             <ItemsControl ItemsSource="{Binding OrderItems}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -31,25 +31,38 @@
                                 Padding="10"
                                 Margin="0,6">
                             <StackPanel>
-                                <TextBlock Text="{Binding ProductId}" FontWeight="Bold"/>
 
+                                <!-- رقم الصنف -->
+                                <TextBlock Text="{Binding ProductId}"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,4"/>
+
+                                <!-- الكمية والسعر -->
                                 <TextBlock>
-                                    <Run Text="Qty: "/>
+                                    <Run Text="الكمية: "/>
                                     <Run Text="{Binding Quantity}"/>
-                                    <Run Text="  Price: "/>
+                                    <Run Text="   السعر: "/>
                                     <Run Text="{Binding UnitPrice}"/>
                                 </TextBlock>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="Return:" Width="60"/>
+                                <!-- كمية المرتجع -->
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="كمية المرتجع:"
+                                               Width="100"
+                                               VerticalAlignment="Center"/>
                                     <TextBox Width="60"
                                              Text="{Binding ReturnQuantity,
                                              UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
-                                <TextBox Margin="0,6,0,0"
-                                         Text="{Binding Reason,
-                                         UpdateSourceTrigger=PropertyChanged}"/>
+                                <!-- سبب الإرجاع -->
+                                <TextBlock Text="سبب الإرجاع"
+                                           Margin="0,8,0,2"/>
+
+                                <TextBox Text="{Binding Reason,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                                         Height="30"/>
+
                             </StackPanel>
                         </Border>
                     </DataTemplate>
