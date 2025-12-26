@@ -22,5 +22,13 @@ namespace EduGate.Views.Inventory
         {
             (Application.Current.MainWindow as erp.MainWindow)?.MainFrame.Navigate(new InventoryPage());
         }
+
+        public event RoutedEventHandler InventoryCheckClicked;
+
+        private void InventoryCheck_Click(object sender, RoutedEventArgs e)
+        {
+            InventoryCheckClicked?.Invoke(sender, e);
+        }
+
     }
 }

@@ -2,10 +2,8 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using erp.DTOS;
-using erp.DTOS.ExpensesDTOS;
 using erp.Services;
 
 namespace erp.ViewModels
@@ -13,9 +11,9 @@ namespace erp.ViewModels
     public class ExpensesByAccountantViewModel : INotifyPropertyChanged
     {
         private readonly ExpenseService _expenseService;
+        private readonly string _accountantUserId;
 
-        public ObservableCollection<ExpenseResponseDto> Expenses { get; }
-            = new ObservableCollection<ExpenseResponseDto>();
+        public ObservableCollection<ExpenseResponseDto> Expenses { get; } = new();
 
         private bool _isBusy;
         public bool IsBusy
@@ -33,16 +31,15 @@ namespace erp.ViewModels
 
         public RelayCommand LoadExpensesCommand { get; }
 
-        public ExpensesByAccountantViewModel()
+        // ✅ استقبل accountantUserId عند إنشاء الـ ViewModel
+        public ExpensesByAccountantViewModel(string accountantUserId)
         {
             _expenseService = new ExpenseService();
+            _accountantUserId = accountantUserId;
 
-            LoadExpensesCommand = new RelayCommand(
-     async () => await LoadExpenses()
-            );
+            LoadExpensesCommand = new RelayCommand(async () => await LoadExpenses());
 
-
-            // تحميل تلقائي
+            // تحميل تلقائي عند فتح الصفحة
             _ = LoadExpenses();
         }
 
@@ -54,10 +51,14 @@ namespace erp.ViewModels
                 ErrorMessage = null;
                 Expenses.Clear();
 
-                var data = await _expenseService.GetExpensesByAccountant();
+                // جلب المصروفات بناءً على الـ accountantUserId الحالي
+                var data = await _expenseService.GetExpensesByAccountant(_accountantUserId);
 
                 foreach (var item in data)
                     Expenses.Add(item);
+
+                if (data == null || data.Count == 0)
+                    ErrorMessage = "لا توجد مصروفات للعرض";
             }
             catch
             {

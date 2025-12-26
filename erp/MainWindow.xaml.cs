@@ -5,14 +5,12 @@ using erp.Views.Category;
 using erp.Views.Dashboard;     // ✅ NEW
 using erp.Views.Expenses;
 using erp.Views.Invoices;
+using erp.Views.Payments;
 using erp.Views.Returns;
 using erp.Views.Users;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using erp.Services;
-using erp.ViewModels.Returns;
-using erp.Views.Returns;
 
 
 
@@ -81,6 +79,10 @@ namespace erp
                     MainFrame.Navigate(new InventoryPage());
                     break;
 
+                case "Payments":
+                    MainFrame.Navigate(new PaymentsMenuPage());
+                    break;
+
                 case "Invoices":
                     MainFrame.Navigate(new InvoicesListPage());
                     break;
@@ -114,6 +116,10 @@ namespace erp
                     break;
 
                 case "Orders":
+                    MainFrame.Navigate(new EduGate.Views.Orders.ApprovedOrdersPage());
+                    SelectNavItem("Orders");
+                    break;
+
                 case "Suppliers":
                 case "Auth":
                 default:

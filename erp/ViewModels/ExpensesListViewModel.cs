@@ -1,86 +1,98 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.Input;
+using erp.DTOS;
+using erp.Services;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
-using CommunityToolkit.Mvvm.Input;
-using erp.DTOS;
-using erp.DTOS.ExpensesDTOS;
-using erp.Services;
 
 namespace erp.ViewModels
 {
     public class ExpensesListViewModel : INotifyPropertyChanged
     {
-        private readonly ExpenseService _expenseService;
+        private readonly ExpenseService _service;
+
+        public ExpensesListViewModel()
+        {
+            _service = new ExpenseService();
+
+            Expenses = new ObservableCollection<ExpenseResponseDto>();
+            Accountants = new ObservableCollection<UserDto>(); // ✅ قائمة المحاسبين
+
+            LoadAllCommand = new AsyncRelayCommand(LoadAll);
+            LoadMyCommand = new AsyncRelayCommand(LoadMy);
+            LoadByAccountantCommand = new AsyncRelayCommand(LoadByAccountant);
+
+            AddExpenseCommand = new RelayCommand(OpenAddExpense);
+
+            // ✅ تحميل كل المصروفات أول ما الصفحة تفتح
+            _ = LoadAll();
+        }
 
         public ObservableCollection<ExpenseResponseDto> Expenses { get; }
-            = new ObservableCollection<ExpenseResponseDto>();
+        public ObservableCollection<UserDto> Accountants { get; } // ✅ خاصية المحاسبين للـ ComboBox
+        private UserDto _selectedAccountant;
+        public UserDto SelectedAccountant
+        {
+            get => _selectedAccountant;
+            set { _selectedAccountant = value; OnPropertyChanged(); }
+        }
 
         private bool _isBusy;
         public bool IsBusy
         {
             get => _isBusy;
-            set
-            {
-                _isBusy = value;
-                OnPropertyChanged();
-            }
+            set { _isBusy = value; OnPropertyChanged(); }
         }
 
         private string _errorMessage;
         public string ErrorMessage
         {
             get => _errorMessage;
-            set
-            {
-                _errorMessage = value;
-                OnPropertyChanged();
-            }
+            set { _errorMessage = value; OnPropertyChanged(); }
         }
 
-        // Commands
-        public ICommand LoadMyExpensesCommand { get; }
-        public ICommand LoadExpensesByAccountantCommand { get; }
+        public IAsyncRelayCommand LoadAllCommand { get; }
+        public IAsyncRelayCommand LoadMyCommand { get; }
+        public IAsyncRelayCommand LoadByAccountantCommand { get; }
         public ICommand AddExpenseCommand { get; }
 
-        public ExpensesListViewModel()
+        private async Task LoadAll()
         {
-            _expenseService = new ExpenseService();
+            await Load(
+                () => _service.GetAllExpenses(),
+                "حدث خطأ أثناء تحميل جميع المصروفات"
+            );
+        }
 
-            LoadMyExpensesCommand =
-                new RelayCommand(async () => await LoadMyExpenses());
+        private async Task LoadMy()
+        {
+            await Load(
+                () => _service.GetMyExpenses(),
+                "حدث خطأ أثناء تحميل مصروفاتك"
+            );
+        }
 
-            LoadExpensesByAccountantCommand =
-                new RelayCommand(async () => await LoadExpensesByAccountant());
-
-            AddExpenseCommand = new RelayCommand(() =>
+        private async Task LoadByAccountant()
+        {
+            if (SelectedAccountant == null)
             {
-                var frame = System.Windows.Application.Current.MainWindow
-                    .FindName("MainFrame") as System.Windows.Controls.Frame;
+                ErrorMessage = "يرجى اختيار محاسب أولاً";
+                return;
+            }
 
-                frame?.Navigate(new erp.Views.Expenses.AddExpensePage());
-            });
-
-            _ = LoadMyExpenses();
+            await Load(
+                () => _service.GetExpensesByAccountant(SelectedAccountant.Id),
+                "حدث خطأ أثناء تحميل مصروفات المحاسب"
+            );
         }
 
-        // ================= Logic =================
-        private async Task LoadMyExpenses()
-        {
-            await Load(async () => await _expenseService.GetMyExpenses(),
-                 "حدث خطأ أثناء تحميل مصروفاتي");
-        }
-
-        private async Task LoadExpensesByAccountant()
-        {
-            await Load(async () => await _expenseService.GetExpensesByAccountant(),
-                 "حدث خطأ أثناء تحميل مصروفات المحاسب");
-        }
-
-        private async Task Load(
-            Func<Task<List<ExpenseResponseDto>>> loader,
-            string errorMsg)
+        private async Task Load(Func<Task<List<ExpenseResponseDto>>> loader, string errorMessage)
         {
             try
             {
@@ -90,24 +102,35 @@ namespace erp.ViewModels
 
                 var data = await loader();
 
+                if (data == null || data.Count == 0)
+                {
+                    ErrorMessage = "لا توجد مصروفات للعرض";
+                    return;
+                }
+
                 foreach (var item in data)
                     Expenses.Add(item);
             }
-            catch
+            catch (Exception ex)
             {
-                ErrorMessage = errorMsg;
+                if (ex.Message.Contains("Unauthorized"))
+                    ErrorMessage = "برجاء تسجيل الدخول مرة أخرى";
+                else
+                    ErrorMessage = errorMessage;
             }
-            finally
-            {
-                IsBusy = false;
-            }
+            finally { IsBusy = false; }
         }
-        // ================= INotifyPropertyChanged =================
-        public event PropertyChangedEventHandler PropertyChanged;
 
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OpenAddExpense()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (Application.Current.MainWindow == null) return;
+
+            var frame = Application.Current.MainWindow.FindName("MainFrame") as Frame;
+            frame?.Navigate(new Views.Expenses.AddExpensePage());
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

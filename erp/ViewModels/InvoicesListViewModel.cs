@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace erp.ViewModels.Invoices
 {
@@ -19,10 +18,14 @@ namespace erp.ViewModels.Invoices
             _invoiceService = new InvoiceService();
             Invoices = new ObservableCollection<InvoiceResponseDto>();
 
-            LoadInvoicesCommand = new RelayCommand(async () => await LoadInvoices());
+            InvoiceType = "الكل";
+            IsLastInvoice = "الكل";
+
+            LoadInvoicesCommand = new RelayCommand(async () => await LoadInvoices(true));
             NextPageCommand = new RelayCommand(async () => await NextPage(), () => HasNextPage);
             PreviousPageCommand = new RelayCommand(async () => await PreviousPage(), () => Page > 1);
         }
+
 
         // ================= Data =================
 
@@ -30,63 +33,84 @@ namespace erp.ViewModels.Invoices
 
         // ================= Filters =================
 
+        // 🔍 بحث عام
         private string _search;
         public string Search
         {
             get => _search;
-            set
-            {
-                _search = value;
-                OnPropertyChanged();
-            }
+            set { _search = value; OnPropertyChanged(); }
         }
 
+        // 🧾 نوع الفاتورة (القيمة العربية من الـ UI)
         private string _invoiceType;
         public string InvoiceType
         {
             get => _invoiceType;
-            set
-            {
-                _invoiceType = value;
-                OnPropertyChanged();
-            }
+            set { _invoiceType = value; OnPropertyChanged(); }
         }
 
-        private string _query;
-        public string Query
+        // ✅ تحويل القيمة العربية للقيمة اللي Swagger مستنيها
+        private string InvoiceTypeApiValue =>
+            string.IsNullOrWhiteSpace(InvoiceType) || InvoiceType == "الكل"
+                ? null
+                : InvoiceType switch
+                {
+                    "فواتير العملاء" => "CustomerInvoice",
+                    "فواتير العمولات" => "CommissionInvoice",
+                    "فواتير الموردين" => "SupplierInvoice",
+                    "فواتير المرتجعات" => "ReturnInvoice",
+                    _ => null
+                };
+
+
+        // 🆔 رقم الطلب
+        private string _orderId;
+        public string OrderId
         {
-            get => _query;
-            set
-            {
-                _query = value;
-                OnPropertyChanged();
-            }
+            get => _orderId;
+            set { _orderId = value; OnPropertyChanged(); }
         }
 
+        // 👤 رقم أو اسم المستلم
+        private string _recipientQuery;
+        public string RecipientQuery
+        {
+            get => _recipientQuery;
+            set { _recipientQuery = value; OnPropertyChanged(); }
+        }
+
+        // 📅 من تاريخ
         private DateTime? _fromDate;
         public DateTime? FromDate
         {
             get => _fromDate;
-            set
-            {
-                _fromDate = value;
-                OnPropertyChanged();
-            }
+            set { _fromDate = value; OnPropertyChanged(); }
         }
 
+        // 📅 إلى تاريخ
         private DateTime? _toDate;
         public DateTime? ToDate
         {
             get => _toDate;
-            set
-            {
-                _toDate = value;
-                OnPropertyChanged();
-            }
+            set { _toDate = value; OnPropertyChanged(); }
         }
 
-        // ================= Paging =================
+        // 🧾 آخر فاتورة (نعم / لا)
+        private string _isLastInvoice;
+        public string IsLastInvoice
+        {
+            get => _isLastInvoice;
+            set { _isLastInvoice = value; OnPropertyChanged(); }
+        }
 
+        // تحويل القيمة العربية إلى bool? علشان الـ API
+        private bool? IsLastInvoiceBool =>
+            IsLastInvoice == "نعم" ? true :
+            IsLastInvoice == "لا" ? false :
+            null;
+
+
+        // ================= Paging =================
         private int _page = 1;
         public int Page
         {
@@ -99,18 +123,9 @@ namespace erp.ViewModels.Invoices
             }
         }
 
-        private int _pageSize = 10;
-        public int PageSize
-        {
-            get => _pageSize;
-            set
-            {
-                _pageSize = value;
-                OnPropertyChanged();
-            }
-        }
+        public int PageSize { get; } = 10;
 
-        private bool _hasNextPage = true;
+        private bool _hasNextPage;
         public bool HasNextPage
         {
             get => _hasNextPage;
@@ -122,17 +137,14 @@ namespace erp.ViewModels.Invoices
             }
         }
 
+
         // ================= UI State =================
 
         private bool _isLoading;
         public bool IsLoading
         {
             get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
+            set { _isLoading = value; OnPropertyChanged(); }
         }
 
         // ================= Commands =================
@@ -141,50 +153,56 @@ namespace erp.ViewModels.Invoices
         public RelayCommand NextPageCommand { get; }
         public RelayCommand PreviousPageCommand { get; }
 
-
         // ================= Logic =================
-
-        private async Task LoadInvoices()
+        private async Task LoadInvoices(bool resetPage)
         {
             try
             {
-                IsLoading = true;
+                if (resetPage)
+                    Page = 1;
+
                 Invoices.Clear();
 
-                var data = await _invoiceService.GetInvoices(
-                    Search,
-                    InvoiceType,
-                    Query,
-                    FromDate,
-                    ToDate,
-                    Page,
-                    PageSize);
+                var response = await _invoiceService.GetInvoices(
+                    search: Search,
+                    invoiceType: InvoiceTypeApiValue,
+                    query: RecipientQuery,
+                    orderId: OrderId,
+                    lastInvoice: IsLastInvoiceBool,
+                    fromDate: FromDate,
+                    toDate: ToDate,
+                    page: Page,
+                    pageSize: PageSize
+                );
 
-                foreach (var invoice in data)
+                if (response?.Items == null)
+                    return;
+
+                foreach (var invoice in response.Items)
                     Invoices.Add(invoice);
 
-                // لو عدد النتائج أقل من PageSize → مفيش صفحة بعدها
-                HasNextPage = data.Count == PageSize;
+                HasNextPage = (Page * PageSize) < response.TotalItems;
             }
-            finally
+            catch
             {
-                IsLoading = false;
+                HasNextPage = false;
             }
         }
 
         private async Task NextPage()
         {
+            if (!HasNextPage) return;
+
             Page++;
-            await LoadInvoices();
+            await LoadInvoices(false);
         }
 
         private async Task PreviousPage()
         {
-            if (Page > 1)
-            {
-                Page--;
-                await LoadInvoices();
-            }
+            if (Page <= 1) return;
+
+            Page--;
+            await LoadInvoices(false);
         }
 
         private void RaisePagingCommands()

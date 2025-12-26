@@ -49,52 +49,26 @@
                     </UniformGrid>
                 </Border>
 
-                <!-- ================= Order Details ================= -->
-                <Border Style="{StaticResource CardStyle}"
-                        Margin="0,0,0,20">
+                <!-- ================= Actions ================= -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,0,16">
 
-                    <Grid Margin="16">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                    <!-- زر الدفع -->
+                    <Button x:Name="PayButton"
+                            Content="💰 دفع"
+                            Width="160"
+                            Margin="0,0,12,0"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Click="Pay_Click"/>
 
-                        <!-- Section Title -->
-                        <TextBlock Text="تفاصيل الطلب"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,12"/>
+                    <!-- زر الرجوع -->
+                    <Button Content="⬅ رجوع"
+                            Width="140"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Click="Back_Click"/>
+                </StackPanel>
 
-                        <!-- Order Items Table -->
-                        <DataGrid Grid.Row="1"
-                                  ItemsSource="{Binding OrderItems}"
-                                  AutoGenerateColumns="False"
-                                  IsReadOnly="True"
-                                  ColumnWidth="*">
-
-                            <DataGrid.Columns>
-
-                                <DataGridTextColumn Header="المنتج"
-                                                    Binding="{Binding ProductName}"/>
-
-                                <DataGridTextColumn Header="الكمية"
-                                                    Binding="{Binding Quantity}"/>
-
-                                <DataGridTextColumn Header="سعر الوحدة"
-                                                    Binding="{Binding UnitPrice}"/>
-
-                                <DataGridTextColumn Header="الإجمالي"
-                                                    Binding="{Binding TotalPrice}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
-                </Border>
-
-                <!-- ================= Back ================= -->
-                <Button Content="⬅ رجوع"
-                        Style="{StaticResource DarkButtonStyle}"
-                        HorizontalAlignment="Left"
-                        Click="Back_Click"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

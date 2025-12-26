@@ -22,6 +22,7 @@ namespace EduGate.Views.Inventory
             _inventoryService = new InventoryService();
             LoadProducts();
 
+            InventoryTopBarControl.InventoryCheckClicked += InventoryTopBar_InventoryCheckClicked;
             InventoryTopBarControl.AddProductClicked += InventoryTopBar_AddProductClicked;
         }
 
@@ -40,14 +41,9 @@ namespace EduGate.Views.Inventory
                 LoadProductsPage();
                 ErrorTextBlock.Visibility = Visibility.Collapsed;
             }
-            catch
+            catch (System.Exception ex)
             {
-                // ✅ داتا وهمية مؤقتة للتجربة
-                _products = GetDummyProducts();
-                _currentPage = 1;
-                LoadProductsPage();
-
-                ErrorTextBlock.Text = "⚠️ تم تحميل بيانات تجريبية (API غير متصل)";
+                ErrorTextBlock.Text = ex.Message;
                 ErrorTextBlock.Visibility = Visibility.Visible;
             }
         }
@@ -161,39 +157,10 @@ namespace EduGate.Views.Inventory
             LoadProductsPage();
         }
 
-        // ================== Dummy Data ==================
-        private List<Product> GetDummyProducts()
+        private void InventoryTopBar_InventoryCheckClicked(object sender, RoutedEventArgs e)
         {
-            return new List<Product>
-            {
-                new Product
-                {
-                    ProductId = 1,
-                    Name = "لاب توب Dell",
-                    Quantity = 15,
-                    SalePrice = 18000,
-                    BuyPrice = 15000,
-                    Supplier = "شركة النور"
-                },
-                new Product
-                {
-                    ProductId = 2,
-                    Name = "ماوس Logitech",
-                    Quantity = 50,
-                    SalePrice = 450,
-                    BuyPrice = 300,
-                    Supplier = "Tech Store"
-                },
-                new Product
-                {
-                    ProductId = 3,
-                    Name = "كيبورد ميكانيكال",
-                    Quantity = 30,
-                    SalePrice = 1200,
-                    BuyPrice = 850,
-                    Supplier = "Gear Hub"
-                }
-            };
+            NavigationService?.Navigate(new InventoryCheckPage());
         }
+
     }
 }

@@ -9,42 +9,43 @@
         <vm:CategoryListViewModel/>
     </Page.DataContext>
 
-    <!-- UI-only resources (no logic changes) -->
     <Page.Resources>
 
-        <!-- ====== GLOW / SHADOW (color of buttons) ====== -->
+        <!-- ===== Glow ===== -->
         <DropShadowEffect x:Key="PrimaryPageGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="28"
-                          ShadowDepth="0"
-                          Opacity="0.55"/>
-
-        <DropShadowEffect x:Key="PrimaryOutlineGlow"
-                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="18"
+                          BlurRadius="26"
                           ShadowDepth="0"
                           Opacity="0.45"/>
 
-        <!-- ====== TABLE OUTER BORDER STYLE (border = button color + glow) ====== -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="16"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+
+        <!-- ===== Outer Table Border ===== -->
         <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
-            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Padding" Value="12"/>
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
         </Style>
 
-        <!-- ====== Headers centered (FIXED: removed TextAlignment) ====== -->
+        <!-- ===== Column Header Style (BLACK) ===== -->
         <Style x:Key="CenteredHeaderStyle"
                TargetType="DataGridColumnHeader"
                BasedOn="{StaticResource ProDataGridHeaderStyle}">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="Black"/>
         </Style>
 
-        <!-- ====== Text inside cells: TOP + CENTER horizontally + BLACK ====== -->
+        <!-- ===== Cell Text Style (BLACK) ===== -->
         <Style x:Key="TopCenterCellTextStyle" TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
@@ -54,7 +55,7 @@
             <Setter Property="Foreground" Value="Black"/>
         </Style>
 
-        <!-- ====== Cell alignment: top + center (keeps your ProDataGridCellStyle look) ====== -->
+        <!-- ===== DataGrid Cell ===== -->
         <Style x:Key="TopCenterGridCellStyle"
                TargetType="DataGridCell"
                BasedOn="{StaticResource ProDataGridCellStyle}">
@@ -64,7 +65,7 @@
             <Setter Property="Foreground" Value="Black"/>
         </Style>
 
-        <!-- ====== Red Delete button style based on your existing DarkButtonStyle ====== -->
+        <!-- ===== Delete Button ===== -->
         <Style x:Key="DeleteRedButtonStyle"
                TargetType="Button"
                BasedOn="{StaticResource DarkButtonStyle}">
@@ -85,7 +86,6 @@
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
-
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#991B1B"/>
@@ -96,7 +96,7 @@
                                 <Setter Property="BorderBrush" Value="#B91C1C"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.65"/>
+                                <Setter Property="Opacity" Value="0.6"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -108,7 +108,6 @@
 
     <Grid Margin="20">
 
-        <!-- Page container: border + glow/shadow in button color -->
         <Border CornerRadius="18"
                 Background="{StaticResource CardBrush}"
                 BorderBrush="{StaticResource PrimaryBrush}"
@@ -116,7 +115,6 @@
                 Padding="16"
                 Effect="{StaticResource PrimaryPageGlow}">
 
-            <!-- Inner Card -->
             <Border Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -125,12 +123,13 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Header -->
+                    <!-- ===== Header ===== -->
                     <DockPanel Grid.Row="0" Margin="0,0,0,12">
+
                         <TextBlock Text="الأصناف"
                                    FontSize="20"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource PrimaryBrush}"
+                                   Foreground="Black"
                                    DockPanel.Dock="Left"/>
 
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
@@ -149,7 +148,6 @@
                                     Margin="6,0"
                                     Command="{Binding RefreshCommand}"/>
 
-                            <!-- Delete -> Red -->
                             <Button Style="{StaticResource DeleteRedButtonStyle}"
                                     Content="حذف المحدد"
                                     Margin="6,0"
@@ -157,7 +155,7 @@
                         </StackPanel>
                     </DockPanel>
 
-                    <!-- Error -->
+                    <!-- ===== Error ===== -->
                     <Border Grid.Row="1"
                             Margin="0,0,0,10"
                             CornerRadius="14"
@@ -169,13 +167,13 @@
                         <DockPanel>
                             <TextBlock Text="⚠️" FontSize="16" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding Error}"
-                                       Foreground="#991B1B"
+                                       Foreground="Black"
                                        FontWeight="SemiBold"
                                        TextWrapping="Wrap"/>
                         </DockPanel>
                     </Border>
 
-                    <!-- Table outer border -->
+                    <!-- ===== Table ===== -->
                     <Border Grid.Row="2" Style="{StaticResource GlowingTableOuterBorder}">
 
                         <DataGrid Style="{StaticResource ProDataGridStyle}"
@@ -210,7 +208,6 @@
 
                 </Grid>
             </Border>
-
         </Border>
     </Grid>
 </Page>
