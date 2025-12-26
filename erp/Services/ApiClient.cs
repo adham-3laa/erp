@@ -196,5 +196,19 @@ public sealed class ApiClient
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         return DeserializeOrThrow<T>(json);
     }
+    private void ApplyFallbackToken(HttpRequestMessage req)
+    {
+        // لو فيه Authorization already
+        if (req.Headers.Authorization != null)
+            return;
+
+        // خد التوكن من HttpClient نفسه
+        var auth = _http.DefaultRequestHeaders.Authorization;
+        if (auth == null)
+            return;
+
+        req.Headers.Authorization = auth;
+    }
+
 
 }

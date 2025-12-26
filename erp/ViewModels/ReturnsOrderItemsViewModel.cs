@@ -28,16 +28,16 @@ namespace erp.ViewModels.Returns
 
                 var items = await _returnsService.GetOrderItemsByOrderIdAsync(orderId);
 
-                // 👇 DEBUG مؤقت
                 System.Diagnostics.Debug.WriteLine($"Items count: {items.Count}");
 
                 foreach (var item in items)
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"ProductId={item.ProductId}, Qty={item.Quantity}");
-
                     item.ReturnQuantity = 0;
                     item.Reason = string.Empty;
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"ProductId={item.ProductId}, Qty={item.Quantity}, Price={item.UnitPrice}");
+
                     OrderItems.Add(item);
                 }
             }
@@ -46,6 +46,5 @@ namespace erp.ViewModels.Returns
                 IsBusy = false;
             }
         }
-
     }
 }

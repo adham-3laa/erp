@@ -1,4 +1,5 @@
 ﻿using erp.DTOS;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -11,49 +12,42 @@ namespace erp.Services
 
         public ReturnsService(ApiClient api)
         {
-            _api = api;
+            _api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
         // ===================== GET ORDER ITEMS BY ORDER ID =====================
         public async Task<List<OrderItemForReturnDto>> GetOrderItemsByOrderIdAsync(string orderId)
         {
-            Debug.WriteLine($"[ReturnsService] GetOrderItemsByOrderId: {orderId}");
+            if (string.IsNullOrWhiteSpace(orderId))
+                throw new ArgumentException("OrderId is required", nameof(orderId));
 
-            try
-            {
-                var response =
-                    await _api.GetAsync<
-                        erp.DTOS.Inventory.Responses.ApiResponse<List<OrderItemForReturnDto>>
-                    >($"api/Returns/OrderItemsByOrderId?orderId={orderId}");
+            var response = await _api.GetAsync<ApiResponseForReturn<List<OrderItemForReturnDto>>>(
+                $"api/Returns/OrderItemsByOrderId?orderId={orderId}"
+            );
 
-                return response != null && response.statusCode == 200 && response.value != null
-                    ? response.value
-                    : new List<OrderItemForReturnDto>();
-            }
-            catch (System.Exception ex)
-            {
-                Debug.WriteLine($"[ReturnsService] GetOrderItems failed: {ex.Message}");
-                return new List<OrderItemForReturnDto>();
-            }
+            return response?.Value ?? new List<OrderItemForReturnDto>();
         }
 
         // ===================== CREATE RETURN REQUEST =====================
         public async Task<bool> CreateReturnAsync(CreateReturnRequestDto request)
         {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
             Debug.WriteLine($"[ReturnsService] CreateReturn | OrderId: {request.OrderId}");
 
             try
             {
-                var response =
-                    await _api.PostAsync<
-                        erp.DTOS.Inventory.Responses.ApiResponse<object>
-                    >("api/Returns", request);
+                var response = await _api.PostAsync<ApiResponseForReturn<object>>(
+                    "api/Returns",
+                    request
+                );
 
-                return response != null && response.statusCode == 200;
+                return response?.StatusCode == 200;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"[ReturnsService] CreateReturn failed: {ex.Message}");
+                Debug.WriteLine($"[ReturnsService] CreateReturn failed: {ex}");
                 return false;
             }
         }
@@ -65,18 +59,17 @@ namespace erp.Services
 
             try
             {
-                var response =
-                    await _api.GetAsync<
-                        erp.DTOS.Inventory.Responses.ApiResponse<List<PendingReturnDto>>
-                    >("api/Returns/pending");
+                var response = await _api.GetAsync<ApiResponseForReturn<List<PendingReturnDto>>>(
+                    "api/Returns/pending"
+                );
 
-                return response != null && response.statusCode == 200 && response.value != null
-                    ? response.value
+                return response?.StatusCode == 200 && response.Value != null
+                    ? response.Value
                     : new List<PendingReturnDto>();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"[ReturnsService] GetPendingReturns failed: {ex.Message}");
+                Debug.WriteLine($"[ReturnsService] GetPendingReturns failed: {ex}");
                 return new List<PendingReturnDto>();
             }
         }
@@ -84,20 +77,23 @@ namespace erp.Services
         // ===================== APPROVE RETURN =====================
         public async Task<bool> ApproveReturnAsync(string returnId)
         {
+            if (string.IsNullOrWhiteSpace(returnId))
+                throw new ArgumentException("ReturnId is required", nameof(returnId));
+
             Debug.WriteLine($"[ReturnsService] ApproveReturn | ReturnId: {returnId}");
 
             try
             {
-                var response =
-                    await _api.PutAsync<
-                        erp.DTOS.Inventory.Responses.ApiResponse<object>
-                    >($"api/Returns/approve?id={returnId}", new { });
+                var response = await _api.PutAsync<ApiResponseForReturn<object>>(
+                    $"api/Returns/approve?id={returnId}",
+                    new { }
+                );
 
-                return response != null && response.statusCode == 200;
+                return response?.StatusCode == 200;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"[ReturnsService] ApproveReturn failed: {ex.Message}");
+                Debug.WriteLine($"[ReturnsService] ApproveReturn failed: {ex}");
                 return false;
             }
         }
