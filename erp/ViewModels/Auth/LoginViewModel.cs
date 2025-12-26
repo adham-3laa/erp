@@ -5,7 +5,6 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace erp.ViewModels.Auth
 {
@@ -28,12 +27,6 @@ namespace erp.ViewModels.Auth
             get => _email;
             set
             {
-                // ✅ حفظ الـ JWT Token في TokenStore
-                TokenStore.Token = result.Auth.Token;
-
-                _onLoginSuccess.Invoke();
-                return;
-
                 if (Set(ref _email, value))
                     LoginCommand.RaiseCanExecuteChanged();
             }
@@ -89,22 +82,27 @@ namespace erp.ViewModels.Auth
                     new LoginRequest(Email.Trim(), Password),
                     _cts.Token);
 
-                // ✅ خزّن التوكن بعد تسجيل الدخول الناجح
-                if (status == HttpStatusCode.OK && result?.Success == true && !string.IsNullOrWhiteSpace(result.Auth?.Token))
+                // ✅ تسجيل دخول ناجح
+                if (status == HttpStatusCode.OK &&
+                    result?.Success == true &&
+                    !string.IsNullOrWhiteSpace(result.Auth?.Token))
                 {
-                    TokenStore.Token = result.Auth.Token; // <-- تخزين التوكن
+                    // ✅ تخزين التوكن
+                    TokenStore.Token = result.Auth.Token;
+
+                    // ✅ الانتقال بعد النجاح
                     _onLoginSuccess.Invoke();
                     return;
                 }
 
-                // لو success = false أو أي خطأ في البيانات
+                // ❌ بيانات غير صحيحة
                 if (result != null && result.Success == false)
                 {
                     Message = $"❌ {result.Message ?? "البريد الإلكتروني أو كلمة المرور خاطئة"}";
                     return;
                 }
 
-                // أي حالة ثانية
+                // ❌ حالة غير متوقعة
                 Message = "❌ فشل تسجيل الدخول. تحقق من بياناتك";
             }
             catch (Exception ex)
@@ -117,7 +115,4 @@ namespace erp.ViewModels.Auth
             }
         }
     }
-
 }
-
-
