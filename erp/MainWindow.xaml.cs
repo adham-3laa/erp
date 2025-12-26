@@ -1,27 +1,39 @@
 using EduGate.Views.Inventory;
+using erp.Services;
+using erp.ViewModels.Returns;
 using erp.Views.Category;
+using erp.Views.Dashboard;     // ✅ NEW
 using erp.Views.Expenses;
 using erp.Views.Invoices;
+using erp.Views.Returns;
 using erp.Views.Users;
-using erp.Views.Dashboard;     // ✅ NEW
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using erp.Services;
+using erp.ViewModels.Returns;
+using erp.Views.Returns;
+
+
 
 namespace erp
 {
     public partial class MainWindow : Window
     {
+        private readonly ApiClient _apiClient;
+
+
         public MainWindow()
         {
             InitializeComponent();
 
-            // تهيئة NavigationService
-            erp.Services.NavigationService.Initialize(MainFrame);
+            var httpClient = ApiClient.CreateHttpClient();
+            _apiClient = new ApiClient(httpClient, null);
 
-            // ✅ افتح Dashboard أول ما البرنامج يبدأ (اختياري)
+            erp.Services.NavigationService.Initialize(MainFrame);
             NavigateToDashboard();
         }
+
 
         // ====== Navigation Methods ======
 
@@ -80,6 +92,21 @@ namespace erp
                 case "Items":
                     MainFrame.Navigate(new CategoryListPage());
                     break;
+                case "Returns":
+                    {
+                        var returnsService = new ReturnsService(_apiClient);
+                        var vm = new ReturnsOrderItemsViewModel(returnsService);
+
+                        MainFrame.Navigate(new ReturnsOrderItemsView(vm));
+                        break;
+                    }
+
+
+
+
+
+
+
 
                 // 👇 هنا تضيف التقارير
                 case "Reports":

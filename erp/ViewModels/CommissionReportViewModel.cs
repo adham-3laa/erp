@@ -12,6 +12,9 @@ namespace erp.ViewModels.Reports
 {
     public class CommissionReportViewModel : ObservableObject
     {
+        public bool NoData => !IsLoading && Items.Count == 0;
+
+
         private readonly ReportService _reportService;
 
         public CommissionReportViewModel()
@@ -70,8 +73,10 @@ namespace erp.ViewModels.Reports
             finally
             {
                 IsLoading = false;
-                OnPropertyChanged(nameof(HasData));
+                OnPropertyChanged(nameof(NoData));
             }
+
+
         }
     }
 }

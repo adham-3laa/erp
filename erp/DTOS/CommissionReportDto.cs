@@ -17,18 +17,12 @@ namespace erp.DTOS
         public List<CommissionReportItemDto> Value { get; set; }
     }
 
-    public class CommissionReportItemDto
+  public class CommissionReportItemDto
     {
-        [JsonPropertyName("salesrepid")]
         public string SalesRepId { get; set; }
-
-        [JsonPropertyName("salesrepname")]
         public string SalesRepName { get; set; }
-
-        [JsonPropertyName("totalcommission")]
         public decimal TotalCommission { get; set; }
-
-        [JsonPropertyName("totalordersconfirmed")]
         public int TotalOrdersConfirmed { get; set; }
     }
+
 }
