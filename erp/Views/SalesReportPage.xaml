@@ -4,15 +4,15 @@
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       FlowDirection="RightToLeft">
 
-    <!-- ===== Local Resources (عشان مفيش XamlParseException) ===== -->
+    <!-- ========== Resources ========== -->
     <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
-        <!-- Button Style -->
+        <!-- Base Button -->
         <Style x:Key="SimpleButton" TargetType="Button">
-            <Setter Property="Background" Value="#1E1B4B"/>
+            <Setter Property="Background" Value="#6B7280"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="14,8"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -20,7 +20,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="10">
+                                CornerRadius="12">
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
@@ -30,77 +30,95 @@
             </Setter>
         </Style>
 
-        <!-- Loading Converter -->
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-
+        <!-- Active Tab -->
+        <Style x:Key="ActiveTabButton"
+               TargetType="Button"
+               BasedOn="{StaticResource SimpleButton}">
+            <Setter Property="Background" Value="#1E1B4B"/>
+        </Style>
     </Page.Resources>
 
-    <!-- ===== Page Layout ===== -->
+    <!-- ========== Layout ========== -->
     <Grid Margin="24">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ===== Header ===== -->
-        <StackPanel Margin="0,0,0,20">
-            <TextBlock Text="📊 تقرير المبيعات"
-                       FontSize="24"
+        <!-- ========== Header ========== -->
+        <StackPanel Margin="0,0,0,18">
+            <TextBlock Text="📊 التقارير"
+                       FontSize="28"
                        FontWeight="Bold"
                        Foreground="#111827"/>
-
-            <TextBlock Text="عرض إجمالي المبيعات وعدد الطلبات خلال فترة زمنية"
+            <TextBlock Text="متابعة وتحليل أداء المبيعات والطلبات"
                        FontSize="14"
                        Foreground="#6B7280"
-                       Margin="0,6,0,0"/>
+                       Margin="0,4,0,0"/>
         </StackPanel>
 
-        <!-- ===== Filters ===== -->
+        <!-- ========== Top Navigation (Tabs) ========== -->
         <Border Grid.Row="1"
+                Background="#F3F4F6"
+                CornerRadius="16"
+                Padding="8"
+                Margin="0,0,0,24">
+            <StackPanel Orientation="Horizontal">
+
+                <Button Content="📊 تقرير المبيعات"
+                        Style="{StaticResource ActiveTabButton}"
+                        Margin="0,0,8,0"/>
+
+                <Button Content="📦 حركة صنف"
+                        Style="{StaticResource SimpleButton}"
+                        Margin="0,0,8,0"
+                        Click="OpenStockMovementReport"/>
+
+                <Button Content="💰 عمولات المندوبين"
+                        Style="{StaticResource SimpleButton}"
+                        Click="OpenCommissionReport"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ========== Filters Card ========== -->
+        <Border Grid.Row="2"
                 Background="White"
-                CornerRadius="14"
+                CornerRadius="18"
                 BorderThickness="1"
-                BorderBrush="#E8EAF2"
-                Padding="16"
-                Margin="0,0,0,20">
+                BorderBrush="#E5E7EB"
+                Padding="20"
+                Margin="0,0,0,24">
 
-            <StackPanel Orientation="Horizontal"
-                        VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 
-                <StackPanel Margin="0,0,12,0">
+                <StackPanel Margin="0,0,16,0">
                     <TextBlock Text="من تاريخ"
                                FontSize="12"
                                Foreground="#6B7280"/>
                     <DatePicker SelectedDate="{Binding FromDate}"
-                                Height="36"/>
+                                Height="38"/>
                 </StackPanel>
 
-                <StackPanel Margin="0,0,12,0">
+                <StackPanel Margin="0,0,16,0">
                     <TextBlock Text="إلى تاريخ"
                                FontSize="12"
                                Foreground="#6B7280"/>
                     <DatePicker SelectedDate="{Binding ToDate}"
-                                Height="36"/>
+                                Height="38"/>
                 </StackPanel>
 
                 <Button Content="تحميل التقرير"
                         Command="{Binding LoadReportCommand}"
-                        Style="{StaticResource SimpleButton}"
-                        Height="36"
-                        Margin="12,18,0,0"/>
+                        Style="{StaticResource ActiveTabButton}"
+                        Height="38"
+                        Margin="16,18,0,0"/>
             </StackPanel>
         </Border>
 
-        <!-- ===== Loading ===== -->
-        <ProgressBar Grid.Row="1"
-                     Height="4"
-                     IsIndeterminate="True"
-                     Visibility="{Binding IsLoading,
-                     Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-        <!-- ===== Report Cards ===== -->
-        <Grid Grid.Row="2">
+        <!-- ========== Result Cards ========== -->
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -109,41 +127,37 @@
             <!-- Total Sales -->
             <Border Grid.Column="0"
                     Margin="8"
-                    Padding="24"
-                    CornerRadius="18"
+                    Padding="28"
+                    CornerRadius="20"
                     Background="#1E1B4B">
-
                 <StackPanel>
                     <TextBlock Text="إجمالي المبيعات"
-                               Foreground="#E5E7EB"
+                               Foreground="#C7D2FE"
                                FontSize="14"/>
-
                     <TextBlock Text="{Binding Report.TotalSales,
                                StringFormat='{}{0:N0} ج.م'}"
                                Foreground="White"
-                               FontSize="30"
+                               FontSize="32"
                                FontWeight="Bold"
-                               Margin="0,8,0,0"/>
+                               Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
 
             <!-- Total Orders -->
             <Border Grid.Column="1"
                     Margin="8"
-                    Padding="24"
-                    CornerRadius="18"
+                    Padding="28"
+                    CornerRadius="20"
                     Background="#10B981">
-
                 <StackPanel>
                     <TextBlock Text="عدد الطلبات"
-                               Foreground="#ECFDF5"
+                               Foreground="#D1FAE5"
                                FontSize="14"/>
-
                     <TextBlock Text="{Binding Report.TotalOrders}"
                                Foreground="White"
-                               FontSize="30"
+                               FontSize="32"
                                FontWeight="Bold"
-                               Margin="0,8,0,0"/>
+                               Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>

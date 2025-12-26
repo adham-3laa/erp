@@ -1,5 +1,10 @@
-﻿using erp.Views.Users;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+
+// Users
+using erp.Views.Users;
+
+// Reports
+using erp.Views.Reports;
 
 namespace erp.Services
 {
@@ -7,11 +12,13 @@ namespace erp.Services
     {
         private static Frame _mainFrame;
 
+        // ===================== INIT =====================
         public static void Initialize(Frame mainFrame)
         {
             _mainFrame = mainFrame;
         }
 
+        // ===================== USERS =====================
         public static void NavigateToUsers()
         {
             _mainFrame?.Navigate(new AllUsersPage());
@@ -32,10 +39,27 @@ namespace erp.Services
             _mainFrame?.Navigate(new CurrentUserPage());
         }
 
+        // ===================== REPORTS =====================
+        public static void NavigateToSalesReport()
+        {
+            _mainFrame?.Navigate(new SalesReportPage());
+        }
+
+        public static void NavigateToStockMovementReport()
+        {
+            _mainFrame?.Navigate(new StockMovementReportPage());
+        }
+
+        // ===================== BACK =====================
         public static void NavigateBack()
         {
             if (_mainFrame?.CanGoBack == true)
                 _mainFrame.GoBack();
         }
+        public static void NavigateToCommissionReport()
+        {
+            _mainFrame?.Navigate(new erp.Views.Reports.CommissionReportPage());
+        }
+
     }
 }

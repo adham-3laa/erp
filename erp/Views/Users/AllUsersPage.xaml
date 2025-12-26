@@ -173,47 +173,63 @@
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
                                             </Border>
-
                                             <!-- User Info -->
                                             <StackPanel Grid.Column="1" Margin="8,12">
-                                                <TextBlock Text="{Binding Fullname}"
-                                                           FontSize="16"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{StaticResource TextDarkBrush}"/>
 
+                                                <!-- Full Name -->
+                                                <TextBlock Text="{Binding Fullname}"
+               FontSize="16"
+               FontWeight="SemiBold"
+               Foreground="{StaticResource TextDarkBrush}"/>
+
+                                                <!-- ✅ User ID (Selectable & Copyable) -->
+                                                <TextBox Text="{Binding Id}"
+             FontSize="11"
+             Foreground="{StaticResource TextMutedBrush}"
+             Background="Transparent"
+             BorderThickness="0"
+             IsReadOnly="True"
+             IsReadOnlyCaretVisible="False"
+             Padding="0"
+             Margin="0,2,0,4"
+             Cursor="IBeam"
+             ToolTip="اضغط واسحب لنسخ الـ ID"/>
+
+                                                <!-- Details -->
                                                 <WrapPanel Margin="0,4,0,0">
                                                     <TextBlock Text="{Binding UserType}"
-                                                               Foreground="{StaticResource PrimaryBrush}"
-                                                               FontWeight="Medium"
-                                                               Margin="0,0,12,0"/>
+                   Foreground="{StaticResource PrimaryBrush}"
+                   FontWeight="Medium"
+                   Margin="0,0,12,0"/>
 
-                                                    <materialDesign:PackIcon Kind="Email" 
-                                                                             Width="14" 
-                                                                             Height="14"
-                                                                             Foreground="{StaticResource TextMutedBrush}"
-                                                                             VerticalAlignment="Center"
-                                                                             Margin="0,0,4,0"/>
+                                                    <materialDesign:PackIcon Kind="Email"
+                                 Width="14"
+                                 Height="14"
+                                 Foreground="{StaticResource TextMutedBrush}"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,4,0"/>
                                                     <TextBlock Text="{Binding Email}"
-                                                               Foreground="{StaticResource TextMutedBrush}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,12,0"/>
+                   Foreground="{StaticResource TextMutedBrush}"
+                   VerticalAlignment="Center"
+                   Margin="0,0,12,0"/>
 
-                                                    <materialDesign:PackIcon Kind="Phone" 
-                                                                             Width="14" 
-                                                                             Height="14"
-                                                                             Foreground="{StaticResource TextMutedBrush}"
-                                                                             VerticalAlignment="Center"
-                                                                             Margin="0,0,4,0"/>
+                                                    <materialDesign:PackIcon Kind="Phone"
+                                 Width="14"
+                                 Height="14"
+                                 Foreground="{StaticResource TextMutedBrush}"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,4,0"/>
                                                     <TextBlock Text="{Binding Phonenumber}"
-                                                               Foreground="{StaticResource TextMutedBrush}"
-                                                               VerticalAlignment="Center"/>
+                   Foreground="{StaticResource TextMutedBrush}"
+                   VerticalAlignment="Center"/>
                                                 </WrapPanel>
 
                                                 <TextBlock Text="{Binding DateOfCreation, StringFormat='تاريخ التسجيل: {0:yyyy-MM-dd}'}"
-                                                           FontSize="12"
-                                                           Foreground="{StaticResource TextMutedBrush}"
-                                                           Margin="0,4,0,0"/>
+               FontSize="12"
+               Foreground="{StaticResource TextMutedBrush}"
+               Margin="0,4,0,0"/>
                                             </StackPanel>
+
 
                                             <!-- Actions -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="16">

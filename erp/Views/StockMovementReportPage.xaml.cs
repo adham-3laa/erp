@@ -4,16 +4,16 @@ using AppNavigation = erp.Services.NavigationService;
 
 namespace erp.Views.Reports
 {
-    public partial class SalesReportPage : Page
+    public partial class StockMovementReportPage : Page
     {
-        public SalesReportPage()
+        public StockMovementReportPage()
         {
             InitializeComponent();
-            DataContext = new erp.ViewModels.SalesReportViewModel();
+            DataContext = new erp.ViewModels.Reports.StockMovementReportViewModel();
         }
 
-        private void OpenStockMovementReport(object sender, RoutedEventArgs e)
-            => AppNavigation.NavigateToStockMovementReport();
+        private void OpenSalesReport(object sender, RoutedEventArgs e)
+            => AppNavigation.NavigateToSalesReport();
 
         private void OpenCommissionReport(object sender, RoutedEventArgs e)
             => AppNavigation.NavigateToCommissionReport();
