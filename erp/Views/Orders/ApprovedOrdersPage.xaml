@@ -10,45 +10,72 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ✅ TopBar -->
+        <!-- TopBar -->
         <local:OrdersTopBar x:Name="OrdersTopBarControl"
                             Grid.Row="0"/>
+
         <!-- جدول الطلبات -->
-        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+        <Border Grid.Row="1"
+                Style="{StaticResource CardStyle}"
+                Padding="8">
+
             <DataGrid x:Name="OrdersDataGrid"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
-                      CanUserAddRows="False">
+                      CanUserAddRows="False"
+                      ColumnWidth="*"
+                      HeadersVisibility="Column"
+
+                SelectionUnit="CellOrRowHeader"
+                      SelectionMode="Extended"
+                      ClipboardCopyMode="ExcludeHeader">
+
+                <!-- كليك يمين → نسخ -->
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="نسخ"
+                                  Command="ApplicationCommands.Copy"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
 
                 <DataGrid.Columns>
+
+                    <!-- رقم الطلب (عريض) -->
                     <DataGridTextColumn Header="رقم الطلب"
-                                        Binding="{Binding OrderId}"
+                                        Binding="{Binding id}"
+                                        Width="2*"/>
+
+                    <!-- العميل -->
+                    <DataGridTextColumn Header="العميل (ID)"
+                                        Binding="{Binding customerid}"
                                         Width="*"/>
 
-                    <DataGridTextColumn Header="العميل"
-                                        Binding="{Binding CustomerName}"
+                    <!-- المندوب -->
+                    <DataGridTextColumn Header="المندوب (ID)"
+                                        Binding="{Binding salesrepid}"
                                         Width="*"/>
 
+                    <!-- الإجمالي -->
                     <DataGridTextColumn Header="الإجمالي"
-                                        Binding="{Binding TotalAmount}"
+                                        Binding="{Binding TotalAmountDisplay}"
                                         Width="*"/>
 
-                    <DataGridTextColumn Header="التاريخ"
+                    <!-- العمولة -->
+                    <DataGridTextColumn Header="العمولة"
+                                        Binding="{Binding commissionamount}"
+                                        Width="*"/>
+
+                    <!-- الحالة -->
+                    <DataGridTextColumn Header="الحالة"
+                                        Binding="{Binding status}"
+                                        Width="*"/>
+
+                    <!-- التاريخ -->
+                    <DataGridTextColumn Header="تاريخ الإنشاء"
                                         Binding="{Binding CreatedAt}"
                                         Width="*"/>
 
-                    <DataGridTemplateColumn Header="تفاصيل">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="👁"
-                                        Width="40"
-                                        Style="{StaticResource DarkButtonStyle}"
-                                        Click="ViewDetails_Click"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
-
             </DataGrid>
         </Border>
     </Grid>

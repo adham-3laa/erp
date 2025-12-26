@@ -1,14 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using erp;
+using erp.Services;
+using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace EduGate.Views.Orders
 {
     public partial class ApprovedOrdersPage : Page
     {
+        private readonly OrdersService _ordersService;
+
         public ApprovedOrdersPage()
         {
             InitializeComponent();
-            LoadApprovedOrders();
+
+            // ✅ ApiClient جاهز وفيه Token
+            _ordersService = new OrdersService(App.Api);
+
+            Loaded += LoadApprovedOrders;
 
             OrdersTopBarControl.CreateOrderClicked += (_, __) =>
                 NavigationService.Navigate(new CreateOrderPage());
@@ -17,16 +26,21 @@ namespace EduGate.Views.Orders
                 NavigationService.Navigate(new SalesRepOrdersPage());
         }
 
-
-        private void LoadApprovedOrders()
+        private async void LoadApprovedOrders(object sender, RoutedEventArgs e)
         {
-            // 🔹 الصفحة فاضية لحد ما نربط API
-            OrdersDataGrid.ItemsSource = new List<object>();
-        }
-
-        private void ViewDetails_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            // صفحة تفاصيل الطلب هنعملها بعدين
+            try
+            {
+                OrdersDataGrid.ItemsSource =
+                    await _ordersService.GetApprovedOrdersAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "خطأ أثناء تحميل الطلبات",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 }

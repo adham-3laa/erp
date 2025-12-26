@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using EduGate.Services;
+using EduGate.Models;
+using erp;
+using erp.DTOS.Orders;
+using erp.Services;
+using System;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,14 +13,23 @@ namespace EduGate.Views.Orders
 {
     public partial class CreateOrderPage : Page
     {
-        // ObservableCollection عشان الـ ComboBox يحدث نفسه
-        public ObservableCollection<ProductDto> Products { get; set; }
+        private readonly OrdersService _ordersService;
+        private readonly InventoryService _inventoryService;
 
-        private readonly HttpClient _httpClient;
+        // 🔴 GUIDs مؤقتة (من Swagger / DB)
+        private const string TEST_SALES_REP_ID =
+            "bbbbb-bbbb-bbbb-bbbb-bbbbbbbb";
+
+        private const string TEST_CUSTOMER_ID =
+            "ccccc-cccc-cccc-cccc-cccccccc";
 
         public CreateOrderPage()
         {
             InitializeComponent();
+
+            _ordersService = new OrdersService(App.Api);
+            _inventoryService = new InventoryService();
+
             OrdersTopBarControl.ApprovedOrdersClicked += (_, __) =>
                 NavigationService.Navigate(new ApprovedOrdersPage());
 
@@ -26,123 +37,88 @@ namespace EduGate.Views.Orders
                 NavigationService.Navigate(new SalesRepOrdersPage());
         }
 
-
-        // تحميل المنتجات أول ما الصفحة تفتح
-        private async void CreateOrderPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var products = await _httpClient.GetFromJsonAsync<ProductDto[]>("api/products");
-
-                Products.Clear();
-                foreach (var product in products)
-                    Products.Add(product);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("حصل خطأ أثناء تحميل المنتجات\n" + ex.Message);
-            }
-        }
-
-        // السماح بالأرقام فقط في الكمية
+        // أرقام فقط
         private void Quantity_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !e.Text.All(char.IsDigit);
         }
 
-        // التحقق بعد ما يسيب خانة الكمية
-        private void Quantity_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (ProductComboBox.SelectedItem is not ProductDto selectedProduct)
-                return;
-
-            if (!int.TryParse(QuantityTextBox.Text, out int quantity))
-            {
-                QuantityTextBox.Text = "";
-                return;
-            }
-
-            if (quantity <= 0)
-            {
-                MessageBox.Show("الكمية لازم تكون أكبر من صفر");
-                QuantityTextBox.Text = "";
-                return;
-            }
-
-            if (quantity > selectedProduct.AvailableQuantity)
-            {
-                MessageBox.Show($"الكمية المتاحة من المنتج هي {selectedProduct.AvailableQuantity}");
-                QuantityTextBox.Text = selectedProduct.AvailableQuantity.ToString();
-            }
-        }
-
-        // زر تأكيد الطلب
         private async void ConfirmOrder_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(CustomerNameTextBox.Text))
+            // ✅ كود العميل (مش اسم)
+            if (string.IsNullOrWhiteSpace(CustomerCodeTextBox.Text))
             {
-                MessageBox.Show("من فضلك أدخل اسم العميل");
+                MessageBox.Show("أدخل كود العميل");
                 return;
             }
 
-            if (ProductComboBox.SelectedItem is not ProductDto selectedProduct)
+            if (string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
             {
-                MessageBox.Show("من فضلك اختر منتج");
+                MessageBox.Show("أدخل اسم المنتج");
                 return;
             }
 
-            if (!int.TryParse(QuantityTextBox.Text, out int quantity) || quantity <= 0)
+            if (!int.TryParse(QuantityTextBox.Text, out int qty) || qty <= 0)
             {
-                MessageBox.Show("من فضلك أدخل كمية صحيحة");
+                MessageBox.Show("أدخل كمية صحيحة");
                 return;
             }
-
-            if (quantity > selectedProduct.AvailableQuantity)
-            {
-                MessageBox.Show("الكمية المطلوبة أكبر من المتاح");
-                return;
-            }
-
-            var orderRequest = new
-            {
-                CustomerName = CustomerNameTextBox.Text.Trim(),
-                ProductId = selectedProduct.Id,
-                Quantity = quantity
-            };
 
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("api/orders", orderRequest);
+                // 🔹 جلب كل المنتجات
+                var products = await _inventoryService.GetAllProductsAsync();
 
-                if (response.IsSuccessStatusCode)
+                // 🔹 البحث باسم المنتج
+                var product = products.FirstOrDefault(p =>
+                    p.Name.Equals(ProductNameTextBox.Text.Trim(),
+                    StringComparison.OrdinalIgnoreCase));
+
+                if (product == null)
                 {
-                    MessageBox.Show("تم إنشاء الطلب بنجاح ✅");
-                    ClearForm();
+                    MessageBox.Show("المنتج غير موجود في المخزون");
+                    return;
                 }
-                else
+
+                if (qty > product.Quantity)
                 {
-                    MessageBox.Show("فشل إنشاء الطلب");
+                    MessageBox.Show($"الكمية المتاحة: {product.Quantity}");
+                    return;
                 }
+
+                // 🔹 تجهيز الطلب
+                var request = new CreateOrderRequestDto
+                {
+                    // ⚠️ لسه ثابتين مؤقتًا
+                    salesrepid = TEST_SALES_REP_ID,
+                    customerid = TEST_CUSTOMER_ID,
+
+                    items =
+                    {
+                        new CreateOrderItemDto
+                        {
+                            productid = product.ProductId, // GUID حقيقي
+                            quantity = qty
+                        }
+                    }
+                };
+
+                await _ordersService.CreateOrderAsync(request);
+
+                MessageBox.Show("تم إنشاء الطلب وتأكيده ✅");
+                ClearForm();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("حصل خطأ\n" + ex.Message);
+                MessageBox.Show(ex.Message, "خطأ");
             }
         }
 
         private void ClearForm()
         {
-            CustomerNameTextBox.Clear();
-            ProductComboBox.SelectedIndex = -1;
+            CustomerCodeTextBox.Clear();
+            ProductNameTextBox.Clear();
             QuantityTextBox.Clear();
         }
-    }
-
-    // DTO
-    public class ProductDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int AvailableQuantity { get; set; }
     }
 }
