@@ -2,6 +2,7 @@ using EduGate.Views.Inventory;
 using erp.Views.Category;
 using erp.Views.Expenses;
 using erp.Views.Invoices;
+using erp.Views.Payments;
 using erp.Views.Users;
 using erp.Views.Dashboard;     // ✅ NEW
 using System.Windows;
@@ -67,6 +68,10 @@ namespace erp
 
                 case "Inventory":
                     MainFrame.Navigate(new InventoryPage());
+                    break;
+
+                case "Payments":
+                    MainFrame.Navigate(new PaymentsMenuPage());
                     break;
 
                 case "Invoices":

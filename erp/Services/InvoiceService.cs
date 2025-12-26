@@ -32,12 +32,13 @@ namespace erp.Services
             }
         }
 
-        #region Get Invoices List
-
+        // ================= Get Invoices List =================
         public async Task<List<InvoiceResponseDto>> GetInvoices(
             string search,
             string invoiceType,
-            string query,
+            string query,          // رقم أو اسم المستلم
+            string orderId,        // رقم الطلب
+            bool? lastInvoice,     // آخر فاتورة
             DateTime? fromDate,
             DateTime? toDate,
             int page = 1,
@@ -49,10 +50,16 @@ namespace erp.Services
                 queryParams.Add($"search={Uri.EscapeDataString(search)}");
 
             if (!string.IsNullOrWhiteSpace(invoiceType))
-                queryParams.Add($"invoiceType={invoiceType}");
+                queryParams.Add($"invoiceType={Uri.EscapeDataString(invoiceType)}");
 
             if (!string.IsNullOrWhiteSpace(query))
                 queryParams.Add($"query={Uri.EscapeDataString(query)}");
+
+            if (!string.IsNullOrWhiteSpace(orderId))
+                queryParams.Add($"orderId={Uri.EscapeDataString(orderId)}");
+
+            if (lastInvoice.HasValue)
+                queryParams.Add($"lastInvoice={lastInvoice.Value.ToString().ToLower()}");
 
             if (fromDate.HasValue)
                 queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
@@ -65,17 +72,18 @@ namespace erp.Services
 
             var url = $"api/Invoices/list?{string.Join("&", queryParams)}";
 
-             var response = await _client.GetAsync(url);
+            var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
 
             return JsonSerializer.Deserialize<List<InvoiceResponseDto>>(
                 json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
             ) ?? new List<InvoiceResponseDto>();
         }
-
-        #endregion
     }
 }
