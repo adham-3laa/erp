@@ -81,6 +81,10 @@ namespace erp
 
                 // باقي الصفحات لسه تحت التطوير
                 case "Orders":
+                    MainFrame.Navigate(new EduGate.Views.Orders.ApprovedOrdersPage());
+                    SelectNavItem("Orders");
+                    break;
+
                 case "Suppliers":
                 case "Auth":
                 default:
