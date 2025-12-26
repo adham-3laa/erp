@@ -97,6 +97,9 @@ public sealed class LoginViewModel : BaseViewModel
             // التحقق من نجاح تسجيل الدخول
             if (status == HttpStatusCode.OK && result?.Success == true && !string.IsNullOrWhiteSpace(result.Auth?.Token))
             {
+                // ✅ حفظ الـ JWT Token في TokenStore
+                TokenStore.Token = result.Auth.Token;
+
                 _onLoginSuccess.Invoke();
                 return;
             }

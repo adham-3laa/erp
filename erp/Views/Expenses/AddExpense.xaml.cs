@@ -1,36 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using erp.ViewModels;
 
 namespace erp.Views.Expenses
 {
     public partial class AddExpensePage : Page
     {
-        public AddExpensePage()
+        private readonly ExpensesListViewModel _listVm;
+
+        public AddExpensePage(ExpensesListViewModel listVm = null)
         {
             InitializeComponent();
             DataContext = new AddExpenseViewModel();
+            _listVm = listVm;
         }
 
-        private void BackToList_Click(object sender, RoutedEventArgs e)
+        private async void Back_Click(object sender, RoutedEventArgs e)
         {
-            var mainWindow = Application.Current.MainWindow as erp.MainWindow;
+            // تحديث قائمة المصروفات إذا تم تمرير ViewModel
+            if (_listVm != null)
+            {
+                await _listVm.LoadAllCommand.ExecuteAsync(null);
+            }
 
-            // رجوع لصفحة قائمة المصروفات
-            mainWindow?.MainFrame.Navigate(new ExpensesListPage());
+            // العودة للصفحة السابقة إذا ممكن
+            if (NavigationService != null && NavigationService.CanGoBack)
+            {
+                NavigationService.GoBack();
+            }
+            else
+            {
+                // إذا مفيش صفحة سابقة، نروح لقائمة المصروفات
+                var mainFrame = Application.Current.MainWindow?.FindName("MainFrame") as Frame;
+                mainFrame?.Navigate(new ExpensesListPage());
+            }
         }
     }
 }
-

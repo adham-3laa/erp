@@ -2,16 +2,16 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using erp.DTOS;
 using erp.Services;
 
 namespace erp.ViewModels
 {
-    public class ExpensesByAccountantViewModel : INotifyPropertyChanged
+    public class MyExpensesViewModel : INotifyPropertyChanged
     {
         private readonly ExpenseService _expenseService;
-        private readonly string _accountantUserId;
 
         public ObservableCollection<ExpenseResponseDto> Expenses { get; } = new();
 
@@ -29,17 +29,12 @@ namespace erp.ViewModels
             set { _errorMessage = value; OnPropertyChanged(); }
         }
 
-        public RelayCommand LoadExpensesCommand { get; }
+        public IAsyncRelayCommand LoadExpensesCommand { get; }
 
-        // ✅ استقبل accountantUserId عند إنشاء الـ ViewModel
-        public ExpensesByAccountantViewModel(string accountantUserId)
+        public MyExpensesViewModel()
         {
             _expenseService = new ExpenseService();
-            _accountantUserId = accountantUserId;
-
-            LoadExpensesCommand = new RelayCommand(async () => await LoadExpenses());
-
-            // تحميل تلقائي عند فتح الصفحة
+            LoadExpensesCommand = new AsyncRelayCommand(LoadExpenses);
             _ = LoadExpenses();
         }
 
@@ -51,18 +46,20 @@ namespace erp.ViewModels
                 ErrorMessage = null;
                 Expenses.Clear();
 
-                // جلب المصروفات بناءً على الـ accountantUserId الحالي
-                var data = await _expenseService.GetExpensesByAccountant(_accountantUserId);
+                var data = await _expenseService.GetMyExpenses();
+
+                if (data == null || data.Count == 0)
+                {
+                    ErrorMessage = "لا توجد مصروفات للعرض";
+                    return;
+                }
 
                 foreach (var item in data)
                     Expenses.Add(item);
-
-                if (data == null || data.Count == 0)
-                    ErrorMessage = "لا توجد مصروفات للعرض";
             }
             catch
             {
-                ErrorMessage = "حدث خطأ أثناء تحميل مصروفات المحاسب";
+                ErrorMessage = "حدث خطأ أثناء تحميل مصروفاتك";
             }
             finally
             {

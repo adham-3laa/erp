@@ -1,34 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using erp.ViewModels;
 
 namespace erp.Views.Expenses
 {
     public partial class ExpensesByAccountantPage : Page
     {
-        public ExpensesByAccountantPage()
+        private readonly ExpensesListViewModel _listVm;
+
+        public ExpensesByAccountantPage(string accountantUserId, ExpensesListViewModel listVm = null)
         {
             InitializeComponent();
-            DataContext = new ExpensesByAccountantViewModel();
-        }
-        private void Back_Click(object sender, RoutedEventArgs e)
-        {
-            var frame = Application.Current.MainWindow
-                .FindName("MainFrame") as Frame;
+            DataContext = new ExpensesByAccountantViewModel(accountantUserId);
 
-            frame?.Navigate(new ExpensesListPage());
+            _listVm = listVm; // ممكن تمرر ViewModel الصفحة السابقة لتحديثها عند الرجوع
+        }
+
+        private async void Back_Click(object sender, RoutedEventArgs e)
+        {
+            // لو في ViewModel للقائمة، حدثها قبل الرجوع
+            if (_listVm != null)
+            {
+                await _listVm.LoadAllCommand.ExecuteAsync(null);
+            }
+
+            // رجوع للصفحة السابقة
+            if (NavigationService != null && NavigationService.CanGoBack)
+            {
+                NavigationService.GoBack();
+            }
         }
     }
 }

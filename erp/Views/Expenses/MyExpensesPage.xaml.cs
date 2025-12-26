@@ -1,35 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using erp.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using erp.ViewModels;
 
 namespace erp.Views.Expenses
 {
     public partial class MyExpensesPage : Page
     {
-        public MyExpensesPage()
+        private readonly ExpensesListViewModel _listVm;
+
+        public MyExpensesPage(ExpensesListViewModel listVm = null)
         {
             InitializeComponent();
-            DataContext = new ExpensesListViewModel();
+            DataContext = new MyExpensesViewModel();
+            _listVm = listVm;
         }
 
-        private void Back_Click(object sender, System.Windows.RoutedEventArgs e)
+        private async void Back_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var frame = System.Windows.Application.Current.MainWindow
-                .FindName("MainFrame") as Frame;
+            if (_listVm != null)
+            {
+                await _listVm.LoadAllCommand.ExecuteAsync(null);
+            }
 
-            frame?.Navigate(new ExpensesListPage());
+            if (NavigationService != null && NavigationService.CanGoBack)
+            {
+                NavigationService.GoBack();
+            }
+            else
+            {
+                var frame = System.Windows.Application.Current.MainWindow.FindName("MainFrame") as Frame;
+                frame?.Navigate(new ExpensesListPage());
+            }
         }
     }
 }

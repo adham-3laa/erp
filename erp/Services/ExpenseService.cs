@@ -1,11 +1,9 @@
 ﻿using erp.DTOS;
 using erp.DTOS.ExpensesDTOS;
-using Refit;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -19,15 +17,19 @@ namespace erp.Services
         {
             var handler = new HttpClientHandler
             {
-                // يتجاهل أي مشاكل في شهادة SSL
                 ServerCertificateCustomValidationCallback =
                     HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             };
-            // استخدم TokenStore للحصول على التوكن الحالي
-            _client = new HttpClient
+
+            _client = new HttpClient(handler)
             {
-                BaseAddress = new Uri("https://be-positive.runasp.net/") // ضع هنا الـ API base URL الصحيح
+                BaseAddress = new Uri("http://be-positive.runasp.net/")
             };
+        }
+
+        private void AddAuthorizationHeader()
+        {
+            _client.DefaultRequestHeaders.Authorization = null;
 
             if (!string.IsNullOrEmpty(TokenStore.Token))
             {
@@ -36,49 +38,38 @@ namespace erp.Services
             }
         }
 
-        #region Add Expense
-
         public async Task<ExpenseResponseDto> AddExpense(ExpenseCreateDto dto)
         {
+            AddAuthorizationHeader();
+
             var json = JsonSerializer.Serialize(dto);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
             var response = await _client.PostAsync("api/Expenses", content);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new Exception("Unauthorized");
 
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<ExpenseResponseDto>(responseString,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return JsonSerializer.Deserialize<ExpenseResponseDto>(
+                responseString,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            ) ?? throw new Exception("فشل تحويل البيانات من السيرفر");
         }
-
-        #endregion
-
-        #region Get All Expenses
 
         public async Task<List<ExpenseResponseDto>> GetAllExpenses()
         {
+            AddAuthorizationHeader();
+
             var response = await _client.GetAsync("api/Expenses/GetAll");
-            response.EnsureSuccessStatusCode();
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new Exception("Unauthorized");
 
             var json = await response.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<List<ExpenseResponseDto>>(json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        }
-
-        #endregion
-
-        #region Get My Expenses
-
-        public async Task<List<ExpenseResponseDto>> GetMyExpenses()
-        {
-            var response = await _client.GetAsync("api/Expenses/myexpenses");
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync();
-
             using var doc = JsonDocument.Parse(json);
             var value = doc.RootElement.GetProperty("value");
 
@@ -88,24 +79,95 @@ namespace erp.Services
             ) ?? new List<ExpenseResponseDto>();
         }
 
-
-
-        #endregion
-
-        #region Get Expenses by Accountant
-
-        public async Task<List<ExpenseResponseDto>> GetExpensesByAccountant()
+        public async Task<List<ExpenseResponseDto>> GetMyExpenses()
         {
-            var response = await _client.GetAsync("api/Expenses/ByAccountant");
+            AddAuthorizationHeader();
+
+            var response = await _client.GetAsync("api/Expenses/myexpenses");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new Exception("Unauthorized");
+
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            JsonElement valueElement;
 
-            return JsonSerializer.Deserialize<List<ExpenseResponseDto>>(json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (doc.RootElement.TryGetProperty("value", out valueElement))
+            {
+                return JsonSerializer.Deserialize<List<ExpenseResponseDto>>(
+                    valueElement.GetRawText(),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                ) ?? new List<ExpenseResponseDto>();
+            }
+            else if (doc.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                return JsonSerializer.Deserialize<List<ExpenseResponseDto>>(
+                    json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                ) ?? new List<ExpenseResponseDto>();
+            }
+            else
+            {
+                return new List<ExpenseResponseDto>();
+            }
         }
 
+        // ✅ التعديل الأساسي: تمرير accountantUserId
+        public async Task<List<ExpenseResponseDto>> GetExpensesByAccountant(string accountantUserId)
+        {
+            AddAuthorizationHeader();
 
-        #endregion
+            var response = await _client.GetAsync($"api/Expenses/ByAccountant?accountantUserId={accountantUserId}");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new Exception("Unauthorized");
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            JsonElement valueElement;
+
+            if (doc.RootElement.TryGetProperty("value", out valueElement))
+            {
+                return JsonSerializer.Deserialize<List<ExpenseResponseDto>>(
+                    valueElement.GetRawText(),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                ) ?? new List<ExpenseResponseDto>();
+            }
+            else if (doc.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                return JsonSerializer.Deserialize<List<ExpenseResponseDto>>(
+                    json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                ) ?? new List<ExpenseResponseDto>();
+            }
+            else
+            {
+                return new List<ExpenseResponseDto>();
+            }
+
+
+        }
+
+        // ✅ ميثود جديدة لجلب كل المستخدمين
+        public async Task<List<UserDto>> GetAllUsers()
+        {
+            AddAuthorizationHeader();
+
+            var response = await _client.GetAsync("api/Users/GetAll"); // تأكد إن هذا الـ endpoint موجود
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            var value = doc.RootElement.GetProperty("value");
+
+            return JsonSerializer.Deserialize<List<UserDto>>(
+                value.GetRawText(),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            ) ?? new List<UserDto>();
+        }
     }
 }

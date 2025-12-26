@@ -1,0 +1,89 @@
+﻿<Page x:Class="erp.Views.Payments.PaySupplierInvoicePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource PageBgBrush}"
+      FlowDirection="RightToLeft">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ================= Header ================= -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="دفع فاتورة مورد"
+                       FontSize="26"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource TextDarkBrush}"/>
+
+            <Button Grid.Column="1"
+                    Content="رجوع"
+                    Width="120"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="Back_Click"/>
+        </Grid>
+
+        <!-- ================= Card ================= -->
+        <Border Grid.Row="1"
+                Margin="0,24,0,0"
+                Style="{StaticResource CardStyle}"
+                Width="520"
+                HorizontalAlignment="Center">
+
+            <StackPanel Margin="24">
+
+                <!-- Amount -->
+                <TextBlock Text="المبلغ المدفوع"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           Margin="0,0,0,6"/>
+
+                <Border Style="{StaticResource GlowInputFrame}">
+                    <Border Style="{StaticResource GlowInputInner}">
+                        <TextBox Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding PaidAmount,
+                                 UpdateSourceTrigger=PropertyChanged}"/>
+                    </Border>
+                </Border>
+
+                <!-- Error Message -->
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#DC2626"
+                           Margin="0,12,0,0"
+                           Visibility="{Binding ErrorMessage,
+                               Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+
+                <!-- Success Message -->
+                <TextBlock Text="تم تحديث المبلغ بنجاح ✔"
+                            Foreground="#16A34A"
+                            FontWeight="SemiBold"
+                            Margin="0,12,0,0"
+                            Visibility="{Binding IsSuccess,
+                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+
+                <!-- Actions -->
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            Margin="0,28,0,0">
+
+                    <Button Content="💰 تنفيذ الدفع"
+                            Width="160"
+                            Margin="0,0,12,0"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Command="{Binding PayCommand}"
+                            IsEnabled="{Binding IsLoading,
+                                Converter={StaticResource InverseBooleanConverter}}"/>
+
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>
