@@ -44,5 +44,15 @@ namespace erp.Services
                 $"api/Reports/stock-movement?productId={productId}"
             );
         }
+        public async Task<CommissionReportResponseDto?> GetCommissionsAsync(string salesRepId)
+        {
+            if (string.IsNullOrWhiteSpace(salesRepId))
+                throw new ArgumentException("SalesRepId is required");
+
+            return await _api.GetAsync<CommissionReportResponseDto>(
+                $"api/Reports/commissions?salesRepId={salesRepId}"
+            );
+        }
+
     }
 }
