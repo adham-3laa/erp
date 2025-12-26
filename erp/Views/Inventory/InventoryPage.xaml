@@ -31,7 +31,7 @@
                                      Style="{StaticResource GlowTextBox}"
                                      Width="200"
                                      TextChanged="SearchTextBox_TextChanged"/>
-                            <TextBlock Text="ابحث بالـ ID"
+                            <TextBlock Text="ابحث بالاسم : "
                                        Foreground="Gray"
                                        Margin="5,0,0,0"
                                        VerticalAlignment="Center"

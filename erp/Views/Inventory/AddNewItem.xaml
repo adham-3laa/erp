@@ -12,46 +12,74 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <!-- Top Bar -->
                         <RowDefinition Height="*"/>
+                        <!-- Content -->
                         <RowDefinition Height="Auto"/>
+                        <!-- Actions -->
                     </Grid.RowDefinitions>
 
-                    <!-- ===== STEP 1 : Button only ===== -->
+                    <!-- ================= TOP BAR ================= -->
+                    <DockPanel Grid.Row="0" Margin="0,0,0,12">
+
+                        <Button Content="⬅ رجوع"
+                                Width="100"
+                                DockPanel.Dock="Left"
+                                Style="{StaticResource DarkButtonStyle}"
+                                Click="Back_Click"/>
+
+                        <TextBlock Text="إضافة منتجات"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"/>
+                    </DockPanel>
+
+                    <!-- ================= STEP 1 : Intro ================= -->
                     <StackPanel x:Name="IntroPanel"
+                                Grid.Row="1"
                                 HorizontalAlignment="Center"
                                 Margin="0,20">
 
                         <Button Content="إدخال عدد المنتجات"
-                                Width="220"
-                                Height="40"
+                                Width="240"
+                                Height="42"
                                 Style="{StaticResource DarkButtonStyle}"
                                 Click="ShowCount_Click"/>
                     </StackPanel>
 
-                    <!-- ===== STEP 1.5 : Count Input ===== -->
+                    <!-- ================= STEP 1.5 : Supplier + Count ================= -->
                     <StackPanel x:Name="CountPanel"
+                                Grid.Row="1"
                                 Visibility="Collapsed"
                                 HorizontalAlignment="Center"
                                 Margin="0,20">
 
-                        <TextBlock Text="أدخل عدد المنتجات"
-                                   FontSize="16"
-                                   Margin="0,0,0,8"
-                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Supplier ID" Margin="0,0,0,4"/>
 
-                        <TextBox x:Name="CountTextBox"
-                                 Width="200"
-                                 Style="{StaticResource GlowTextBox}"
-                                 HorizontalContentAlignment="Center"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox x:Name="SupplierIdTextBox"
+                                     Width="280"
+                                     Style="{StaticResource GlowTextBox}"/>
+                        </Border>
+
+                        <TextBlock Text="عدد المنتجات" Margin="10,10,0,4"/>
+
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox x:Name="CountTextBox"
+                                     Width="180"
+                                     HorizontalContentAlignment="Center"
+                                     Style="{StaticResource GlowTextBox}"/>
+                        </Border>
 
                         <Button Content="ابدأ"
                                 Width="120"
-                                Margin="0,10,0,0"
+                                Margin="0,14,0,0"
                                 Style="{StaticResource DarkButtonStyle}"
                                 Click="StartWizard_Click"/>
                     </StackPanel>
 
-                    <!-- ===== STEP 2 : Product Form ===== -->
+                    <!-- ================= STEP 2 : Product Form ================= -->
                     <StackPanel x:Name="FormPanel"
                                 Grid.Row="1"
                                 Visibility="Collapsed"
@@ -60,49 +88,59 @@
                         <TextBlock x:Name="StepTitle"
                                    FontSize="16"
                                    FontWeight="Bold"
-                                   Margin="0,0,0,10"/>
+                                   Margin="0,0,0,12"/>
 
                         <TextBlock Text="اسم المنتج"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding Name}"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding Name}"/>
+                        </Border>
 
-                        <TextBlock Text="SKU"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding SKU}"/>
+                        <TextBlock Text="SKU" Margin="0,8,0,0"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding SKU}"/>
+                        </Border>
 
-                        <TextBlock Text="سعر البيع"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding SalePrice}"/>
+                        <TextBlock Text="سعر البيع" Margin="0,8,0,0"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding SalePrice}"/>
+                        </Border>
 
-                        <TextBlock Text="سعر الشراء"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding BuyPrice}"/>
+                        <TextBlock Text="سعر الشراء" Margin="0,8,0,0"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding BuyPrice}"/>
+                        </Border>
 
-                        <TextBlock Text="الكمية"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding Quantity}"/>
+                        <TextBlock Text="الكمية" Margin="0,8,0,0"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding Quantity}"/>
+                        </Border>
 
-                        <TextBlock Text="اسم الصنف"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding Category}"/>
+                        <TextBlock Text="اسم الصنف" Margin="0,8,0,0"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding Category}"/>
+                        </Border>
 
-                        <TextBlock Text="الوصف"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Height="80"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 Text="{Binding Description}"/>
-                        <TextBlock Text="Supplier ID"/>
-                        <TextBox Style="{StaticResource GlowTextBox}"
-         Text="{Binding Supplier}"/>
-
+                        <TextBlock Text="الوصف" Margin="0,8,0,0"/>
+                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TextBox Style="{StaticResource GlowTextBox}"
+                                     Height="80"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Text="{Binding Description}"/>
+                        </Border>
                     </StackPanel>
 
-                    <!-- ===== ACTIONS ===== -->
+                    <!-- ================= ACTIONS ================= -->
                     <StackPanel Grid.Row="2"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Right"
-                                Margin="0,10">
+                                Margin="0,14,0,0">
 
                         <Button Content="رجوع"
                                 Width="100"

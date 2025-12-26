@@ -14,6 +14,9 @@ namespace EduGate.Views.Inventory
         private int _count;
         private int _index;
 
+        // SupplierId بيتحدد مرة واحدة
+        private string _supplierId = "";
+
         public AddNewItem()
         {
             InitializeComponent();
@@ -29,11 +32,19 @@ namespace EduGate.Views.Inventory
         // زرار "ابدأ"
         private void StartWizard_Click(object sender, RoutedEventArgs e)
         {
-            if (!int.TryParse(CountTextBox.Text, out _count) || _count <= 0)
+            if (string.IsNullOrWhiteSpace(SupplierIdTextBox.Text))
             {
-                MessageBox.Show("من فضلك أدخل رقم صحيح");
+                MessageBox.Show("من فضلك أدخل SupplierId");
                 return;
             }
+
+            if (!int.TryParse(CountTextBox.Text, out _count) || _count <= 0)
+            {
+                MessageBox.Show("من فضلك أدخل رقم صحيح لعدد المنتجات");
+                return;
+            }
+
+            _supplierId = SupplierIdTextBox.Text.Trim();
 
             _products.Clear();
             for (int i = 0; i < _count; i++)
@@ -48,6 +59,9 @@ namespace EduGate.Views.Inventory
 
         private void LoadCurrent()
         {
+            if (_products.Count == 0 || _index < 0 || _index >= _products.Count)
+                return;
+
             DataContext = _products[_index];
             StepTitle.Text = $"المنتج {_index + 1} من {_count}";
 
@@ -62,6 +76,14 @@ namespace EduGate.Views.Inventory
 
         private void Next_Click(object sender, RoutedEventArgs e)
         {
+            if (_products.Count == 0 || _index < 0 || _index >= _products.Count)
+                return;
+
+            var product = _products[_index];
+
+            if (!IsProductValid(product))
+                return;
+
             if (_index < _count - 1)
             {
                 _index++;
@@ -71,6 +93,9 @@ namespace EduGate.Views.Inventory
 
         private void Prev_Click(object sender, RoutedEventArgs e)
         {
+            if (_products.Count == 0)
+                return;
+
             if (_index > 0)
             {
                 _index--;
@@ -80,9 +105,17 @@ namespace EduGate.Views.Inventory
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
+            if (_products.Count == 0 || _index < 0 || _index >= _products.Count)
+                return;
+
+            var product = _products[_index];
+
+            if (!IsProductValid(product))
+                return;
+
             try
             {
-                await _service.AddProductsWithCategoryNameAsync(_products);
+                await _service.AddProductsWithCategoryNameAsync(_products, _supplierId);
                 MessageBox.Show("تم إضافة المنتجات بنجاح ✅");
                 NavigationService.GoBack();
             }
@@ -91,5 +124,55 @@ namespace EduGate.Views.Inventory
                 MessageBox.Show(ex.Message);
             }
         }
+
+        // ================== Validation (آمنة 100%) ==================
+        private bool IsProductValid(Product product)
+        {
+            if (product == null)
+            {
+                MessageBox.Show("بيانات المنتج غير صالحة");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(product.Name))
+            {
+                MessageBox.Show("اسم المنتج مطلوب");
+                return false;
+            }
+
+            if (product.SalePrice <= 0)
+            {
+                MessageBox.Show("سعر البيع غير صالح");
+                return false;
+            }
+
+            if (product.BuyPrice <= 0)
+            {
+                MessageBox.Show("سعر الشراء غير صالح");
+                return false;
+            }
+
+            if (product.Quantity <= 0)
+            {
+                MessageBox.Show("الكمية غير صالحة");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(product.Category))
+            {
+                MessageBox.Show("اسم الصنف مطلوب");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            // يرجّعك للصفحة اللي قبلها (InventoryPage)
+            if (NavigationService.CanGoBack)
+                NavigationService.GoBack();
+        }
+
     }
 }

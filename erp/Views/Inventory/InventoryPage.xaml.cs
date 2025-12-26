@@ -22,6 +22,7 @@ namespace EduGate.Views.Inventory
             _inventoryService = new InventoryService();
             LoadProducts();
 
+            InventoryTopBarControl.InventoryCheckClicked += InventoryTopBar_InventoryCheckClicked;
             InventoryTopBarControl.AddProductClicked += InventoryTopBar_AddProductClicked;
         }
 
@@ -155,5 +156,11 @@ namespace EduGate.Views.Inventory
             _currentPage = _totalPages;
             LoadProductsPage();
         }
+
+        private void InventoryTopBar_InventoryCheckClicked(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new InventoryCheckPage());
+        }
+
     }
 }

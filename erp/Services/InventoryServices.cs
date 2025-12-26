@@ -2,6 +2,8 @@
 using erp;
 using erp.DTOS.Inventory.Requests;
 using erp.DTOS.Inventory.Responses;
+using erp.DTOS.InventoryCheck.Requests;
+using erp.DTOS.InventoryCheck.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +26,7 @@ namespace EduGate.Services
             };
         }
 
-        // ================== Get All Products (زي ما هو + تحسين) ==================
+        // ================== Get All Products ==================
         public async Task<List<Product>> GetAllProductsAsync()
         {
             _client.DefaultRequestHeaders.Authorization =
@@ -36,7 +38,10 @@ namespace EduGate.Services
             response.EnsureSuccessStatusCode();
 
             var jsonString = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
 
             var apiResponse =
                 JsonSerializer.Deserialize<ApiResponse<List<InventoryItemResponse>>>(jsonString, options);
@@ -48,8 +53,7 @@ namespace EduGate.Services
                 SalePrice = (int)p.sellprice,
                 Category = p.categoryid ?? "",
 
-                // ⚠️ القيم دي الـ API مش بيرجعها
-                // نحط قيم افتراضية علشان التعديل مايفشلش
+                // قيم افتراضية (لأن الـ API لا يعيدها)
                 BuyPrice = (int)p.sellprice,
                 Quantity = 1,
                 SKU = "N/A",
@@ -58,7 +62,7 @@ namespace EduGate.Services
             }).ToList() ?? new List<Product>();
         }
 
-        // ================== Delete (بدون تغيير) ==================
+        // ================== Delete ==================
         public async Task<bool> DeleteProductAsync(string id)
         {
             _client.DefaultRequestHeaders.Authorization =
@@ -70,55 +74,81 @@ namespace EduGate.Services
             return response.IsSuccessStatusCode;
         }
 
-        // ================== ADD LIST OF PRODUCTS (API الجديد) ==================
-        public async Task AddProductsWithCategoryNameAsync(List<Product> products)
-        {
-            _client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
-
-            var body = products.Select(p => new CreateProductWithCategoryNameRequest
-            {
-                productname = p.Name,
-                saleprice = p.SalePrice,
-                buyprice = p.BuyPrice,
-                quantity = p.Quantity,
-                sku = p.SKU,
-                description = p.Description ?? "",
-                categoryname = p.Category,
-
-                // ⭐ REQUIRED
-                supplierid = p.Supplier
-            }).ToList();
-
-            var response = await _client.PostAsJsonAsync(
-                "/api/Inventory/ListOfProductsWithCategoryName",
-                body);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                throw new Exception(error);
-            }
-        }
-
-
-        // ================== Add (بدون تغيير) ==================
+        // ================== Add Single Product (قديم) ==================
         public async Task AddProductAsync(object body)
         {
             _client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
 
-            await _client.PostAsJsonAsync("/api/Inventory/products", body);
+            var response =
+                await _client.PostAsJsonAsync("/api/Inventory/products", body);
+
+            response.EnsureSuccessStatusCode();
         }
 
-        // ================== Update (FIX 400 بدون حذف أي حاجة) ==================
+        // ================== Add List Of Products (NEW API) ==================
+        public async Task AddProductsWithCategoryNameAsync(
+             List<Product> products,
+             string supplierId)
+        {
+            if (string.IsNullOrWhiteSpace(supplierId))
+                throw new Exception("SupplierId مطلوب");
+
+            if (products == null || products.Count == 0)
+                throw new Exception("قائمة المنتجات فارغة");
+
+            _client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+
+            var body = products.Select((p, index) =>
+            {
+                if (p == null)
+                    throw new Exception($"المنتج رقم {index + 1} فارغ");
+
+                if (string.IsNullOrWhiteSpace(p.Name))
+                    throw new Exception($"اسم المنتج رقم {index + 1} مطلوب");
+
+                if (string.IsNullOrWhiteSpace(p.Category))
+                    throw new Exception($"اسم الصنف للمنتج رقم {index + 1} مطلوب");
+
+                if (string.IsNullOrWhiteSpace(p.SKU))
+                    throw new Exception($"SKU للمنتج رقم {index + 1} مطلوب");
+
+                if (p.SalePrice <= 0 || p.BuyPrice <= 0 || p.Quantity <= 0)
+                    throw new Exception($"أسعار / كمية غير صحيحة في المنتج رقم {index + 1}");
+
+                return new CreateProductWithCategoryNameRequest
+                {
+                    productname = p.Name.Trim(),
+                    saleprice = p.SalePrice,
+                    buyprice = p.BuyPrice,
+                    quantity = p.Quantity,
+                    sku = p.SKU.Trim(),
+                    description = p.Description?.Trim() ?? "",
+                    categoryname = p.Category.Trim()
+                };
+            }).ToList();
+
+            var url =
+                $"/api/Inventory/ListOfProductsWithCategoryName?SupplierId={supplierId}";
+
+            var response = await _client.PostAsJsonAsync(url, body);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error: {error}");
+            }
+        }
+
+
+        // ================== Update Product ==================
         public async Task UpdateProductAsync(Product product)
         {
             _client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
 
-            // ====== حماية من 400 Bad Request ======
-
+            // ===== Validation =====
             if (string.IsNullOrWhiteSpace(product.ProductId))
                 throw new Exception("ProductId مفقود");
 
@@ -144,7 +174,7 @@ namespace EduGate.Services
             {
                 productid = product.ProductId,
                 productname = product.Name,
-                saleprice = product.SalePrice,
+                sellprice = product.SalePrice,
                 buyprice = product.BuyPrice,
                 quantity = product.Quantity,
                 sku = product.SKU,
@@ -161,5 +191,38 @@ namespace EduGate.Services
                 throw new Exception($"API Error: {error}");
             }
         }
+
+        public async Task<InventoryAdjustmentResponse> AdjustInventoryAsync(
+     string productId,
+     int actualQuantity)
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+
+            var body = new
+            {
+                productid = productId,
+                actualquantity = actualQuantity
+            };
+
+            var response = await _client.PostAsJsonAsync(
+                "/api/InventoryCheck/Adjust",
+                body);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<InventoryAdjustmentResponse>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return result!;
+        }
+
     }
 }

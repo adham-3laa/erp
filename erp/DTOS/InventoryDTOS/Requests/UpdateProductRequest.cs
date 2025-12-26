@@ -4,7 +4,8 @@
     {
         public string productid { get; set; } = "";
         public string productname { get; set; } = "";
-        public int saleprice { get; set; }
+        public int sellprice { get; set; }
+
         public int buyprice { get; set; }
         public int quantity { get; set; }
         public string sku { get; set; } = "";

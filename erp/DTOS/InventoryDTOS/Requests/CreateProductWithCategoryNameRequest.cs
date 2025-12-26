@@ -9,8 +9,5 @@
         public string sku { get; set; } = "";
         public string description { get; set; } = "";
         public string categoryname { get; set; } = "";
-
-        // ⭐ REQUIRED BY API
-        public string supplierid { get; set; } = "";
     }
 }

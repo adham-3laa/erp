@@ -17,11 +17,12 @@
 
 
         <Button Grid.Column="1"
-                Content="عرض المنتجات"
-                Style="{StaticResource DarkButtonStyle}"
-                Width="140"
-                Click="ShowProducts_Click"
-                Margin="30,11,30,7"/>
+        Content="جرد المخزون"
+        Style="{StaticResource DarkButtonStyle}"
+        Width="140"
+        Click="InventoryCheck_Click"
+        Margin="30,11,30,7"/>
+
 
         <TextBlock Grid.Column="2"/>
 
