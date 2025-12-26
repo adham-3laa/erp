@@ -154,13 +154,11 @@ public sealed class ApiClient
 
     private void ApplyAuth(HttpRequestMessage req)
     {
-        if (_session == null) return;
-
-        var token = _session.AccessToken;
-        if (string.IsNullOrWhiteSpace(token)) return;
-
-        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var token = TokenStore.Token; // ?? ?????? ?? ??? TokenStore ??????
+        if (!string.IsNullOrWhiteSpace(token))
+            req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }
+
 
     private static StringContent ToJsonContent(object body)
         => new(JsonSerializer.Serialize(body, _jsonOptions), Encoding.UTF8, "application/json");
