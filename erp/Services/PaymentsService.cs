@@ -22,7 +22,7 @@ namespace erp.Services
 
             _client = new HttpClient(handler)
             {
-                BaseAddress = new Uri("https://be-positive.runasp.net/")
+                BaseAddress = new Uri("http://warhouse.runasp.net/")
             };
 
             if (!string.IsNullOrEmpty(TokenStore.Token))
