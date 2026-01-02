@@ -22,7 +22,7 @@ namespace EduGate.Services
         {
             _client = new HttpClient
             {
-                BaseAddress = new Uri("http://warhouse.runasp.net/")
+                BaseAddress = new Uri("http://be-positive.runasp.net/")
             };
         }
 
