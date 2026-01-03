@@ -5,6 +5,7 @@ using erp.Views.Users;
 
 // Reports
 using erp.Views.Reports;
+using erp.DTOS;
 
 namespace erp.Services
 {
@@ -49,6 +50,14 @@ namespace erp.Services
         {
             _mainFrame?.Navigate(new StockMovementReportPage());
         }
+        //======================InvoicesForUsers==============
+        public static void NavigateToUserInvoices(UserDto user)
+        {
+            _mainFrame?.Navigate(
+                new UserInvoicesPage(user)
+            );
+        }
+
 
         // ===================== BACK =====================
         public static void NavigateBack()

@@ -30,6 +30,12 @@ namespace erp.Views.Expenses
             var window = Window.GetWindow(this) as MainWindow;
             window?.MainFrame.Navigate(new ExpensesByAccountantPage(accountantUserId));
         }
+        // ✅ زر التحديث
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this) as MainWindow;
+            window?.MainFrame.Navigate(new ExpensesListPage());
+        }
 
     }
 }

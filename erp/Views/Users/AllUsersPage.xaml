@@ -354,6 +354,19 @@
                                                         Height="32">
                                                     <materialDesign:PackIcon Kind="Eye" Width="16" Height="16"/>
                                                 </Button>
+                                                <!-- User Invoices Button -->
+                                                <Button Command="{Binding DataContext.ViewUserInvoicesCommand,
+                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip="سجل الفواتير"
+                                                        Background="#0EA5E9"
+                                                        Foreground="White"
+                                                        Width="32"
+                                                        Height="32"
+                                                        Margin="10,0,0,0">
+                                                        <materialDesign:PackIcon Kind="FileDocumentMultiple" Width="16" Height="16"/>
+                                                </Button>
+
                                             </StackPanel>
                                         </Grid>
                                     </Border>
