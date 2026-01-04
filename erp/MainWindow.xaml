@@ -144,10 +144,8 @@
                             <ListBoxItem Tag="Orders" Content="🛒 الطلبات"/>
                             <ListBoxItem Tag="Expenses" Content="💰 المصروفات"/>
                             <ListBoxItem Tag="Items" Content="🏷️ الأصناف"/>
-                            <ListBoxItem Tag="Suppliers" Content="🚚 الموردين"/>
                             <ListBoxItem Tag="Reports" Content="📊 التقارير"/>
                             <ListBoxItem Tag="Returns" Content="↩️ المرتجعات"/>
-                            <ListBoxItem Tag="Auth" Content="🔐 المصادقة"/>
                         </ListBox>
 
                         <!-- Window Controls -->
