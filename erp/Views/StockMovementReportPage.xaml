@@ -181,7 +181,7 @@
                         Margin="8"
                         Padding="24"
                         CornerRadius="16"
-                        Background="#2563EB">
+                        Background="#FF4E88D2">
                     <StackPanel>
                         <TextBlock Text="إجمالي الداخل"
                                    Foreground="#DBEAFE"
@@ -198,8 +198,7 @@
                 <Border Grid.Column="1"
                         Margin="8"
                         Padding="24"
-                        CornerRadius="16"
-                        Background="#DC2626">
+                        CornerRadius="16" Background="#FF5A1212">
                     <StackPanel>
                         <TextBlock Text="إجمالي الخارج"
                                    Foreground="#FEE2E2"
@@ -217,7 +216,7 @@
                         Margin="8"
                         Padding="24"
                         CornerRadius="16"
-                        Background="#10B981">
+                        Background="#FF549476">
                     <StackPanel>
                         <TextBlock Text="الرصيد الحالي"
                                    Foreground="#D1FAE5"

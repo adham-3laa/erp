@@ -1,48 +1,175 @@
 ﻿<Page x:Class="erp.Views.Returns.ReturnsOrderItemsView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      FlowDirection="RightToLeft"
+      Background="#F5F6FA"
       Title="Returns Order Items">
 
-    <Grid>
-        <!-- Content Area -->
-        <StackPanel Margin="20">
-            <!-- OrderId TextBox for input with watermark (Watermark as Placeholder) -->
-            <TextBox x:Name="OrderIdTextBoxInput" Width="300" Margin="0,0,0,10" Height="35" VerticalAlignment="Top">
-                <TextBox.Style>
-                    <Style TargetType="TextBox">
-                        <Style.Triggers>
-                            <!-- Watermark for TextBox when it's empty -->
-                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}, Mode=OneWay}" Value="">
-                                <Setter Property="ToolTip" Value="أدخل رقم الطلب" />
-                                <Setter Property="Foreground" Value="Gray"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBox.Style>
-            </TextBox>
+    <Page.Resources>
+        <!-- Buttons like reports pages -->
+        <Style x:Key="SimpleButton" TargetType="Button">
+            <Setter Property="Background" Value="#6B7280"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <!-- Load Button -->
-            <Button Content="تحميل العناصر" Command="{Binding LoadCommand}" Margin="0,0,0,10" Height="40" VerticalAlignment="Top" Background="#4CAF50" Foreground="White" Click="Load_Click"/>
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource SimpleButton}">
+            <Setter Property="Background" Value="#1E1B4B"/>
+            <Setter Property="Padding" Value="18,8"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
 
-            <!-- Error Message -->
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" Margin="0,10,0,10" />
+        <Style x:Key="PurpleButton" TargetType="Button" BasedOn="{StaticResource SimpleButton}">
+            <Setter Property="Background" Value="#FF6200EE"/>
+            <Setter Property="Padding" Value="18,8"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
 
-            <!-- DataGrid for displaying order items -->
-            <DataGrid ItemsSource="{Binding OrderItems}" AutoGenerateColumns="False" Margin="0,20,0,0" Height="250">
+        <!-- Small Input -->
+        <Style x:Key="SmallTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+        </Style>
+
+        <!-- DataGrid Style (clean) -->
+        <Style TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="RowHeight" Value="40"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Padding" Value="10,8"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ✅ Header -->
+        <StackPanel Margin="0,0,0,14">
+            <TextBlock Text="📦 عناصر الطلب للإرجاع"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#111827"/>
+            <TextBlock Text="اكتب رقم الطلب ثم حمّل العناصر لبدء الإرجاع"
+                       FontSize="13"
+                       Foreground="#6B7280"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- ✅ Search Card -->
+        <Border Grid.Row="1"
+                Background="White"
+                CornerRadius="18"
+                BorderBrush="#E5E7EB"
+                BorderThickness="1"
+                Padding="12"
+                Margin="0,0,0,14">
+
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="OrderIdTextBoxInput"
+                         Grid.Column="0"
+                         Width="420"
+                         Style="{StaticResource SmallTextBox}"
+                         materialDesign:HintAssist.Hint="أدخل رقم الطلب (Order ID)"
+                         materialDesign:HintAssist.Foreground="#6B7280"/>
+
+                <Button Grid.Column="1"
+                        Width="140"
+                        Content="تحميل العناصر"
+                        Style="{StaticResource PrimaryButton}"
+                        Margin="10,0,0,0"
+                        Height="34"
+                        Click="Load_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- ✅ Error Message -->
+        <TextBlock Grid.Row="1"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="#DC2626"
+                   FontSize="13"
+                   Margin="0,70,0,0"
+                   HorizontalAlignment="Right"/>
+
+        <!-- ✅ Table Card -->
+        <Border Grid.Row="2"
+                Background="White"
+                CornerRadius="18"
+                BorderBrush="#E5E7EB"
+                BorderThickness="1"
+                Padding="10">
+
+            <DataGrid ItemsSource="{Binding OrderItems}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Product ID" Binding="{Binding Productid}" Width="*" />
-                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="*" />
-                    <DataGridTextColumn Header="Unit Price" Binding="{Binding Unitprice}" Width="*" />
-                    <DataGridTextColumn Header="Customer ID" Binding="{Binding Customerid}" Width="*" />
                     <DataGridTextColumn Header="Product Name" Binding="{Binding Productname}" Width="*" />
+                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="140" />
+                    <DataGridTextColumn Header="Unit Price" Binding="{Binding Unitprice}" Width="160" />
+                    <DataGridTextColumn Header="Customer ID" Binding="{Binding Customerid}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
 
-            <!-- Buttons for actions -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                <Button Content="عودة" Width="100" Height="40" Background="#FF6200EE" Foreground="White" Click="Back_Click"/>
-                <Button Content="إنشاء إرجاع" Width="150" Height="40" Background="#FF6200EE" Foreground="White" Margin="10,0,0,0" Click="CreateReturn_Click"/>
-            </StackPanel>
+        </Border>
+
+        <!-- ✅ Bottom Actions -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,14,0,0">
+
+            <Button Content="⬅ عودة"
+                    Width="140"
+                    Height="38"
+                    Style="{StaticResource SimpleButton}"
+                    Click="Back_Click"/>
+
+            <Button Content="إنشاء إرجاع"
+                    Width="160"
+                    Height="38"
+                    Style="{StaticResource PurpleButton}"
+                    Margin="10,0,0,0"
+                    Click="CreateReturn_Click"/>
         </StackPanel>
     </Grid>
 </Page>
