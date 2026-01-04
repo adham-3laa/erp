@@ -35,15 +35,16 @@ namespace erp.Services
                 $"api/Reports/sales?fromDate={from}&toDate={to}"
             );
         }
-        public async Task<StockMovementReportDto?> GetStockMovementAsync(string productId)
+        public async Task<StockMovementReportDto?> GetStockMovementAsync(string productName)
         {
-            if (string.IsNullOrWhiteSpace(productId))
-                throw new ArgumentException("ProductId is required");
+            if (string.IsNullOrWhiteSpace(productName))
+                throw new ArgumentException("Product name is required");
 
             return await _api.GetAsync<StockMovementReportDto>(
-                $"api/Reports/stock-movement?productId={productId}"
+                $"api/Reports/stock-movement?producName={Uri.EscapeDataString(productName)}"
             );
         }
+
         public async Task<CommissionReportResponseDto?> GetCommissionsAsync(string salesRepId)
         {
             if (string.IsNullOrWhiteSpace(salesRepId))

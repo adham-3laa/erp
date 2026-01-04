@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
-namespace erp.DTOS
+public class CreateReturnRequestDto
 {
-    public class CreateReturnRequestDto
-    {
-        public string OrderId { get; set; }
-        public List<CreateReturnItemDto> Items { get; set; }
-    }
+    [JsonPropertyName("orderid")]
+    public string OrderId { get; set; }
+
+    [JsonPropertyName("items")]
+    public List<CreateReturnItemDto> Items { get; set; }
 }

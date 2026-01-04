@@ -19,18 +19,15 @@ namespace erp.Views.Returns
         // إضافة منتج جديد
         private void AddItem_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(_viewModel.CurrentProduct.ProductId) ||
-                _viewModel.CurrentProduct.Quantity <= 0 ||
-                string.IsNullOrWhiteSpace(_viewModel.CurrentProduct.Reason))
+            if (!_viewModel.IsCurrentProductValid())
             {
-                MessageBox.Show("من فضلك قم بإدخال جميع البيانات.");
+                MessageBox.Show("من فضلك قم بإدخال جميع بيانات المنتج.");
                 return;
             }
 
             _viewModel.AddProduct();
-
-            // إعادة تهيئة المنتج الحالي (مهم جدًا)
             _viewModel.CurrentProduct = new CreateReturnItemDto();
         }
+
     }
 }

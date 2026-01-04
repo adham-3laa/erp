@@ -22,13 +22,11 @@ namespace erp.ViewModels.Returns
         public CreateReturnViewModel(ReturnsService returnsService)
         {
             _returnsService = returnsService;
-
             Items = new ObservableCollection<CreateReturnItemDto>();
             CurrentProduct = new CreateReturnItemDto();
 
             CreateReturnCommand = new RelayCommand(
-                async () => await CreateReturnAsync(),
-                CanCreateReturn
+                async () => await CreateReturnAsync()
             );
         }
 
@@ -51,7 +49,6 @@ namespace erp.ViewModels.Returns
             {
                 _orderId = value;
                 OnPropertyChanged();
-                RaiseCommandState();
             }
         }
 
@@ -72,31 +69,43 @@ namespace erp.ViewModels.Returns
             {
                 _isBusy = value;
                 OnPropertyChanged();
-                RaiseCommandState();
             }
         }
 
         public ICommand CreateReturnCommand { get; }
-
-        private bool CanCreateReturn()
-        {
-            return !string.IsNullOrWhiteSpace(OrderId)
-                && Items.Count > 0
-                && !IsBusy;
-        }
-
         public void AddProduct()
         {
             Items.Add(CurrentProduct);
-            RaiseCommandState();
         }
 
-        public async Task<bool> CreateReturnAsync()
+        public bool IsCurrentProductValid()
         {
-            if (string.IsNullOrWhiteSpace(OrderId) || Items.Count == 0)
+            return !string.IsNullOrWhiteSpace(CurrentProduct.ProductId)
+                && CurrentProduct.Quantity > 0
+                && !string.IsNullOrWhiteSpace(CurrentProduct.Reason);
+        }
+
+        public async Task CreateReturnAsync()
+        {
+            ErrorMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(OrderId))
             {
-                ErrorMessage = "من فضلك قم بإدخال رقم الطلب والعناصر";
-                return false;
+                ErrorMessage = "رقم الطلب مطلوب";
+                return;
+            }
+
+            // لو المستخدم كتب منتج ولسه متضافش
+            if (IsCurrentProductValid())
+            {
+                Items.Add(CurrentProduct);
+                CurrentProduct = new CreateReturnItemDto();
+            }
+
+            if (Items.Count == 0)
+            {
+                ErrorMessage = "أدخل منتج واحد على الأقل";
+                return;
             }
 
             IsBusy = true;
@@ -116,62 +125,41 @@ namespace erp.ViewModels.Returns
                 Items.Clear();
                 OrderId = string.Empty;
                 CurrentProduct = new CreateReturnItemDto();
-                ErrorMessage = string.Empty;
+                ErrorMessage = "تم إنشاء طلب الإرجاع بنجاح";
             }
             else
             {
-                ErrorMessage = "فشل إنشاء طلب الإرجاع.";
+                ErrorMessage = "فشل إنشاء طلب الإرجاع";
             }
-
-            RaiseCommandState();
-            return success;
-        }
-
-        private void RaiseCommandState()
-        {
-            (CreateReturnCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 
-    // ================================
-    // RelayCommand (مضبوط وآمن)
-    // ================================
+    // =============================
+    // RelayCommand
+    // =============================
     public class RelayCommand : ICommand
     {
         private readonly Func<Task> _execute;
-        private readonly Func<bool> _canExecute;
 
-        public RelayCommand(Func<Task> execute, Func<bool> canExecute = null)
+        public RelayCommand(Func<Task> execute)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
+            _execute = execute;
         }
 
-        public bool CanExecute(object parameter)
-        {
-            return _canExecute?.Invoke() ?? true;
-        }
+        public bool CanExecute(object parameter) => true;
 
         public async void Execute(object parameter)
         {
-            if (!CanExecute(parameter))
-                return;
-
             await _execute();
         }
 
         public event EventHandler CanExecuteChanged;
-
-        public void RaiseCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        }
     }
+
 }

@@ -44,6 +44,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -84,19 +85,19 @@
                 BorderThickness="1"
                 BorderBrush="#E5E7EB"
                 Padding="16"
-                Margin="0,0,0,24">
+                Margin="0,0,0,16">
 
             <StackPanel Orientation="Horizontal"
                         VerticalAlignment="Center">
 
                 <StackPanel>
-                    <TextBlock Text="معرّف الصنف"
+                    <TextBlock Text="اسم الصنف"
                                FontSize="12"
                                Foreground="#6B7280"/>
                     <TextBox Width="320"
                              Height="36"
-                             Text="{Binding ProductId, UpdateSourceTrigger=PropertyChanged}"
-                             materialDesign:HintAssist.Hint="أدخل Product ID"/>
+                             Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="أدخل اسم المنتج مثل Rolex أو rolex"/>
                 </StackPanel>
 
                 <Button Content="تحميل التقرير"
@@ -107,67 +108,226 @@
             </StackPanel>
         </Border>
 
+        <!-- ===== (جديد) Info Row: ProductId + ProductName من التقرير ===== -->
+        <Border Grid.Row="3"
+                Background="White"
+                CornerRadius="14"
+                BorderThickness="1"
+                BorderBrush="#E5E7EB"
+                Padding="16"
+                Margin="0,0,0,16"
+                Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}}">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Product ID"
+                               FontSize="12"
+                               Foreground="#6B7280"/>
+                    <TextBlock Text="{Binding Report.ProductId}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#111827"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                    <TextBlock Text="اسم الصنف (من التقرير)"
+                               FontSize="12"
+                               Foreground="#6B7280"/>
+                    <TextBlock Text="{Binding Report.ProductName}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#111827"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Margin="12,0,0,0">
+                    <TextBlock Text="Message"
+                               FontSize="12"
+                               Foreground="#6B7280"/>
+                    <TextBlock Text="{Binding Report.Message}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#111827"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- ===== Result Cards ===== -->
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <!-- Total In -->
-            <Border Grid.Column="0"
-                    Margin="8"
-                    Padding="24"
-                    CornerRadius="16"
-                    Background="#2563EB">
-                <StackPanel>
-                    <TextBlock Text="إجمالي الداخل"
-                               Foreground="#DBEAFE"
-                               FontSize="14"/>
-                    <TextBlock Text="{Binding Report.TotalIn}"
-                               Foreground="White"
-                               FontSize="28"
-                               FontWeight="Bold"
-                               Margin="0,8,0,0"/>
-                </StackPanel>
-            </Border>
+            <!-- الصف الأول: 3 كروت (الموجودين زي ما هم) -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Total Out -->
-            <Border Grid.Column="1"
-                    Margin="8"
-                    Padding="24"
-                    CornerRadius="16"
-                    Background="#DC2626">
-                <StackPanel>
-                    <TextBlock Text="إجمالي الخارج"
-                               Foreground="#FEE2E2"
-                               FontSize="14"/>
-                    <TextBlock Text="{Binding Report.TotalOut}"
-                               Foreground="White"
-                               FontSize="28"
-                               FontWeight="Bold"
-                               Margin="0,8,0,0"/>
-                </StackPanel>
-            </Border>
+                <!-- Total In -->
+                <Border Grid.Column="0"
+                        Margin="8"
+                        Padding="24"
+                        CornerRadius="16"
+                        Background="#2563EB">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الداخل"
+                                   Foreground="#DBEAFE"
+                                   FontSize="14"/>
+                        <TextBlock Text="{Binding Report.TotalIn}"
+                                   Foreground="White"
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
 
-            <!-- Current Stock -->
-            <Border Grid.Column="2"
-                    Margin="8"
-                    Padding="24"
-                    CornerRadius="16"
-                    Background="#10B981">
-                <StackPanel>
-                    <TextBlock Text="الرصيد الحالي"
-                               Foreground="#D1FAE5"
-                               FontSize="14"/>
-                    <TextBlock Text="{Binding Report.CurrentStock}"
-                               Foreground="White"
-                               FontSize="28"
-                               FontWeight="Bold"
-                               Margin="0,8,0,0"/>
-                </StackPanel>
-            </Border>
+                <!-- Total Out -->
+                <Border Grid.Column="1"
+                        Margin="8"
+                        Padding="24"
+                        CornerRadius="16"
+                        Background="#DC2626">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الخارج"
+                                   Foreground="#FEE2E2"
+                                   FontSize="14"/>
+                        <TextBlock Text="{Binding Report.TotalOut}"
+                                   Foreground="White"
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Current Stock -->
+                <Border Grid.Column="2"
+                        Margin="8"
+                        Padding="24"
+                        CornerRadius="16"
+                        Background="#10B981">
+                    <StackPanel>
+                        <TextBlock Text="الرصيد الحالي"
+                                   Foreground="#D1FAE5"
+                                   FontSize="14"/>
+                        <TextBlock Text="{Binding Report.CurrentStock}"
+                                   Foreground="White"
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- الصف الثاني: (جديد) تفاصيل Total In -->
+            <Grid Grid.Row="1" Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Margin="8" Padding="18" CornerRadius="16" Background="#EFF6FF">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الداخل (مشتريات)"
+                                   Foreground="#1D4ED8"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TotalInPurchased}"
+                                   Foreground="#111827"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Margin="8" Padding="18" CornerRadius="16" Background="#ECFDF5">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الداخل (مرتجعات)"
+                                   Foreground="#047857"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TotalInReturned}"
+                                   Foreground="#111827"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Margin="8" Padding="18" CornerRadius="16" Background="#FDF2F8">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الداخل (تسويات)"
+                                   Foreground="#9D174D"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TotalInAdjusted}"
+                                   Foreground="#111827"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- الصف الثالث: (جديد) تفاصيل Total Out -->
+            <Grid Grid.Row="2" Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Margin="8" Padding="18" CornerRadius="16" Background="#FEF2F2">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الخارج (مبيعات)"
+                                   Foreground="#991B1B"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TotalOutSold}"
+                                   Foreground="#111827"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Margin="8" Padding="18" CornerRadius="16" Background="#FFF7ED">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الخارج (تسويات)"
+                                   Foreground="#9A3412"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TotalOutAdjusted}"
+                                   Foreground="#111827"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- (اختياري) عرض TraceId -->
+                <Border Grid.Column="2" Margin="8" Padding="18" CornerRadius="16" Background="#F3F4F6">
+                    <StackPanel>
+                        <TextBlock Text="Trace ID"
+                                   Foreground="#374151"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TraceId}"
+                                   Foreground="#111827"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Margin="0,8,0,0"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Page>
