@@ -119,8 +119,13 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <!-- Header -->
                         <RowDefinition Height="Auto"/>
+                        <!-- Search -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Error -->
                         <RowDefinition Height="*"/>
+                        <!-- Table -->
                     </Grid.RowDefinitions>
 
                     <!-- ===== Header ===== -->
@@ -155,8 +160,29 @@
                         </StackPanel>
                     </DockPanel>
 
+                    <!-- ===== Search Bar ===== -->
+                    <StackPanel Grid.Row="1"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,12">
+
+                        <TextBlock Text="بحث بالاسم:"
+                                   VerticalAlignment="Center"
+                                   Foreground="Black"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,10,0"/>
+
+                        <Border Style="{StaticResource GlowInputFrame}" Width="260">
+                            <Border Style="{StaticResource GlowInputInner}">
+                                <TextBox Style="{StaticResource GlowTextBox}"
+                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Border>
+                        </Border>
+
+                    </StackPanel>
+
                     <!-- ===== Error ===== -->
-                    <Border Grid.Row="1"
+                    <Border Grid.Row="2"
                             Margin="0,0,0,10"
                             CornerRadius="14"
                             Background="#FFFEE2E2"
@@ -174,13 +200,13 @@
                     </Border>
 
                     <!-- ===== Table ===== -->
-                    <Border Grid.Row="2" Style="{StaticResource GlowingTableOuterBorder}">
+                    <Border Grid.Row="3" Style="{StaticResource GlowingTableOuterBorder}">
 
                         <DataGrid Style="{StaticResource ProDataGridStyle}"
                                   ColumnHeaderStyle="{StaticResource CenteredHeaderStyle}"
                                   RowStyle="{StaticResource ProDataGridRowStyle}"
                                   CellStyle="{StaticResource TopCenterGridCellStyle}"
-                                  ItemsSource="{Binding Items}"
+                                  ItemsSource="{Binding ItemsView}"
                                   SelectedItem="{Binding Selected}"
                                   HeadersVisibility="Column"
                                   GridLinesVisibility="None"

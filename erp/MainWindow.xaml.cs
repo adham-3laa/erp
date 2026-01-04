@@ -20,6 +20,10 @@ namespace erp
     {
         private readonly ApiClient _apiClient;
 
+        private void Logo_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
+        {
+            MessageBox.Show(e.ErrorException?.Message ?? "Image failed");
+        }
 
         public MainWindow()
         {
