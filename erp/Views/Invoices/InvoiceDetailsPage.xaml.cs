@@ -1,40 +1,41 @@
 ﻿using erp.DTOS.InvoicesDTOS;
+using erp.ViewModels.Invoices;
+using erp.Views.Payments;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
 
 namespace erp.Views.Invoices
 {
     public partial class InvoiceDetailsPage : Page
     {
+        private readonly InvoiceResponseDto _invoice;
+
         public InvoiceDetailsPage(InvoiceResponseDto invoice)
         {
             InitializeComponent();
-            DataContext = invoice;
-
-            // التحكم في زر الدفع
-            PayButton.IsEnabled = invoice.RemainingAmount > 0;
+            _invoice = invoice;
+            DataContext = new InvoiceDetailsViewModel(invoice);
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            var nav = NavigationService.GetNavigationService(this);
-            if (nav?.CanGoBack == true)
-                nav.GoBack();
+            NavigationService?.GoBack();
         }
 
         private void Pay_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is InvoiceResponseDto invoice)
-            {
-                if (invoice.RemainingAmount <= 0)
-                    return;
+            if (_invoice.RemainingAmount <= 0)
+                return;
 
-                var nav = NavigationService.GetNavigationService(this);
-                nav?.Navigate(
-                    new erp.Views.Payments.PaySupplierInvoicePage(invoice.Id)
-                );
+            if (_invoice.Type == "SupplierInvoice")
+            {
+                NavigationService?.Navigate(
+                    new PaySupplierInvoicePage(_invoice.Id));
+                return;
             }
+
+            NavigationService?.Navigate(
+                new PayInvoiceByOrderPage(_invoice));
         }
     }
 }
