@@ -108,7 +108,7 @@
             </StackPanel>
         </Border>
 
-        <!-- ===== (جديد) Info Row: ProductId + ProductName من التقرير ===== -->
+        <!-- ===== Info Row: ProductId + ProductName + Message ===== -->
         <Border Grid.Row="3"
                 Background="White"
                 CornerRadius="14"
@@ -168,7 +168,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- الصف الأول: 3 كروت (الموجودين زي ما هم) -->
+            <!-- الصف الأول: 3 كروت -->
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -198,7 +198,8 @@
                 <Border Grid.Column="1"
                         Margin="8"
                         Padding="24"
-                        CornerRadius="16" Background="#FF5A1212">
+                        CornerRadius="16"
+                        Background="#FF5A1212">
                     <StackPanel>
                         <TextBlock Text="إجمالي الخارج"
                                    Foreground="#FEE2E2"
@@ -230,9 +231,10 @@
                 </Border>
             </Grid>
 
-            <!-- الصف الثاني: (جديد) تفاصيل Total In -->
+            <!-- الصف الثاني: تفاصيل Total In (4 كروت) -->
             <Grid Grid.Row="1" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -276,11 +278,26 @@
                                    Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
+
+                <!-- ✅ NEW -->
+                <Border Grid.Column="3" Margin="8" Padding="18" CornerRadius="16" Background="#EEF2FF">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الداخل (تعديل موظف)"
+                                   Foreground="#3730A3"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TotalInUpdatedByEmployee}"
+                                   Foreground="#111827"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <!-- الصف الثالث: (جديد) تفاصيل Total Out -->
+            <!-- الصف الثالث: تفاصيل Total Out (4 كروت) -->
             <Grid Grid.Row="2" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -312,8 +329,22 @@
                     </StackPanel>
                 </Border>
 
-                <!-- (اختياري) عرض TraceId -->
-                <Border Grid.Column="2" Margin="8" Padding="18" CornerRadius="16" Background="#F3F4F6">
+                <!-- ✅ NEW -->
+                <Border Grid.Column="2" Margin="8" Padding="18" CornerRadius="16" Background="#F0FDFA">
+                    <StackPanel>
+                        <TextBlock Text="إجمالي الخارج (تعديل موظف)"
+                                   Foreground="#0F766E"
+                                   FontSize="13"/>
+                        <TextBlock Text="{Binding Report.TotalOutUpdatedByEmployee}"
+                                   Foreground="#111827"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- TraceId -->
+                <Border Grid.Column="3" Margin="8" Padding="18" CornerRadius="16" Background="#F3F4F6">
                     <StackPanel>
                         <TextBlock Text="Trace ID"
                                    Foreground="#374151"

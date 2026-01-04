@@ -29,6 +29,10 @@ public class StockMovementReportDto
     [JsonPropertyName("totalinadjusted")]
     public int TotalInAdjusted { get; set; }
 
+    // ✅ NEW
+    [JsonPropertyName("totalinupdatedbyemployee")]
+    public int TotalInUpdatedByEmployee { get; set; }
+
     [JsonPropertyName("totalout")]
     public int TotalOut { get; set; }
 
@@ -37,6 +41,10 @@ public class StockMovementReportDto
 
     [JsonPropertyName("totaloutadjusted")]
     public int TotalOutAdjusted { get; set; }
+
+    // ✅ NEW
+    [JsonPropertyName("totaloutupdatedbyemployee")]
+    public int TotalOutUpdatedByEmployee { get; set; }
 
     [JsonPropertyName("currentstock")]
     public int CurrentStock { get; set; }
