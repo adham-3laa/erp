@@ -1,4 +1,5 @@
 ﻿using erp.ViewModels.Returns;
+using erp.DTOS;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -15,24 +16,21 @@ namespace erp.Views.Returns
             DataContext = _viewModel;
         }
 
-        private async void Submit_Click(object sender, RoutedEventArgs e)
+        // إضافة منتج جديد
+        private void AddItem_Click(object sender, RoutedEventArgs e)
         {
-            var success = await _viewModel.SubmitReturnAsync();
+            if (string.IsNullOrWhiteSpace(_viewModel.CurrentProduct.ProductId) ||
+                _viewModel.CurrentProduct.Quantity <= 0 ||
+                string.IsNullOrWhiteSpace(_viewModel.CurrentProduct.Reason))
+            {
+                MessageBox.Show("من فضلك قم بإدخال جميع البيانات.");
+                return;
+            }
 
-            if (success)
-            {
-                MessageBox.Show("تم إرسال طلب المرتجع بنجاح ✅",
-                                "نجاح",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBox.Show("لم يتم إرسال المرتجع ⚠️\nتأكد من إدخال كميات مرتجعة.",
-                                "تنبيه",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Warning);
-            }
+            _viewModel.AddProduct();
+
+            // إعادة تهيئة المنتج الحالي (مهم جدًا)
+            _viewModel.CurrentProduct = new CreateReturnItemDto();
         }
     }
 }

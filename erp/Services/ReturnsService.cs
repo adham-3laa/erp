@@ -1,8 +1,8 @@
 ﻿using erp.DTOS;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace erp.Services
 {
@@ -48,52 +48,6 @@ namespace erp.Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"[ReturnsService] CreateReturn failed: {ex}");
-                return false;
-            }
-        }
-
-        // ===================== GET PENDING RETURNS =====================
-        public async Task<List<PendingReturnDto>> GetPendingReturnsAsync()
-        {
-            Debug.WriteLine("[ReturnsService] GetPendingReturns");
-
-            try
-            {
-                var response = await _api.GetAsync<ApiResponseForReturn<List<PendingReturnDto>>>(
-                    "api/Returns/pending"
-                );
-
-                return response?.StatusCode == 200 && response.Value != null
-                    ? response.Value
-                    : new List<PendingReturnDto>();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[ReturnsService] GetPendingReturns failed: {ex}");
-                return new List<PendingReturnDto>();
-            }
-        }
-
-        // ===================== APPROVE RETURN =====================
-        public async Task<bool> ApproveReturnAsync(string returnId)
-        {
-            if (string.IsNullOrWhiteSpace(returnId))
-                throw new ArgumentException("ReturnId is required", nameof(returnId));
-
-            Debug.WriteLine($"[ReturnsService] ApproveReturn | ReturnId: {returnId}");
-
-            try
-            {
-                var response = await _api.PutAsync<ApiResponseForReturn<object>>(
-                    $"api/Returns/approve?id={returnId}",
-                    new { }
-                );
-
-                return response?.StatusCode == 200;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[ReturnsService] ApproveReturn failed: {ex}");
                 return false;
             }
         }

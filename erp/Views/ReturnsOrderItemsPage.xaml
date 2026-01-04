@@ -1,98 +1,48 @@
 ﻿<Page x:Class="erp.Views.Returns.ReturnsOrderItemsView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="المرتجعات"
-      FlowDirection="RightToLeft">
+      Title="Returns Order Items">
 
     <Grid>
+        <!-- Content Area -->
+        <StackPanel Margin="20">
+            <!-- OrderId TextBox for input with watermark (Watermark as Placeholder) -->
+            <TextBox x:Name="OrderIdTextBoxInput" Width="300" Margin="0,0,0,10" Height="35" VerticalAlignment="Top">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Style.Triggers>
+                            <!-- Watermark for TextBox when it's empty -->
+                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}, Mode=OneWay}" Value="">
+                                <Setter Property="ToolTip" Value="أدخل رقم الطلب" />
+                                <Setter Property="Foreground" Value="Gray"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
 
-        <!-- ===== NavBar ===== -->
-        <Border Background="#2D3748"
-                Padding="12">
-            <DockPanel>
+            <!-- Load Button -->
+            <Button Content="تحميل العناصر" Command="{Binding LoadCommand}" Margin="0,0,0,10" Height="40" VerticalAlignment="Top" Background="#4CAF50" Foreground="White" Click="Load_Click"/>
 
-                <!-- أزرار -->
-                <StackPanel Orientation="Horizontal"
-                            DockPanel.Dock="Left">
-                    <Button Content="رجوع"
-                            Width="80"
-                            Margin="0,0,8,0"
-                            Click="Back_Click"/>
+            <!-- Error Message -->
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" Margin="0,10,0,10" />
 
-                    <Button Content="إنشاء مرتجع"
-                            Width="120"
-                            Click="CreateReturn_Click"/>
-                </StackPanel>
+            <!-- DataGrid for displaying order items -->
+            <DataGrid ItemsSource="{Binding OrderItems}" AutoGenerateColumns="False" Margin="0,20,0,0" Height="250">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Product ID" Binding="{Binding Productid}" Width="*" />
+                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="*" />
+                    <DataGridTextColumn Header="Unit Price" Binding="{Binding Unitprice}" Width="*" />
+                    <DataGridTextColumn Header="Customer ID" Binding="{Binding Customerid}" Width="*" />
+                    <DataGridTextColumn Header="Product Name" Binding="{Binding Productname}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
 
-                <!-- العنوان -->
-                <TextBlock Text="المرتجعات"
-                           Foreground="White"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           VerticalAlignment="Center"
-                           DockPanel.Dock="Right"/>
-            </DockPanel>
-        </Border>
-
-        <!-- ===== محتوى الصفحة ===== -->
-        <Grid Margin="16" VerticalAlignment="Top">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- إدخال رقم الطلب -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                <TextBlock Text="رقم الطلب:" VerticalAlignment="Center"/>
-                <TextBox x:Name="OrderIdTextBox"
-                         Width="350"
-                         Margin="10,0,10,0"/>
-                <Button Content="تحميل"
-                        Width="80"
-                        Click="Load_Click"/>
+            <!-- Buttons for actions -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                <Button Content="عودة" Width="100" Height="40" Background="#FF6200EE" Foreground="White" Click="Back_Click"/>
+                <Button Content="إنشاء إرجاع" Width="150" Height="40" Background="#FF6200EE" Foreground="White" Margin="10,0,0,0" Click="CreateReturn_Click"/>
             </StackPanel>
-
-            <!-- الأصناف -->
-            <ScrollViewer Grid.Row="1">
-                <ItemsControl ItemsSource="{Binding OrderItems}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="#CCC"
-                                    BorderThickness="1"
-                                    Padding="10"
-                                    Margin="0,6">
-                                <StackPanel>
-
-                                    <TextBlock Text="{Binding ProductId}"
-                                               FontWeight="Bold"/>
-
-                                    <TextBlock>
-                                        <Run Text="الكمية: "/>
-                                        <Run Text="{Binding Quantity}"/>
-                                        <Run Text="   السعر: "/>
-                                        <Run Text="{Binding UnitPrice}"/>
-                                    </TextBlock>
-
-                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                        <TextBlock Text="كمية المرتجع:" Width="100"/>
-                                        <TextBox Width="60"
-                                                 Text="{Binding ReturnQuantity,
-                                                 UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="سبب الإرجاع"
-                                               Margin="0,8,0,2"/>
-
-                                    <TextBox Text="{Binding Reason,
-                                            UpdateSourceTrigger=PropertyChanged}"
-                                             Height="30"/>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </Grid>
-
+        </StackPanel>
     </Grid>
 </Page>
