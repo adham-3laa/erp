@@ -120,6 +120,8 @@ namespace erp.ViewModels
         public RelayCommand NextPageCommand { get; private set; }
         public RelayCommand PreviousPageCommand { get; private set; }
         public RelayCommand NavigateToCreateCommand { get; private set; }
+        public RelayCommand<UserDto> ViewUserInvoicesCommand { get; private set; }
+
 
         private void InitializeCommands()
         {
@@ -158,6 +160,12 @@ namespace erp.ViewModels
             NavigateToCreateCommand = new RelayCommand(
                 () => NavigationService.NavigateToCreateUser()
             );
+
+            ViewUserInvoicesCommand = new RelayCommand<UserDto>(
+                user => NavigationService.NavigateToUserInvoices(user),
+                user => user != null
+            );
+
         }
 
         // ===================== Init =====================

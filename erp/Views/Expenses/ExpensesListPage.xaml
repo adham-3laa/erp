@@ -92,6 +92,11 @@
                         Margin="0,0,10,0"
                         Style="{StaticResource DarkButtonStyle}"
                         Click="AddExpense_Click"/>
+                <!-- ✅ زر التحديث -->
+                <Button Content="🔄 تحديث"
+                        Width="120"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="Refresh_Click"/>
             </StackPanel>
         </Grid>
 
