@@ -4,17 +4,18 @@ using erp.Services;
 using erp.Services.Category;
 using erp.Views.Auth;
 
+// ✅ QuestPDF
+using QuestPDF.Infrastructure;
+
 namespace erp
 {
     public partial class App : Application
     {
-
         public static IAuthSession AuthSession { get; } = new AuthSession();
         public static HttpClient Http { get; private set; } = null!;
         public static ApiClient Api { get; private set; } = null!;
         public static CategoryService Categories { get; private set; } = null!;
         public static UserService Users { get; private set; } = null!; // ✅ إضافة
-
 
         public static DashboardService Dashboard { get; private set; } = null!;
 
@@ -25,6 +26,9 @@ namespace erp
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            // ✅ QuestPDF License (مهم جدًا – سطر واحد بس)
+            QuestPDF.Settings.License = LicenseType.Community;
 
             Session = new AuthSession();
 

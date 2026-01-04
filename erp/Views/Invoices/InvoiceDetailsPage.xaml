@@ -3,66 +3,202 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Background="{StaticResource PageBgBrush}">
 
+    <!-- ================= Modern Styles ================= -->
+    <Page.Resources>
+
+        <!-- Header style -->
+        <Style x:Key="ModernDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ✅ Cell style (FIX ALIGNMENT) -->
+        <Style x:Key="ModernDataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="BorderBrush" Value="#EEF2F7"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+
+            <!-- ✅ خلي النص جوه الخلية يتوسّط فعلاً -->
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+            <Setter Property="TextBlock.HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextBlock.VerticalAlignment" Value="Center"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EAF2FF"/>
+                    <Setter Property="BorderBrush" Value="#C7DBFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Row style -->
+        <Style x:Key="ModernDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="MinHeight" Value="42"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="#FAFAFB"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F3F8FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EAF2FF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Modern DataGrid style -->
+        <Style x:Key="ModernDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#FAFAFB"/>
+            <Setter Property="AlternationCount" Value="2"/>
+
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+
+            <Setter Property="ColumnHeaderStyle" Value="{StaticResource ModernDataGridColumnHeaderStyle}"/>
+            <Setter Property="CellStyle" Value="{StaticResource ModernDataGridCellStyle}"/>
+            <Setter Property="RowStyle" Value="{StaticResource ModernDataGridRowStyle}"/>
+
+            <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+    </Page.Resources>
+
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ================= Title ================= -->
-        <TextBlock Grid.Row="0"
-                   Text="تفاصيل الفاتورة"
+        <!-- Title -->
+        <TextBlock Text="تفاصيل الفاتورة"
                    FontSize="26"
                    FontWeight="Bold"
-                   Foreground="{StaticResource TextDarkBrush}"
                    Margin="0,0,0,20"/>
 
-        <!-- ================= Content ================= -->
-        <ScrollViewer Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto">
-
+        <ScrollViewer Grid.Row="1">
             <StackPanel>
 
-                <!-- ================= Invoice Info ================= -->
-                <Border Style="{StaticResource CardStyle}"
-                        Margin="0,0,0,20">
-
+                <!-- ================= Invoice ================= -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
                     <UniformGrid Columns="2" Margin="16">
 
-                        <TextBlock Text="نوع الفاتورة" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding Type}"/>
+                        <TextBlock Text="نوع الفاتورة"/>
+                        <TextBlock Text="{Binding Invoice.Type}"/>
 
-                        <TextBlock Text="المستلم" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding RecipientName}"/>
+                        <TextBlock Text="المستلم"/>
+                        <TextBlock Text="{Binding Invoice.RecipientName}"/>
 
-                        <TextBlock Text="الإجمالي" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding Amount}"/>
+                        <TextBlock Text="الإجمالي"/>
+                        <TextBlock Text="{Binding Invoice.Amount}"/>
 
-                        <TextBlock Text="المدفوع" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding PaidAmount}"/>
+                        <TextBlock Text="المدفوع"/>
+                        <TextBlock Text="{Binding Invoice.PaidAmount}"/>
 
-                        <TextBlock Text="المتبقي" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding RemainingAmount}"/>
+                        <TextBlock Text="المتبقي"/>
+                        <TextBlock Text="{Binding Invoice.RemainingAmount}"/>
 
-                        <TextBlock Text="تاريخ الإنشاء" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding GeneratedDate}"/>
+                        <TextBlock Text="تاريخ الإنشاء"/>
+                        <TextBlock Text="{Binding Invoice.GeneratedDate}"/>
+
                     </UniformGrid>
                 </Border>
 
-                <!-- ================= Actions ================= -->
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            Margin="0,0,0,16">
+                <!-- ================= Order Items ================= -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                    <StackPanel Margin="16">
 
-                    <!-- زر الدفع -->
-                    <Button x:Name="PayButton"
-                            Content="💰 دفع"
+                        <TextBlock Text="تفاصيل الطلب"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,12"/>
+
+                        <Border CornerRadius="12"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="1"
+                                Background="White"
+                                SnapsToDevicePixels="True">
+
+                            <DataGrid ItemsSource="{Binding OrderItems}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource ModernDataGridStyle}"
+                                      AlternationCount="2">
+
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="المنتج"
+                                                        Binding="{Binding ProductName}"
+                                                        Width="*" />
+
+                                    <DataGridTextColumn Header="الفئة"
+                                                        Binding="{Binding CategoryName}"
+                                                        Width="*" />
+
+                                    <DataGridTextColumn Header="الكمية"
+                                                        Binding="{Binding Quantity}"
+                                                        Width="*" />
+
+                                    <DataGridTextColumn Header="السعر"
+                                                        Binding="{Binding UnitPrice}"
+                                                        Width="*" />
+
+                                    <DataGridTextColumn Header="الإجمالي"
+                                                        Binding="{Binding Total}"
+                                                        Width="*" />
+                                </DataGrid.Columns>
+
+                            </DataGrid>
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- ================= Buttons ================= -->
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="💰 دفع"
                             Width="160"
                             Margin="0,0,12,0"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Click="Pay_Click"/>
+                            Click="Pay_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonStyle}">
+                                <Setter Property="IsEnabled" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Invoice.RemainingAmount}" Value="0">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
 
-                    <!-- زر الرجوع -->
                     <Button Content="⬅ رجوع"
                             Width="140"
                             Style="{StaticResource DarkButtonStyle}"

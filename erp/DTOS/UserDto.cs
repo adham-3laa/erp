@@ -38,6 +38,7 @@ namespace erp.DTOS
         public string Fullname { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
+        public string? SalesRepId { get; set; }
         public string Phonenumber { get; set; }
         [JsonPropertyName("usertype")]
         public string UserType { get; set; }

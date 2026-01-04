@@ -1,4 +1,5 @@
 ﻿using erp.DTOS.InvoicesDTOS;
+using erp.DTOS.Inventory.Responses; // ApiResponse<T> => value
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -14,7 +15,6 @@ namespace erp.Services
 
         public InvoiceService()
         {
-            // ================= SSL (Dev only) =================
             var handler = new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback =
@@ -26,7 +26,11 @@ namespace erp.Services
                 BaseAddress = new Uri("http://be-positive.runasp.net/")
             };
 
-            // ================= Attach JWT Token =================
+            AttachToken();
+        }
+
+        private void AttachToken()
+        {
             if (!string.IsNullOrWhiteSpace(TokenStore.Token))
             {
                 _client.DefaultRequestHeaders.Authorization =
@@ -34,7 +38,10 @@ namespace erp.Services
             }
         }
 
-        // ================= Get Invoices List =================
+        // =====================================================
+        // ============ LIST (Admin / Management) ==============
+        // =====================================================
+        // دي تفضل زي ما هي علشان صفحة "إدارة الفواتير"
         public async Task<InvoicesListResponseDto> GetInvoices(
             string search,
             string invoiceType,
@@ -46,25 +53,15 @@ namespace erp.Services
             int page = 1,
             int pageSize = 10)
         {
+            AttachToken();
+
             var queryParams = new List<string>();
 
             if (!string.IsNullOrWhiteSpace(search))
                 queryParams.Add($"search={Uri.EscapeDataString(search)}");
 
-            // ================= SAFE invoiceType =================
             if (!string.IsNullOrWhiteSpace(invoiceType))
-            {
-                var normalizedType = invoiceType.Trim();
-
-                // القيم المسموح بها من Swagger
-                if (normalizedType == "CustomerInvoice" ||
-                    normalizedType == "CommissionInvoice" ||
-                    normalizedType == "SupplierInvoice" ||
-                    normalizedType == "ReturnInvoice")
-                {
-                    queryParams.Add($"invoiceType={Uri.EscapeDataString(normalizedType)}");
-                }
-            }
+                queryParams.Add($"invoiceType={Uri.EscapeDataString(invoiceType)}");
 
             if (!string.IsNullOrWhiteSpace(query))
                 queryParams.Add($"recipientName={Uri.EscapeDataString(query)}");
@@ -87,44 +84,47 @@ namespace erp.Services
             var url = $"api/Invoices/list?{string.Join("&", queryParams)}";
 
             var response = await _client.GetAsync(url);
-
-            // ================= Better Error Handling =================
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"API Error ({response.StatusCode}): {error}");
+                throw new Exception(error);
             }
 
             var json = await response.Content.ReadAsStringAsync();
 
             return JsonSerializer.Deserialize<InvoicesListResponseDto>(
                 json,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }
-            ) ?? new InvoicesListResponseDto
-            {
-                Items = new List<InvoiceResponseDto>()
-            };
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            ) ?? new InvoicesListResponseDto();
         }
 
-        // =========================================================
-        // ================= Pay Supplier Invoice ==================
-        // =========================================================
+        // =====================================================
+        // ================= USER-SCOPED =======================
+        // =====================================================
 
-        /// <summary>
-        /// دفع مبلغ (جزئي أو كلي) لفاتورة مورد باستخدام SupplierInvoiceId
-        /// </summary>
+        public Task<List<InvoiceResponseDto>> GetInvoicesForCustomer(string customerId)
+            => GetValueList($"api/Invoices/AllInvoicesForSpecificCustomerByCustomerId?customerId={Uri.EscapeDataString(customerId)}");
+
+        public Task<List<InvoiceResponseDto>> GetInvoicesForSupplier(string supplierId)
+            => GetValueList($"api/Invoices/AllInvoicesForSpecificSupplierBySupplierId?supplierId={Uri.EscapeDataString(supplierId)}");
+
+        public Task<List<InvoiceResponseDto>> GetInvoicesForSalesRep(string salesRepId)
+            => GetValueList($"api/Invoices/AllInvoicesForSpecificSalesRepBySalesRepId?salesRepId={Uri.EscapeDataString(salesRepId)}");
+
+        // =====================================================
+        // ============== Pay Supplier Invoice =================
+        // =====================================================
+
         public async Task PaySupplierInvoice(Guid supplierInvoiceId, decimal paidAmount)
         {
+            AttachToken();
+
             if (paidAmount <= 0)
                 throw new ArgumentException("Paid amount must be greater than zero");
 
             var url =
                 $"api/Invoices/PayPartOfMoneyToSupplierBySupplierInvoiceId" +
                 $"?SupplierInvoiceId={supplierInvoiceId}&PayiedAmount={paidAmount}";
-
 
             var response = await _client.PutAsync(url, null);
 
@@ -135,5 +135,30 @@ namespace erp.Services
             }
         }
 
+        // =====================================================
+        // ================= Helper ============================
+        // =====================================================
+
+        // الـ endpoints الخاصة بالمستخدمين بترجع ApiResponse فيها value
+        private async Task<List<InvoiceResponseDto>> GetValueList(string url)
+        {
+            AttachToken();
+
+            var response = await _client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error ({(int)response.StatusCode}): {err}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<InvoiceResponseDto>>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return apiResponse?.value ?? new List<InvoiceResponseDto>();
+        }
     }
 }

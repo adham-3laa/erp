@@ -12,7 +12,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace EduGate.Services
+namespace erp.Services
 {
     public class InventoryService
     {
@@ -26,40 +26,108 @@ namespace EduGate.Services
             };
         }
 
-        // ================== Get All Products ==================
-        public async Task<List<Product>> GetAllProductsAsync()
+        // ================== ✅ NEW: Lightweight DTO for printing ==================
+        // ده ملوش أي تأثير على باقي النظام، مجرد DTO مساعد للطباعة
+        public class InventoryProductInfo
+        {
+            public string ProductId { get; set; } = "";
+            public string ProductName { get; set; } = "";
+            public decimal SalePrice { get; set; }
+            public decimal BuyPrice { get; set; }
+            public int Quantity { get; set; }
+            public string SKU { get; set; } = "N/A";
+            public string Description { get; set; } = "";
+            public string? CategoryId { get; set; }
+            public string? CategoryName { get; set; }
+        }
+
+        // ================== ✅ NEW: Get All Products Info (saleprice + categoryname) ==================
+        // دي اللي هنستخدمها علشان نطلع السعر + اسم الفئة
+        public async Task<List<InventoryProductInfo>> GetAllProductsInfoAsync(int skip = 0, int take = 1000)
         {
             _client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
 
-            var response =
-                await _client.GetAsync("/api/Inventory/GetAllproducts?skip=0&take=100");
-
+            var response = await _client.GetAsync($"/api/Inventory/GetAllproducts?skip={skip}&take={take}");
             response.EnsureSuccessStatusCode();
 
             var jsonString = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions
+            if (string.IsNullOrWhiteSpace(jsonString))
+                return new List<InventoryProductInfo>();
+
+            using var doc = JsonDocument.Parse(jsonString);
+
+            // شكل الاستجابة: { statusCode, message, traceId, value: [ ... ] }
+            if (!doc.RootElement.TryGetProperty("value", out var valueEl) || valueEl.ValueKind != JsonValueKind.Array)
+                return new List<InventoryProductInfo>();
+
+            var list = new List<InventoryProductInfo>();
+
+            foreach (var p in valueEl.EnumerateArray())
             {
-                PropertyNameCaseInsensitive = true
-            };
+                // Helpers
+                string GetString(string name)
+                    => p.TryGetProperty(name, out var el) && el.ValueKind == JsonValueKind.String ? el.GetString() ?? "" : "";
 
-            var apiResponse =
-                JsonSerializer.Deserialize<ApiResponse<List<InventoryItemResponse>>>(jsonString, options);
+                string? GetNullableString(string name)
+                    => p.TryGetProperty(name, out var el) && el.ValueKind == JsonValueKind.String ? el.GetString() : null;
 
-            return apiResponse?.value.Select(p => new Product
+                decimal GetDecimal(string name)
+                {
+                    if (!p.TryGetProperty(name, out var el)) return 0;
+                    if (el.ValueKind == JsonValueKind.Number && el.TryGetDecimal(out var d)) return d;
+                    return 0;
+                }
+
+                int GetInt(string name)
+                {
+                    if (!p.TryGetProperty(name, out var el)) return 0;
+                    if (el.ValueKind == JsonValueKind.Number && el.TryGetInt32(out var i)) return i;
+                    return 0;
+                }
+
+                list.Add(new InventoryProductInfo
+                {
+                    ProductId = GetString("productid"),
+                    ProductName = GetString("productname"),
+                    // ✅ API بيرجع saleprice / buyprice
+                    SalePrice = GetDecimal("saleprice"),
+                    BuyPrice = GetDecimal("buyprice"),
+                    Quantity = GetInt("quantity"),
+                    SKU = GetString("sku"),
+                    Description = GetString("description"),
+                    CategoryId = GetNullableString("categoryid"),
+                    CategoryName = GetNullableString("categoryname")
+                });
+            }
+
+            return list;
+        }
+
+        // ================== Get All Products ==================
+        // ✅ نفس التوقيع زي ما هو (علشان باقي السيستم)
+        // ✅ بس هنخليه يعتمد على الميثود الجديدة علشان الأسعار تبقى صح
+        public async Task<List<Product>> GetAllProductsAsync()
+        {
+            var infos = await GetAllProductsInfoAsync(skip: 0, take: 1000);
+
+            return infos.Select(p => new Product
             {
-                ProductId = p.productid,
-                Name = p.productname,
-                SalePrice = (int)p.sellprice,
-                Category = p.categoryid ?? "",
+                ProductId = p.ProductId,
+                Name = p.ProductName,
 
-                // قيم افتراضية (لأن الـ API لا يعيدها)
-                BuyPrice = (int)p.sellprice,
-                Quantity = 1,
-                SKU = "N/A",
-                Description = "",
+                // ✅ تحويل آمن من decimal لـ int
+                SalePrice = Convert.ToInt32(p.SalePrice),
+
+                // كان زمان بيرجع categoryid (guid) — هنخليه زي ما هو علشان باقي السيستم
+                Category = p.CategoryId ?? "",
+
+                BuyPrice = Convert.ToInt32(p.BuyPrice),
+                Quantity = p.Quantity > 0 ? p.Quantity : 1,
+                SKU = string.IsNullOrWhiteSpace(p.SKU) ? "N/A" : p.SKU,
+                Description = p.Description ?? "",
                 Supplier = ""
-            }).ToList() ?? new List<Product>();
+            }).ToList();
         }
 
         // ================== Delete ==================
@@ -141,7 +209,6 @@ namespace EduGate.Services
             }
         }
 
-
         // ================== Update Product ==================
         public async Task UpdateProductAsync(Product product)
         {
@@ -193,8 +260,8 @@ namespace EduGate.Services
         }
 
         public async Task<InventoryAdjustmentResponse> AdjustInventoryAsync(
-     string productId,
-     int actualQuantity)
+            string productId,
+            int actualQuantity)
         {
             _client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
@@ -224,5 +291,29 @@ namespace EduGate.Services
             return result!;
         }
 
+        public class ProductLookupDto
+        {
+            public string ProductId { get; set; } = "";
+            public string ProductName { get; set; } = "";
+            public decimal SalePrice { get; set; }
+            public string? CategoryId { get; set; }
+            public string? CategoryName { get; set; }
+        }
+
+        // ✅✅ FIX: ما بقيناش نعتمد على InventoryItemResponse (عشان categoryname مش موجودة)
+        // هنستخدم GetAllProductsInfoAsync اللي بتقرأ JSON مباشرة (وفيه categoryname)
+        public async Task<List<ProductLookupDto>> GetAllProductsLookupAsync()
+        {
+            var infos = await GetAllProductsInfoAsync(skip: 0, take: 1000);
+
+            return infos.Select(p => new ProductLookupDto
+            {
+                ProductId = p.ProductId,
+                ProductName = p.ProductName,
+                SalePrice = p.SalePrice,
+                CategoryId = p.CategoryId,
+                CategoryName = p.CategoryName
+            }).ToList();
+        }
     }
 }
