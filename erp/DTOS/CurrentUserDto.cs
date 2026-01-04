@@ -3,6 +3,23 @@ using System.Text.Json.Serialization;
 
 namespace erp.DTOS
 {
+    public class CurrentUserApiResponse<T>
+    {
+        [JsonPropertyName("statusCode")]
+        public int StatusCode { get; set; }
+
+        [JsonPropertyName("message")]
+        public string Message { get; set; }
+
+        [JsonPropertyName("traceId")]
+        public string TraceId { get; set; }
+
+        // لو عندك APIs بتبعت data
+        [JsonPropertyName("data")]
+        public T Data { get; set; }
+    }
+
+    // ✅ ده مطابق 100% لريسبونس /api/users/get-user
     public class CurrentUserDto
     {
         [JsonPropertyName("statusCode")]

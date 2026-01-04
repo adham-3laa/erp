@@ -8,27 +8,30 @@ namespace erp.Views.Users
     public partial class CurrentUserPage : Page
     {
         private readonly CurrentUserViewModel _viewModel;
+        private readonly string? _userId;
 
-        public CurrentUserPage()
+        public CurrentUserPage(string? userId = null)
         {
             InitializeComponent();
-            _viewModel = new CurrentUserViewModel();
+            _userId = userId;
+
+            _viewModel = new CurrentUserViewModel(_userId);
             DataContext = _viewModel;
+
             Loaded += Page_Loaded;
             Unloaded += Page_Unloaded;
         }
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            // تحميل البيانات مرة واحدة فقط
-            await _viewModel.LoadCurrentUserAsync();
+            await _viewModel.LoadUserAsync(); // تحميل بالـ id لو موجود
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
-            // تنظيف الأحداث لمنع تسرب الذاكرة
             Loaded -= Page_Loaded;
             Unloaded -= Page_Unloaded;
         }
     }
+
 }

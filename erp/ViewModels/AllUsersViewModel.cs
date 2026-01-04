@@ -19,6 +19,8 @@ namespace erp.ViewModels
             new UserService(App.Api);
         private Timer _searchTimer;
 
+           
+
         public AllUsersViewModel()
         {
             InitializeCommands();
@@ -143,9 +145,10 @@ namespace erp.ViewModels
             );
 
             ViewUserCommand = new RelayCommand<string>(
-                id => ViewUserDetails(id),
-                id => !IsLoading && !string.IsNullOrEmpty(id)
-            );
+    OnViewUser,
+    id => !IsLoading && !string.IsNullOrWhiteSpace(id)
+);
+
 
             NextPageCommand = new RelayCommand(
                 () => CurrentPage++,
@@ -167,6 +170,13 @@ namespace erp.ViewModels
             );
 
         }
+        private void OnViewUser(string? userId)
+        {
+            if (IsLoading || string.IsNullOrWhiteSpace(userId))
+                return;
+
+            NavigationService.NavigateToUserProfile(userId);
+        }
 
         // ===================== Init =====================
         private void InitializeCollections()
@@ -178,11 +188,12 @@ namespace erp.ViewModels
             };
 
             StatusOptions = new ObservableCollection<StatusOption>
-            {
-                new("جميع الحالات", null),
-                new("نشط", true),
-                new("غير نشط", false)
-            };
+{
+    new StatusOption("جميع الحالات", null),
+    new StatusOption("نشط", true),
+    new StatusOption("غير نشط", false)
+};
+
         }
 
         // ===================== Core Logic =====================

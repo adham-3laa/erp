@@ -19,16 +19,10 @@ namespace erp.ViewModels
             _userService = App.Users;
 
             UserTypes = new ObservableCollection<string>
-{
-    "SystemAdmin",
-    "User",
-    "Customer",
-    "SalesRep",
-    "StoreManager",
-    "Supplier",
-    "Accountant"
-};
-
+            {
+                "SystemAdmin", "User", "Customer", "SalesRep",
+                "StoreManager", "Supplier", "Accountant"
+            };
 
             SelectedUserType = "SystemAdmin";
 
@@ -99,6 +93,28 @@ namespace erp.ViewModels
 
         // ================== LOGIC ==================
 
+        private bool Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Fullname))
+                return Fail("الاسم الكامل مطلوب");
+
+            if (string.IsNullOrWhiteSpace(Email))
+                return Fail("البريد الإلكتروني مطلوب");
+
+          
+
+            if (string.IsNullOrWhiteSpace(Password))
+                return Fail("كلمة المرور مطلوبة");
+
+            // تحقق من طول كلمة المرور
+            if (Password.Length < 6)
+                return Fail("كلمة المرور يجب أن تكون أكبر من 6 حروف");
+
+            if (Password != ConfirmPassword)
+                return Fail("كلمتا المرور غير متطابقتين");
+
+            return true;
+        }
         private async Task CreateUserAsync()
         {
             HasError = false;
@@ -133,15 +149,28 @@ namespace erp.ViewModels
                 }
                 else
                 {
-                    HasError = true;
-                    ErrorMessage = result?.Message ?? "حدث خطأ أثناء إنشاء المستخدم";
+                    // إذا كانت الرسالة تحتوي على "البريد الإلكتروني مكرر"
+                    if (result?.Message.Contains("البريد الإلكتروني") == true || result?.Message.Contains("اسم المستخدم") == true)
+                    {
+                        HasError = true;
+                        ErrorMessage = "البريد الإلكتروني أو اسم المستخدم مكرر. يرجى التحقق وإعادة المحاولة.";
+                    }
+                    else if (result?.Message.Contains("An error occurred while saving the entity changes") == true)
+                    {
+                        HasError = true;
+                        ErrorMessage = "لبريد الإلكتروني أو اسم المستخدم مكرر. يرجى التحقق وإعادة المحاولة.";
+                    }
+                    else
+                    {
+                        HasError = true;
+                        ErrorMessage = result?.Message ?? "حدث خطأ أثناء إنشاء المستخدم.";
+                    }
                 }
-
             }
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = ex.Message;
+                ErrorMessage = "لبريد الإلكتروني أو اسم المستخدم مكرر. يرجى التحقق وإعادة المحاولة ";
             }
             finally
             {
@@ -149,22 +178,7 @@ namespace erp.ViewModels
             }
         }
 
-        private bool Validate()
-        {
-            if (string.IsNullOrWhiteSpace(Fullname))
-                return Fail("الاسم الكامل مطلوب");
 
-            if (string.IsNullOrWhiteSpace(Email))
-                return Fail("البريد الإلكتروني مطلوب");
-
-            if (string.IsNullOrWhiteSpace(Password))
-                return Fail("كلمة المرور مطلوبة");
-
-            if (Password != ConfirmPassword)
-                return Fail("كلمتا المرور غير متطابقتين");
-
-            return true;
-        }
 
         private bool Fail(string message)
         {

@@ -2,6 +2,8 @@
 using erp.DTOS;
 using erp.Services;
 using System.Collections.ObjectModel;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -141,20 +143,68 @@ namespace erp.ViewModels
                 ImagePath = ImagePath
             };
 
-            var result = await _userService.UpdateUserAsync(_userId, dto);
-
-            IsLoading = false;
-
-            if (result != null)
+            try
             {
-                MessageBox.Show("تم تحديث المستخدم بنجاح",
-                    "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
-                NavigationService.NavigateToUsers();
+                var result = await _userService.UpdateUserAsync(_userId, dto);
+
+                IsLoading = false;
+
+                if (result != null)
+                {
+                    MessageBox.Show("تم تحديث المستخدم بنجاح",
+                        "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                    NavigationService.NavigateToUsers();
+                }
+                else
+                {
+                    // عرض رسالة فشل عامة
+                    MessageBox.Show("فشل تحديث المستخدم",
+                        "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            else
+            catch (HttpRequestException ex)
             {
-                MessageBox.Show("فشل تحديث المستخدم",
-                    "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                IsLoading = false;
+
+                // هنا هنعالج الـ error
+                var msg = ex.Message ?? "";
+
+                var jsonStart = msg.IndexOf('{');
+                if (jsonStart >= 0)
+                {
+                    var json = msg.Substring(jsonStart);
+
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+
+                        var statusCode = root.TryGetProperty("statusCode", out var sc) ? sc.GetInt32() : 0;
+                        var apiMessage = root.TryGetProperty("message", out var m) ? (m.GetString() ?? "") : "";
+
+                        if (statusCode == 500 &&
+                            apiMessage.Contains("saving the entity changes", StringComparison.OrdinalIgnoreCase))
+                        {
+                            MessageBox.Show("الاسم أو البريد الإلكتروني مستخدم قبل كده ❌", "بيانات مكررة",
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                        // لو الـ JSON مش قابل للقراءة، هنكمل ونعرض رسالة خطأ عامة
+                    }
+                }
+
+                // رسالة عامة لأي خطأ تاني
+                MessageBox.Show("فشل تحديث المستخدم. تأكد من البيانات وحاول مرة أخرى.", "خطأ",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                IsLoading = false;
+                MessageBox.Show(ex.Message, "خطأ",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

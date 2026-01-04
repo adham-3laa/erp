@@ -94,11 +94,6 @@
                                                       BorderThickness="0"
                                                       FontSize="14"
                                                       Padding="4">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding}"/>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
                                             </ComboBox>
                                         </Border>
                                     </Border>
@@ -198,6 +193,14 @@
                                 </StackPanel>
                             </Button>
                         </StackPanel>
+
+                        <!-- Error Message Display -->
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Foreground="Red"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,268,0,10"
+                                   Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" Grid.Row="1" TextWrapping="WrapWithOverflow"/>
                     </Grid>
                 </ScrollViewer>
             </Border>
