@@ -1,5 +1,6 @@
 ﻿using EduGate.Models;
 using EduGate.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -19,16 +20,33 @@ namespace EduGate.Views.Inventory
         public InventoryPage()
         {
             InitializeComponent();
+
             _inventoryService = new InventoryService();
             LoadProducts();
 
-            InventoryTopBarControl.InventoryCheckClicked += InventoryTopBar_InventoryCheckClicked;
+            // ===== ربط أزرار الـ TopBar =====
             InventoryTopBarControl.AddProductClicked += InventoryTopBar_AddProductClicked;
+            InventoryTopBarControl.InventoryCheckClicked += InventoryTopBar_InventoryCheckClicked;
+
+            // 🔴 ده كان ناقص
+            InventoryTopBarControl.StockInClicked += InventoryTopBar_StockInClicked;
         }
 
+        // ================== TopBar Handlers ==================
         private void InventoryTopBar_AddProductClicked(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new AddNewItem());
+        }
+
+        private void InventoryTopBar_InventoryCheckClicked(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new InventoryCheckPage());
+        }
+
+        private void InventoryTopBar_StockInClicked(object sender, RoutedEventArgs e)
+        {
+            // صفحة تحديث كمية منتجات
+            NavigationService?.Navigate(new StockInProductsPage());
         }
 
         // ================== تحميل المنتجات ==================
@@ -41,7 +59,7 @@ namespace EduGate.Views.Inventory
                 LoadProductsPage();
                 ErrorTextBlock.Visibility = Visibility.Collapsed;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ErrorTextBlock.Text = ex.Message;
                 ErrorTextBlock.Visibility = Visibility.Visible;
@@ -101,28 +119,28 @@ namespace EduGate.Views.Inventory
         }
 
         // ================== Search ==================
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (_products == null) return;
+            string searchText = SearchTextBox.Text.Trim();
 
-            string search = SearchTextBox.Text.Trim();
-            if (string.IsNullOrEmpty(search))
+            if (string.IsNullOrEmpty(searchText))
             {
-                _currentPage = 1;
-                LoadProductsPage();
+                LoadProducts();
+                return;
             }
-            else
-            {
-                var filtered = _products
-                    .Where(p =>
-                        p.ProductId.ToString().Contains(search) ||
-                        (p.Name != null && p.Name.Contains(search)) ||
-                        (p.Supplier != null && p.Supplier.Contains(search))
-                    )
-                    .ToList();
 
-                ProductsDataGrid.ItemsSource = filtered;
-                PageTextBlock.Text = $"النتيجة {filtered.Count} منتج";
+            try
+            {
+                var result =
+                    await _inventoryService.SearchProductsByNameAsync(searchText);
+
+                ProductsDataGrid.ItemsSource = result;
+                PageTextBlock.Text = $"نتائج البحث: {result.Count}";
+            }
+            catch (Exception ex)
+            {
+                ErrorTextBlock.Text = ex.Message;
+                ErrorTextBlock.Visibility = Visibility.Visible;
             }
         }
 
@@ -156,11 +174,5 @@ namespace EduGate.Views.Inventory
             _currentPage = _totalPages;
             LoadProductsPage();
         }
-
-        private void InventoryTopBar_InventoryCheckClicked(object sender, RoutedEventArgs e)
-        {
-            NavigationService?.Navigate(new InventoryCheckPage());
-        }
-
     }
 }

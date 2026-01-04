@@ -48,16 +48,20 @@
                                 Click="ShowCount_Click"/>
                     </StackPanel>
 
-                    <!-- ================= STEP 1.5 : Supplier + Count ================= -->
+                    <!-- ================= STEP 1.5 : Supplier Name + Count ================= -->
                     <StackPanel x:Name="CountPanel"
                                 Grid.Row="1"
                                 Visibility="Collapsed"
                                 HorizontalAlignment="Center"
                                 Margin="0,20">
 
-                        <TextBlock Text="Supplier ID" Margin="0,0,0,4"/>
+                        <!-- ✅ التعديل هنا -->
+                        <TextBlock Text="اسم المورد" Margin="0,0,0,4"/>
 
-                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                        <Border BorderBrush="#CBD5E1"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="6">
                             <TextBox x:Name="SupplierIdTextBox"
                                      Width="280"
                                      Style="{StaticResource GlowTextBox}"/>
@@ -65,7 +69,10 @@
 
                         <TextBlock Text="عدد المنتجات" Margin="10,10,0,4"/>
 
-                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                        <Border BorderBrush="#CBD5E1"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="6">
                             <TextBox x:Name="CountTextBox"
                                      Width="180"
                                      HorizontalContentAlignment="Center"

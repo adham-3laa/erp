@@ -1,6 +1,7 @@
 ﻿using EduGate.Models;
 using EduGate.Services;
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -25,27 +26,15 @@ namespace EduGate.Views.Inventory
         {
             try
             {
-                // ===== Parse & Validate Numbers =====
                 if (!int.TryParse(SalePriceTextBox.Text, out int salePrice) || salePrice <= 0)
                 {
                     MessageBox.Show("سعر البيع غير صالح");
                     return;
                 }
 
-                if (!int.TryParse(BuyPriceTextBox.Text, out int buyPrice) || buyPrice <= 0)
-                    buyPrice = salePrice;
-
                 if (!int.TryParse(QuantityTextBox.Text, out int quantity) || quantity <= 0)
-                    quantity = 1;
-
-                // Assign clean values
-                _product.SalePrice = salePrice;
-                _product.BuyPrice = buyPrice;
-                _product.Quantity = quantity;
-
-                if (string.IsNullOrWhiteSpace(_product.ProductId))
                 {
-                    MessageBox.Show("ProductId مفقود");
+                    MessageBox.Show("الكمية غير صالحة");
                     return;
                 }
 
@@ -57,30 +46,29 @@ namespace EduGate.Views.Inventory
 
                 if (string.IsNullOrWhiteSpace(_product.Category))
                 {
-                    MessageBox.Show("CategoryId مطلوب");
+                    MessageBox.Show("اسم الصنف مطلوب");
                     return;
                 }
 
-                if (string.IsNullOrWhiteSpace(_product.SKU))
-                    _product.SKU = "N/A";
+                _product.SalePrice = salePrice;
+                _product.Quantity = quantity;
 
                 await _inventoryService.UpdateProductAsync(_product);
 
                 MessageBox.Show("تم تحديث المنتج بنجاح ✅");
-                NavigationService.GoBack();
+                NavigationService?.GoBack();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("خطأ أثناء التحديث: " + ex.Message);
+                MessageBox.Show("خطأ أثناء التحديث:\n" + ex.Message);
             }
         }
 
+
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            // يرجّعك للصفحة اللي قبلها (InventoryPage)
             if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
         }
-
     }
 }

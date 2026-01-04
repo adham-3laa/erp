@@ -12,11 +12,15 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- TopBar -->
-        <local:InventoryTopBar x:Name="InventoryTopBarControl" Grid.Row="0"/>
+        <!-- ================= TopBar ================= -->
+        <local:InventoryTopBar x:Name="InventoryTopBarControl"
+                               Grid.Row="0"/>
 
-        <!-- Error + Search -->
-        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10">
+        <!-- ================= Error + Search ================= -->
+        <StackPanel Grid.Row="1"
+                    Orientation="Vertical"
+                    Margin="0,10">
+
             <TextBlock x:Name="ErrorTextBlock"
                        Foreground="Red"
                        FontSize="14"
@@ -31,14 +35,15 @@
                                      Style="{StaticResource GlowTextBox}"
                                      Width="200"
                                      TextChanged="SearchTextBox_TextChanged"/>
+
                             <TextBlock Text="ابحث بالاسم : "
                                        Foreground="Gray"
                                        Margin="5,0,0,0"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"
                                        Visibility="{Binding Text.IsEmpty,
-                                       ElementName=SearchTextBox,
-                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                           ElementName=SearchTextBox,
+                                           Converter={StaticResource BoolToVisibilityConverter}}"/>
                         </Grid>
                     </Border>
                 </Border>
@@ -51,8 +56,10 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- DataGrid -->
-        <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+        <!-- ================= DataGrid ================= -->
+        <Border Grid.Row="2"
+                Style="{StaticResource CardStyle}">
+
             <DataGrid x:Name="ProductsDataGrid"
                       AutoGenerateColumns="False"
                       CanUserAddRows="False"
@@ -61,77 +68,44 @@
 
                 <DataGrid.Columns>
 
-                    <!-- ID -->
+                    <!-- productid -->
                     <DataGridTextColumn Header="ID"
                                         Binding="{Binding ProductId}"
-                                        Width="*">
-                        <DataGridTextColumn.HeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.HeaderStyle>
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="TextAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
+                                        Width="220"/>
 
-                    <!-- Name -->
+                    <!-- productname -->
                     <DataGridTextColumn Header="اسم المنتج"
                                         Binding="{Binding Name}"
-                                        Width="*">
-                        <DataGridTextColumn.HeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.HeaderStyle>
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="TextAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
+                                        Width="*"/>
 
-                    <!-- Price -->
+                    <!-- saleprice -->
                     <DataGridTextColumn Header="سعر البيع"
                                         Binding="{Binding SalePrice}"
-                                        Width="*">
-                        <DataGridTextColumn.HeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.HeaderStyle>
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="TextAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
+                                        Width="100"/>
 
-                    <!-- Category -->
+                    <!-- buyprice -->
+                    <DataGridTextColumn Header="سعر الشراء"
+                                        Binding="{Binding BuyPrice}"
+                                        Width="100"/>
+
+                    <!-- quantity -->
+                    <DataGridTextColumn Header="الكمية"
+                                        Binding="{Binding Quantity}"
+                                        Width="80"/>
+
+                    <!-- sku -->
+                    <DataGridTextColumn Header="SKU"
+                                        Binding="{Binding SKU}"
+                                        Width="120"/>
+
+                    <!-- categoryname -->
                     <DataGridTextColumn Header="الصنف"
                                         Binding="{Binding Category}"
-                                        Width="*">
-                        <DataGridTextColumn.HeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.HeaderStyle>
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="TextAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
+                                        Width="150"/>
 
                     <!-- Edit -->
-                    <DataGridTemplateColumn Header="تعديل" Width="50">
-                        <DataGridTemplateColumn.HeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn Header="تعديل"
+                                            Width="50">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="✏"
@@ -148,12 +122,8 @@
                     </DataGridTemplateColumn>
 
                     <!-- Delete -->
-                    <DataGridTemplateColumn Header="حذف" Width="50">
-                        <DataGridTemplateColumn.HeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn Header="حذف"
+                                            Width="50">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="🗑"
@@ -173,7 +143,7 @@
             </DataGrid>
         </Border>
 
-        <!-- Pagination -->
+        <!-- ================= Pagination ================= -->
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"

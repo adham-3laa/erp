@@ -19,9 +19,10 @@ namespace EduGate.Views.Inventory
         {
             ResultCard.Visibility = Visibility.Collapsed;
 
-            if (string.IsNullOrWhiteSpace(ProductIdTextBox.Text))
+            // ===== Validation =====
+            if (string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
             {
-                ShowResultError("ProductId مطلوب");
+                ShowResultError("اسم المنتج مطلوب");
                 return;
             }
 
@@ -31,36 +32,51 @@ namespace EduGate.Views.Inventory
                 return;
             }
 
+            bool updateStock = UpdateYesRadio.IsChecked == true;
+
             try
             {
-                var result = await _service.AdjustInventoryAsync(
-                    ProductIdTextBox.Text.Trim(),
-                    actualQty);
+                var result = await _service.AdjustInventoryByNameAsync(
+                    ProductNameTextBox.Text.Trim(),
+                    actualQty,
+                    updateStock);
 
-                // إظهار الكارت
                 ResultCard.Visibility = Visibility.Visible;
 
-                OldQuantityText.Text = $"الكمية القديمة: {result.oldquantity}";
-                NewQuantityText.Text = $"الكمية الجديدة: {result.newquantity}";
+                // ===== Determine system quantity correctly =====
+                int systemQty = updateStock
+                    ? result.oldquantity          // بعد التحديث الحقيقي
+                    : result.systemquantity;      // Preview فقط
+
+                // ===== Display quantities =====
+                if (updateStock)
+                {
+                    OldQuantityText.Text = $"الكمية القديمة: {result.oldquantity}";
+                    NewQuantityText.Text = $"الكمية الجديدة: {result.newquantity}";
+                }
+                else
+                {
+                    OldQuantityText.Text = $"الكمية المسجلة في النظام: {result.systemquantity}";
+                    NewQuantityText.Text = $"الكمية الفعلية: {actualQty}";
+                }
+
                 FinancialImpactText.Text = result.financialimpact;
 
-                // تحديد نوع النتيجة
-                if (result.newquantity < result.oldquantity)
+                // ===== Correct result logic =====
+                if (actualQty < systemQty)
                 {
-                    int diff = result.oldquantity - result.newquantity;
-
                     ResultTitleText.Text = "❌ نتيجة الجرد: نقص";
-                    ResultMessageText.Text = $"في نقص {diff} ";
+                    ResultMessageText.Text =
+                        $"في نقص {systemQty - actualQty}";
 
                     ResultCard.BorderBrush = Brushes.Red;
                     ResultTitleText.Foreground = Brushes.Red;
                 }
-                else if (result.newquantity > result.oldquantity)
+                else if (actualQty > systemQty)
                 {
-                    int diff = result.newquantity - result.oldquantity;
-
                     ResultTitleText.Text = "✅ نتيجة الجرد: زيادة";
-                    ResultMessageText.Text = $"في زيادة {diff} ";
+                    ResultMessageText.Text =
+                        $"في زيادة {actualQty - systemQty}";
 
                     ResultCard.BorderBrush = Brushes.Green;
                     ResultTitleText.Foreground = Brushes.Green;
@@ -68,10 +84,17 @@ namespace EduGate.Views.Inventory
                 else
                 {
                     ResultTitleText.Text = "✔ نتيجة الجرد: متطابق";
-                    ResultMessageText.Text = "لا يوجد فرق بين الكمية الفعلية والمخزنة";
+                    ResultMessageText.Text =
+                        "لا يوجد فرق بين الكمية الفعلية والمخزنة";
 
                     ResultCard.BorderBrush = Brushes.Gray;
                     ResultTitleText.Foreground = Brushes.Gray;
+                }
+
+                // ===== Preview note =====
+                if (!updateStock)
+                {
+                    ResultMessageText.Text += "\n(لم يتم تحديث المخزون)";
                 }
             }
             catch (Exception ex)
@@ -97,13 +120,8 @@ namespace EduGate.Views.Inventory
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            // يرجّعك للصفحة الأصلية (InventoryPage)
             if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
         }
-
-
     }
-
-
 }

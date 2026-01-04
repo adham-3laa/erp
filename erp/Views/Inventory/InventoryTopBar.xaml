@@ -2,31 +2,42 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Height="60">
+
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
+        <!-- إضافة منتج -->
         <Button Content="إضافة منتج"
-        Width="140"
-        Style="{StaticResource DarkButtonStyle}"
-        Click="AddProductButton_Click"/>
+                Width="140"
+                Style="{StaticResource DarkButtonStyle}"
+                Click="AddProductButton_Click"/>
 
-
+        <!-- تحديث كمية منتجات -->
         <Button Grid.Column="1"
-        Content="جرد المخزون"
-        Style="{StaticResource DarkButtonStyle}"
-        Width="140"
-        Click="InventoryCheck_Click"
-        Margin="30,11,30,7"/>
+                Content="زيادة كمية منتجات"
+                Width="180"
+                Margin="20,11,20,7"
+                Style="{StaticResource DarkButtonStyle}"
+                Click="StockIn_Click"/>
 
+        <!-- جرد المخزون -->
+        <Button Grid.Column="2"
+                Content="جرد المخزون"
+                Width="140"
+                Margin="0,11,20,7"
+                Style="{StaticResource DarkButtonStyle}"
+                Click="InventoryCheck_Click"/>
 
-        <TextBlock Grid.Column="2"/>
+        <TextBlock Grid.Column="3"/>
 
-        <TextBlock Grid.Column="3"
+        <!-- العنوان -->
+        <TextBlock Grid.Column="4"
                    Text="المخزون"
                    FontSize="28"
                    FontWeight="Bold"

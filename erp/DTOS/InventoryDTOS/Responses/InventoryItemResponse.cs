@@ -1,9 +1,19 @@
-﻿namespace erp.DTOS.Inventory.Responses;
-
-public class InventoryItemResponse
+﻿namespace erp.DTOS.Inventory.Responses
 {
-    public string productid { get; set; } = "";
-    public string productname { get; set; } = "";
-    public decimal sellprice { get; set; }
-    public string? categoryid { get; set; }
+    public class InventoryItemResponse
+    {
+        public string productid { get; set; } = "";
+        public string productname { get; set; } = "";
+
+        public decimal saleprice { get; set; }
+        public decimal buyprice { get; set; }
+
+        public int quantity { get; set; }
+
+        public string sku { get; set; } = "";
+        public string description { get; set; } = "";
+
+        public string categoryname { get; set; } = "";
+        public string categoryid { get; set; } = "";
+    }
 }

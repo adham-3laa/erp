@@ -12,7 +12,6 @@
 
                 <!-- ===== Top Bar ===== -->
                 <DockPanel Margin="0,0,0,20">
-
                     <Button Content="⬅ رجوع"
                             Width="90"
                             DockPanel.Dock="Left"
@@ -26,13 +25,13 @@
                                Margin="10,0,0,0"/>
                 </DockPanel>
 
-                <!-- Product ID -->
-                <TextBlock Text="Product ID"/>
+                <!-- Product Name -->
+                <TextBlock Text="اسم المنتج"/>
                 <Border BorderBrush="#CBD5E1"
                         BorderThickness="1"
                         CornerRadius="6"
                         Padding="6">
-                    <TextBox x:Name="ProductIdTextBox"
+                    <TextBox x:Name="ProductNameTextBox"
                              Style="{StaticResource GlowTextBox}"/>
                 </Border>
 
@@ -46,6 +45,20 @@
                     <TextBox x:Name="ActualQuantityTextBox"
                              Style="{StaticResource GlowTextBox}"/>
                 </Border>
+
+                <!-- Update Stock Choice -->
+                <TextBlock Text="هل تريد تحديث الكمية في المخزون؟"
+                           Margin="0,16,0,6"
+                           FontWeight="Bold"/>
+
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="UpdateYesRadio"
+                                 Content="نعم"
+                                 Margin="0,0,20,0"
+                                 IsChecked="True"/>
+                    <RadioButton x:Name="UpdateNoRadio"
+                                 Content="لا"/>
+                </StackPanel>
 
                 <!-- Execute Button -->
                 <Button Content="تنفيذ الجرد"
@@ -64,7 +77,6 @@
                         BorderThickness="1">
 
                     <StackPanel>
-
                         <TextBlock x:Name="ResultTitleText"
                                    FontSize="18"
                                    FontWeight="Bold"

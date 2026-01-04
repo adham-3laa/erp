@@ -7,10 +7,10 @@ namespace EduGate.Views.Inventory
     {
         public InventoryTopBar()
         {
-            InitializeComponent(); // خليك هنا فقط، من غير أي throw
+            InitializeComponent();
         }
 
-        // الحدث اللي هيتربط بالـ InventoryPage
+        // ===== إضافة منتج =====
         public event RoutedEventHandler AddProductClicked;
 
         private void AddProductButton_Click(object sender, RoutedEventArgs e)
@@ -18,11 +18,7 @@ namespace EduGate.Views.Inventory
             AddProductClicked?.Invoke(sender, e);
         }
 
-        private void ShowProducts_Click(object sender, RoutedEventArgs e)
-        {
-            (Application.Current.MainWindow as erp.MainWindow)?.MainFrame.Navigate(new InventoryPage());
-        }
-
+        // ===== جرد المخزون =====
         public event RoutedEventHandler InventoryCheckClicked;
 
         private void InventoryCheck_Click(object sender, RoutedEventArgs e)
@@ -30,5 +26,12 @@ namespace EduGate.Views.Inventory
             InventoryCheckClicked?.Invoke(sender, e);
         }
 
+        // ===== تحديث كمية منتجات (Stock In) =====
+        public event RoutedEventHandler StockInClicked;
+
+        private void StockIn_Click(object sender, RoutedEventArgs e)
+        {
+            StockInClicked?.Invoke(sender, e);
+        }
     }
 }
