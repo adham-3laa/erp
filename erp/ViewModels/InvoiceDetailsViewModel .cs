@@ -53,12 +53,37 @@ namespace erp.ViewModels.Invoices
                 ErrorMessage = null;
                 OrderItems.Clear();
 
+                // =====================================================
+                // ============== SUPPLIER INVOICE =====================
+                // =====================================================
+                if (Invoice.Type == "SupplierInvoice")
+                {
+                    if (Invoice.Items == null || Invoice.Items.Count == 0)
+                        return;
+
+                    foreach (var it in Invoice.Items)
+                    {
+                        OrderItems.Add(new InvoiceOrderItemRow
+                        {
+                            ProductName = it.ProductName ?? "",
+                            CategoryName = it.CategoryName ?? "غير محدد",
+                            Quantity = it.Quantity,
+                            UnitPrice = it.UnitPrice,
+                            Total = it.UnitPrice * it.Quantity
+                        });
+                    }
+
+                    return;
+                }
+
+                // =====================================================
+                // ============== CUSTOMER INVOICE =====================
+                // =====================================================
                 if (Invoice?.OrderId == null)
                     return;
 
                 var orderId = Invoice.OrderId.Value.ToString();
 
-                // ✅ 1) هات بنود الطلب
                 List<OrderItemDto> items;
 
                 try
@@ -73,32 +98,24 @@ namespace erp.ViewModels.Invoices
                 if (items == null || items.Count == 0)
                     return;
 
-                // ✅ 2) هات Lookup للمنتجات (اسم + سعر + اسم فئة)
                 var products = await _inventoryService.GetAllProductsLookupAsync();
                 var productMap = products
                     .Where(p => !string.IsNullOrWhiteSpace(p.ProductId))
                     .GroupBy(p => p.ProductId, StringComparer.OrdinalIgnoreCase)
                     .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-                // ✅ 3) كوّن Rows للعرض
                 foreach (var it in items)
                 {
                     var row = new InvoiceOrderItemRow
                     {
                         ProductId = it.ProductId,
-
-                        // ✅ FIX: Quantity عندك decimal غالباً
-                        Quantity = it.Quantity
+                        Quantity = it.Quantity,
+                        ProductName = it.ProductName ?? "",
+                        UnitPrice = Convert.ToDecimal(it.Price)
                     };
 
-                    // لو الـ API رجّع الاسم/السعر استخدمهم
-                    row.ProductName = string.IsNullOrWhiteSpace(it.ProductName) ? "" : it.ProductName;
-
-                    // ✅ safe conversion
-                    row.UnitPrice = Convert.ToDecimal(it.Price);
-
-                    // لو ناقصين، كمّلهم من الـ Inventory
-                    if (!string.IsNullOrWhiteSpace(it.ProductId) && productMap.TryGetValue(it.ProductId, out var p))
+                    if (!string.IsNullOrWhiteSpace(it.ProductId) &&
+                        productMap.TryGetValue(it.ProductId, out var p))
                     {
                         if (string.IsNullOrWhiteSpace(row.ProductName))
                             row.ProductName = p.ProductName;
@@ -106,16 +123,14 @@ namespace erp.ViewModels.Invoices
                         if (row.UnitPrice <= 0)
                             row.UnitPrice = p.SalePrice;
 
-                        row.CategoryName = string.IsNullOrWhiteSpace(p.CategoryName) ? "غير محدد" : p.CategoryName;
+                        row.CategoryName = p.CategoryName ?? "غير محدد";
                     }
                     else
                     {
                         row.CategoryName = "غير محدد";
                     }
 
-                    // احسب الإجمالي
                     row.Total = row.UnitPrice * row.Quantity;
-
                     OrderItems.Add(row);
                 }
             }
@@ -128,6 +143,7 @@ namespace erp.ViewModels.Invoices
                 IsLoading = false;
             }
         }
+
 
         // ===================== Row DTO للعرض =====================
         public class InvoiceOrderItemRow
