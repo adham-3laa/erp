@@ -11,194 +11,253 @@
 
     <Page.Resources>
 
-        <DropShadowEffect x:Key="PrimaryGlow"
+        <!-- ===== Glow (same as reference) ===== -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="22"
+                          BlurRadius="16"
                           ShadowDepth="0"
-                          Opacity="0.55"/>
+                          Opacity="0.35"/>
 
-        <DropShadowEffect x:Key="PrimaryShadow"
-                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="14"
-                          ShadowDepth="2"
-                          Opacity="0.28"/>
-
-        <Style x:Key="NeonCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+        <!-- ===== Old Table Frame (same as reference) ===== -->
+        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="BorderThickness" Value="1.2"/>
-            <Setter Property="CornerRadius" Value="18"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Effect" Value="{StaticResource PrimaryShadow}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <!-- ================= DataGrid Styles (same as reference) ================= -->
+
+        <Style x:Key="NiceDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="RowHeight" Value="48"/>
+            <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFF6F6F6"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#FF1F2937"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="NiceDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Effect" Value="{StaticResource PrimaryGlow}"/>
-                    <Setter Property="BorderThickness" Value="1.6"/>
+                    <Setter Property="Background" Value="#FFE5E7EB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#FFCBD5E1"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- TextBlock style for centering text inside columns -->
-        <Style x:Key="CenterCellTextStyle" TargetType="TextBlock">
+        <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="CenteredTextColumnElementStyle" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
-        <!-- Style to center column headers -->
-        <Style x:Key="CenterHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
-        </Style>
-
-        <!-- DataGrid cell centering -->
-        <Style x:Key="CenterCellStyle" TargetType="DataGridCell">
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="6,3"/>
-        </Style>
-
-        <!-- Small refresh button -->
+        <!-- ===== Small icon button but same theme (based on DarkButtonStyle) ===== -->
         <Style x:Key="SmallIconButton" TargetType="Button" BasedOn="{StaticResource DarkButtonStyle}">
-            <Setter Property="Width" Value="36"/>
-            <Setter Property="Height" Value="32"/>
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="40"/>
             <Setter Property="Padding" Value="0"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- ===== Cards (same frame feel as table) ===== -->
+        <Style x:Key="DashboardCardBorderStyle" TargetType="Border" BasedOn="{StaticResource GlowingTableOuterBorder}">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="14"/>
         </Style>
 
     </Page.Resources>
 
-    <Grid Margin="20">
+    <!-- ================= Layout (same reference margin) ================= -->
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Centered Header -->
-        <Grid Margin="0,0,0,12">
+        <!-- ================= Header (same pattern as Category) ================= -->
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="2"
-                    Content="↻"
-                    ToolTip="Refresh"
-                    Command="{Binding RefreshCommand}"
-                    Style="{StaticResource SmallIconButton}"
-                    HorizontalAlignment="Right"/>
-
-            <TextBlock Grid.Column="1"
+            <!-- Title -->
+            <TextBlock Grid.Column="0"
                        Text="لوحة التحكم"
-                       FontSize="22"
+                       FontSize="26"
                        FontWeight="Bold"
-                       Foreground="{StaticResource PrimaryBrush}"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"/>
+                       Foreground="#FF1F2937"
+                       VerticalAlignment="Center"
+                       Margin="510,0,14,0"/>
 
-            <Border Grid.Column="0" Width="36" Height="32" Opacity="0"/>
+            <!-- (Center column kept empty intentionally) -->
+            <Border Grid.Column="1" Opacity="0"/>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
+
+                <Button Content="🔄 تحديث"
+                        ToolTip="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Width="120"/>
+            </StackPanel>
         </Grid>
 
-        <!-- Dashboard Cards -->
-        <UniformGrid Grid.Row="1" Columns="4" Margin="170,0,0,12">
+        <!-- ================= Dashboard Cards ================= -->
+        <UniformGrid Grid.Row="1" Columns="4" Margin="200,18,0,0">
 
-            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
+            <Border Style="{StaticResource DashboardCardBorderStyle}" Margin="6">
                 <StackPanel>
-                    <TextBlock Text="إجمالي مبيعات اليوم" Opacity="0.75"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
-                    <TextBlock Text="{Binding TotalSalesToday}" FontSize="20" FontWeight="Bold"
+                    <TextBlock Text="إجمالي مبيعات اليوم"
+                               Opacity="0.75"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalSalesToday}"
+                               FontSize="20"
+                               FontWeight="Bold"
                                Foreground="{StaticResource PrimaryBrush}"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,6,0,0"/>
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
+            <Border Style="{StaticResource DashboardCardBorderStyle}" Margin="6">
                 <StackPanel>
-                    <TextBlock Text="إجمالي ربح اليوم" Opacity="0.75"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
-                    <TextBlock Text="{Binding TotalProfitToday}" FontSize="20" FontWeight="Bold"
+                    <TextBlock Text="إجمالي ربح اليوم"
+                               Opacity="0.75"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalProfitToday}"
+                               FontSize="20"
+                               FontWeight="Bold"
                                Foreground="{StaticResource PrimaryBrush}"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,6,0,0"/>
                 </StackPanel>
             </Border>
 
-
-            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
+            <Border Style="{StaticResource DashboardCardBorderStyle}" Margin="6">
                 <StackPanel>
-                    <TextBlock Text="الطلبات المعتمدة اليوم" Opacity="0.75"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
-                    <TextBlock Text="{Binding ApprovedOrdersCountToday}" FontSize="20" FontWeight="Bold"
+                    <TextBlock Text="الطلبات المعتمدة اليوم"
+                               Opacity="0.75"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="{Binding ApprovedOrdersCountToday}"
+                               FontSize="20"
+                               FontWeight="Bold"
                                Foreground="{StaticResource PrimaryBrush}"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,6,0,0"/>
                 </StackPanel>
             </Border>
 
         </UniformGrid>
 
-        <!-- Low Stock Table Section -->
-        <Border Grid.Row="2" Style="{StaticResource NeonCardStyle}" Padding="14">
+        <!-- ================= Low Stock Table Section (old frame + same grid style) ================= -->
+        <Border Grid.Row="2"
+                Margin="0,18,0,0"
+                Style="{StaticResource GlowingTableOuterBorder}">
+
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Centered Low Stock Header -->
-                <Grid Margin="0,0,0,10">
+                <!-- Section header -->
+                <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="1"
+                    <TextBlock Grid.Column="0"
                                Text="المنتجات منخفضة المخزون"
-                               FontSize="17"
+                               FontSize="20"
                                FontWeight="Bold"
-                               Foreground="{StaticResource PrimaryBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                               Foreground="#FF1F2937"
+                               VerticalAlignment="Center"
+                               Margin="450,0,14,0"/>
+
+                    <Border Grid.Column="1" Opacity="0"/>
 
                     <TextBlock Grid.Column="2"
                                Text="{Binding LowStockCount, StringFormat=عدد العناصر: {0}}"
                                FontSize="15"
                                FontWeight="SemiBold"
                                Opacity="0.8"
-                               HorizontalAlignment="Right"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left"/>
                 </Grid>
 
-                <!-- DataGrid with centered headers and centered cells -->
+                <!-- DataGrid -->
                 <DataGrid Grid.Row="1"
                           ItemsSource="{Binding LowStockProducts}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
-                          HeadersVisibility="Column"
-                          ColumnHeaderStyle="{StaticResource CenterHeaderStyle}"
-                          CellStyle="{StaticResource CenterCellStyle}"
-                          GridLinesVisibility="All"
+                          ColumnWidth="*"
+                          Style="{StaticResource NiceDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
+                          RowStyle="{StaticResource NiceDataGridRowStyle}"
+                          CellStyle="{StaticResource NiceDataGridCellStyle}"
                           CanUserAddRows="False">
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="المنتج"
-                                            Binding="{Binding ProductName}"
-                                            ElementStyle="{StaticResource CenterCellTextStyle}"
-                                            Width="*"/>
-
                         <DataGridTextColumn Header="كود الصنف (SKU)"
                                             Binding="{Binding Sku}"
-                                            ElementStyle="{StaticResource CenterCellTextStyle}"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"
+                                            Width="*"/>
+
+                        <DataGridTextColumn Header="المنتج"
+                                            Binding="{Binding ProductName}"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"
                                             Width="*"/>
 
                         <DataGridTextColumn Header="الكمية الحالية"
                                             Binding="{Binding CurrentQuantity}"
-                                            ElementStyle="{StaticResource CenterCellTextStyle}"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"
                                             Width="*"/>
                     </DataGrid.Columns>
                 </DataGrid>
