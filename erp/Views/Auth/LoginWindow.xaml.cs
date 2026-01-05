@@ -23,10 +23,18 @@ namespace erp.Views.Auth
 
         private void OnLoginSuccess()
         {
-            var mainWindow = new MainWindow();
+            var mainWindow = new MainWindow
+            {
+                WindowState = WindowState.Maximized
+            };
+
+            // (اختياري لكن مفيد) يخليه MainWindow هو النافذة الرئيسية للتطبيق
+            Application.Current.MainWindow = mainWindow;
+
             mainWindow.Show();
             this.Close();
         }
+
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {

@@ -18,13 +18,18 @@ namespace erp.ViewModels
         {
             _userService = App.Users;
 
-            UserTypes = new ObservableCollection<string>
-            {
-                "SystemAdmin", "User", "Customer", "SalesRep",
-                "StoreManager", "Supplier", "Accountant"
-            };
+            UserTypes = new ObservableCollection<UserTypeOption>
+{
+    new UserTypeOption("مدير النظام", "SystemAdmin"),
+    new UserTypeOption("مستخدم", "User"),
+    new UserTypeOption("عميل", "Customer"),
+    new UserTypeOption("مندوب مبيعات", "SalesRep"),
+    new UserTypeOption("مدير مخزن", "StoreManager"),
+    new UserTypeOption("مورد", "Supplier"),
+    new UserTypeOption("محاسب", "Accountant")
+};
 
-            SelectedUserType = "SystemAdmin";
+
 
             CreateCommand = new AsyncRelayCommand(CreateUserAsync);
             CancelCommand = new RelayCommand(OnCancel);
@@ -32,14 +37,15 @@ namespace erp.ViewModels
 
         // ================== PROPERTIES ==================
 
-        public ObservableCollection<string> UserTypes { get; }
+        public ObservableCollection<UserTypeOption> UserTypes { get; }
 
-        private string _selectedUserType;
-        public string SelectedUserType
+        private UserTypeOption _selectedUserType;
+        public UserTypeOption SelectedUserType
         {
             get => _selectedUserType;
             set => SetProperty(ref _selectedUserType, value);
         }
+
 
         private string _fullname;
         public string Fullname
@@ -64,13 +70,13 @@ namespace erp.ViewModels
 
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
-
-        private bool _isLoading;
+        private bool _isLoading = false;
         public bool IsLoading
         {
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
         }
+
 
         private string _errorMessage;
         public string ErrorMessage
@@ -100,8 +106,11 @@ namespace erp.ViewModels
 
             if (string.IsNullOrWhiteSpace(Email))
                 return Fail("البريد الإلكتروني مطلوب");
-
           
+            if (SelectedUserType == null)
+                return Fail("من فضلك اختر نوع المستخدم");
+
+
 
             if (string.IsNullOrWhiteSpace(Password))
                 return Fail("كلمة المرور مطلوبة");
@@ -132,7 +141,7 @@ namespace erp.ViewModels
                     Email = Email,
                     Password = Password,
                     PhoneNumber = PhoneNumber,
-                    UserType = SelectedUserType
+                    UserType = SelectedUserType.Value
                 };
 
                 var result = await _userService.CreateUserAsync(dto);
@@ -195,10 +204,24 @@ namespace erp.ViewModels
             Password = string.Empty;
             ConfirmPassword = string.Empty;
         }
+        public class UserTypeOption
+        {
+            public string Text { get; set; }
+            public string Value { get; set; }
+
+            public UserTypeOption(string text, string value)
+            {
+                Text = text;
+                Value = value;
+            }
+        }
 
         private void OnCancel()
         {
             ClearForm();
+            NavigationService.NavigateBack();
         }
+
     }
+
 }

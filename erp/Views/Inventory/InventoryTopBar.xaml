@@ -43,5 +43,7 @@
                    FontWeight="Bold"
                    Foreground="{StaticResource TextDarkBrush}"
                    VerticalAlignment="Center"/>
+
+ 
     </Grid>
 </UserControl>

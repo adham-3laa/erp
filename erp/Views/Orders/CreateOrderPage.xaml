@@ -4,30 +4,80 @@
       xmlns:local="clr-namespace:erp.Views.Orders"
       Background="{StaticResource PageBgBrush}">
 
-    <Grid Margin="20" MinWidth="720">
+      xmlns:local="clr-namespace:EduGate.Views.Orders"
+      Background="{StaticResource PageBgBrush}"
+      FlowDirection="RightToLeft">
+
+    <!-- لو الـ OrdersTopBar في نفس المشروع خلاص سيب xmlns زي ما هو.
+         لو مش ظاهر، جرّب: xmlns:local="clr-namespace:EduGate.Views.Orders;assembly=erp" -->
+
+    <Page.Resources>
+
+        <!-- ===== Glow (same design we agreed on) ===== -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="16"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+
+        <!-- ===== Outer Frame (same as AddExpensePage) ===== -->
+        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+    </Page.Resources>
+
+    <Grid Margin="24" MinWidth="720">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- TopBar -->
+            <RowDefinition Height="Auto"/>
+            <!-- Header -->
             <RowDefinition Height="*"/>
+            <!-- Form -->
         </Grid.RowDefinitions>
 
-        <!-- TopBar -->
+        <!-- ✅ TopBar (لازم موجود عشان الكود بيستخدم OrdersTopBarControl) -->
         <local:OrdersTopBar x:Name="OrdersTopBarControl"
                             Grid.Row="0"/>
 
-        <Border Grid.Row="1"
-                Style="{StaticResource GlowGradientFrame}"
+        <!-- ================= Header ================= -->
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Center: page title -->
+            <TextBlock Grid.Column="1"
+                       Text="إنشاء طلب جديد"
+                       FontSize="26"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource TextDarkBrush}"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"/>
+
+            <Border Grid.Column="2" Width="1" Opacity="0"/>
+        </Grid>
+
+        <!-- ================= Form ================= -->
+        <Border Grid.Row="2"
+                Style="{StaticResource GlowingTableOuterBorder}"
                 HorizontalAlignment="Center"
-                Width="720">
+                VerticalAlignment="Center">
 
-            <Border Style="{StaticResource InnerCardContainer}">
+            <Border Style="{StaticResource InnerCardContainer}"
+                    Width="620"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
                 <StackPanel>
-
-                    <!-- Title -->
-                    <TextBlock Text="إنشاء طلب جديد"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource PrimaryBrush}"
-                               Margin="0,0,0,16"/>
 
                     <!-- اسم العميل -->
                     <TextBlock Text="اسم العميل"/>
@@ -74,7 +124,81 @@
                             Width="160"
                             Click="ConfirmOrder_Click"/>
                 </StackPanel>
+                    <!-- كود العميل -->
+                    <TextBlock Text="كود العميل"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Margin="0,0,0,6"/>
+
+                    <Border Style="{StaticResource GlowInputFrame}">
+                        <Border Style="{StaticResource GlowInputInner}">
+                            <TextBox x:Name="CustomerCodeTextBox"
+                                     Height="36"
+                                     Padding="8"
+                                     FontSize="14"
+                                     VerticalContentAlignment="Center"
+                                     Style="{StaticResource GlowTextBox}"/>
+                        </Border>
+                    </Border>
+
+                    <!-- اسم المنتج -->
+                    <TextBlock Text="اسم المنتج"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Margin="0,20,0,6"/>
+
+                    <Border Style="{StaticResource GlowInputFrame}">
+                        <Border Style="{StaticResource GlowInputInner}">
+                            <TextBox x:Name="ProductNameTextBox"
+                                     Height="36"
+                                     Padding="8"
+                                     FontSize="14"
+                                     VerticalContentAlignment="Center"
+                                     Style="{StaticResource GlowTextBox}"/>
+                        </Border>
+                    </Border>
+
+                    <!-- الكمية -->
+                    <TextBlock Text="الكمية"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Margin="0,20,0,6"/>
+
+                    <Border Style="{StaticResource GlowInputFrame}">
+                        <Border Style="{StaticResource GlowInputInner}">
+                            <TextBox x:Name="QuantityTextBox"
+                                     Height="36"
+                                     Padding="8"
+                                     FontSize="14"
+                                     VerticalContentAlignment="Center"
+                                     TextAlignment="Left"
+                                     FlowDirection="LeftToRight"
+                                     Style="{StaticResource GlowTextBox}"
+                                     PreviewTextInput="Quantity_PreviewTextInput"/>
+                        </Border>
+                    </Border>
+
+                    <!-- زر التأكيد -->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Left"
+                                Margin="0,32,0,0">
+
+                        <Button Content="تأكيد الطلب"
+                                MinWidth="140"
+                                Height="40"
+                                FontSize="14"
+                                Style="{StaticResource DarkButtonStyle}"
+                                Click="ConfirmOrder_Click"/>
+                    </StackPanel>
+
+                </StackPanel>
+
+
             </Border>
         </Border>
+
     </Grid>
 </Page>

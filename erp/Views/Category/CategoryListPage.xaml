@@ -2,29 +2,20 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:vm="clr-namespace:erp.ViewModels.CategoryView"
-      Background="{StaticResource PageBgBrush}"
-      FlowDirection="RightToLeft">
+      FlowDirection="RightToLeft"
+      Background="{StaticResource PageBgBrush}">
 
-    <Page.DataContext>
-        <vm:CategoryListViewModel/>
-    </Page.DataContext>
 
     <Page.Resources>
 
-        <!-- ===== Glow ===== -->
-        <DropShadowEffect x:Key="PrimaryPageGlow"
-                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="26"
-                          ShadowDepth="0"
-                          Opacity="0.45"/>
-
+        <!-- ===== Glow (needed for old table frame) ===== -->
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
                           BlurRadius="16"
                           ShadowDepth="0"
                           Opacity="0.35"/>
 
-        <!-- ===== Outer Table Border ===== -->
+        <!-- ===== Old Table Frame (keep as requested) ===== -->
         <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
@@ -34,67 +25,102 @@
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
         </Style>
 
-        <!-- ===== Column Header Style (BLACK) ===== -->
-        <Style x:Key="CenteredHeaderStyle"
-               TargetType="DataGridColumnHeader"
-               BasedOn="{StaticResource ProDataGridHeaderStyle}">
+        <!-- ================= Styles (Same as Expenses Page) ================= -->
+
+        <!-- DataGrid -->
+        <Style x:Key="NiceDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="RowHeight" Value="48"/>
+            <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFF6F6F6"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ✅ Header (bigger + centered) -->
+        <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#FF1F2937"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="17"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <!-- ===== Cell Text Style (BLACK) ===== -->
-        <Style x:Key="TopCenterCellTextStyle" TargetType="TextBlock">
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin" Value="0,4,0,0"/>
-            <Setter Property="Foreground" Value="Black"/>
+        <!-- Row -->
+        <Style x:Key="NiceDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFE5E7EB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#FFCBD5E1"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
-        <!-- ===== DataGrid Cell ===== -->
-        <Style x:Key="TopCenterGridCellStyle"
-               TargetType="DataGridCell"
-               BasedOn="{StaticResource ProDataGridCellStyle}">
+        <!-- ✅ Cell (always centered) -->
+        <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Top"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <!-- ===== Delete Button ===== -->
-        <Style x:Key="DeleteRedButtonStyle"
-               TargetType="Button"
-               BasedOn="{StaticResource DarkButtonStyle}">
-            <Setter Property="Background" Value="#B91C1C"/>
-            <Setter Property="BorderBrush" Value="#EF4444"/>
+        <!-- ✅ Text inside TextColumns (always centered) -->
+        <Style x:Key="CenteredTextColumnElementStyle" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- ✅ Delete Button (own template so hover works even if DarkButtonStyle has template) -->
+        <Style x:Key="DeleteHoverRedButtonStyle" TargetType="Button">
+            <!-- default look (normal) -->
+            <Setter Property="Background" Value="#1E1B4B"/>
+            <Setter Property="BorderBrush" Value="#4F46E5"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1"
+                                BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="10"
-                                Padding="10,6"
-                                Effect="{StaticResource PrimaryOutlineGlow}">
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
+
                         <ControlTemplate.Triggers>
+                            <!-- Hover => Red -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#991B1B"/>
-                                <Setter Property="BorderBrush" Value="#DC2626"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#B91C1C"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#EF4444"/>
                             </Trigger>
+
+                            <!-- Pressed => Darker Red -->
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#7F1D1D"/>
-                                <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#7F1D1D"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#B91C1C"/>
                             </Trigger>
+
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.6"/>
                             </Trigger>
@@ -106,148 +132,146 @@
 
     </Page.Resources>
 
-    <Grid Margin="20">
+    <!-- ================= Layout (Like Expenses Page) ================= -->
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <Border CornerRadius="18"
-                Background="{StaticResource CardBrush}"
-                BorderBrush="{StaticResource PrimaryBrush}"
-                BorderThickness="1"
-                Padding="16"
-                Effect="{StaticResource PrimaryPageGlow}">
+        <!-- ================= Header ================= -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <Border Style="{StaticResource CardStyle}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <!-- Headline -->
-                        <RowDefinition Height="Auto"/>
-                        <!-- Search + Buttons -->
-                        <RowDefinition Height="Auto"/>
-                        <!-- Error -->
-                        <RowDefinition Height="*"/>
-                        <!-- Table -->
-                    </Grid.RowDefinitions>
+            <!-- Title -->
+            <TextBlock Grid.Column="0"
+                       Text="الأصناف"
+                       FontSize="26"
+                       FontWeight="Bold"
+                       Foreground="#FF1F2937"
+                       VerticalAlignment="Center"
+                       Margin="0,0,14,0"/>
 
-                    <!-- ===== Headline (Centered) ===== -->
-                    <Grid Grid.Row="0" Margin="0,0,0,10">
-                        <TextBlock Text="الأصــــــــــــنــــــــاف"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Foreground="Black"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Grid>
+            <!-- ✅ Search (Center) - KEEP AS IS -->
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
 
-                    <!-- ===== Search + Buttons (Same Row) ===== -->
-                    <Grid Grid.Row="1" Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <!-- RTL: Column 0 appears on the right -->
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <TextBlock Text="بحث :"
+                           VerticalAlignment="Center"
+                           Foreground="#FF1F2937"
+                           FontWeight="ExtraBold"
+                           Margin="0,0,10,0"/>
 
-                        <!-- Search (Right side) -->
-                        <StackPanel Grid.Column="0"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center">
+                <Border Style="{StaticResource GlowInputFrame}" Width="200" Height="40">
+                    <Border Style="{StaticResource GlowInputInner}">
+                        <Grid>
+                            <TextBox x:Name="SearchTextBox"
+                                     Style="{StaticResource GlowTextBox}"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <TextBlock Text="بحث بالاسم :"
+                            <!-- Placeholder -->
+                            <TextBlock Text="اسم الصنف"
+                                       Foreground="#9A000000"
+                                       Margin="2,0,0,0"
                                        VerticalAlignment="Center"
-                                       Foreground="Black"
-                                       FontWeight="ExtraBold"
-                                       Margin="20,0,10,0"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}" Width="260">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                                </Border>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- Buttons (Left side) -->
-                        <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Margin="150,0,0,0">
-
-                            <Button Style="{StaticResource DarkButtonStyle}"
-                                    Content="➕ إضافة"
-                                    Margin="6,0"
-                                    Click="Add_Click"/>
-
-                            <Button Style="{StaticResource DarkButtonStyle}"
-                                    Content="✏️ تعديل المحدد"
-                                    Margin="6,0"
-                                    Click="Edit_Click"/>
-
-                            <Button Style="{StaticResource DarkButtonStyle}"
-                                    Content="تحديث"
-                                    Margin="6,0"
-                                    Command="{Binding RefreshCommand}"/>
-
-                            <Button Style="{StaticResource DeleteRedButtonStyle}"
-                                    Content="حذف المحدد"
-                                    Margin="6,0"
-                                    Command="{Binding DeleteSelectedCommand}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- ===== Error ===== -->
-                    <Border Grid.Row="2"
-                            Margin="0,0,0,10"
-                            CornerRadius="14"
-                            Background="#FFFEE2E2"
-                            BorderBrush="#FFFCA5A5"
-                            BorderThickness="1"
-                            Padding="12"
-                            Visibility="{Binding Error, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
-                        <DockPanel>
-                            <TextBlock Text="⚠️" FontSize="16" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding Error}"
-                                       Foreground="Black"
-                                       FontWeight="SemiBold"
-                                       TextWrapping="Wrap"/>
-                        </DockPanel>
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
                     </Border>
+                </Border>
+            </StackPanel>
 
-                    <!-- ===== Table ===== -->
-                    <Border Grid.Row="3" Style="{StaticResource GlowingTableOuterBorder}">
+            <!-- Buttons -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
 
-                        <DataGrid Style="{StaticResource ProDataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource CenteredHeaderStyle}"
-                                  RowStyle="{StaticResource ProDataGridRowStyle}"
-                                  CellStyle="{StaticResource TopCenterGridCellStyle}"
-                                  ItemsSource="{Binding ItemsView}"
-                                  SelectedItem="{Binding Selected}"
-                                  HeadersVisibility="Column"
-                                  GridLinesVisibility="None"
-                                  Foreground="Black">
+                <Button Style="{StaticResource DarkButtonStyle}"
+                        Content="➕ إضافة"
+                        Width="120"
+                        Margin="0,0,10,0"
+                        Click="Add_Click"/>
 
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="الـــــــــــكـــــــــــود"
-                                                    Binding="{Binding Id}"
-                                                    Width="2*"
-                                                    ElementStyle="{StaticResource TopCenterCellTextStyle}"/>
+                <Button Style="{StaticResource DarkButtonStyle}"
+                        Content="✏️ تعديل المحدد"
+                        Width="150"
+                        Margin="0,0,10,0"
+                        Click="Edit_Click"/>
 
-                                <DataGridTextColumn Header="الاســــــــــــــــــــــم"
-                                                    Binding="{Binding Name}"
-                                                    Width="2*"
-                                                    ElementStyle="{StaticResource TopCenterCellTextStyle}"/>
+                <Button Style="{StaticResource DarkButtonStyle}"
+                        Content="🔄 تحديث"
+                        Width="120"
+                        Margin="0,0,10,0"
+                        Command="{Binding RefreshCommand}"/>
 
-                                <DataGridTextColumn Header="الـــــــــــوصـــــــــــف"
-                                                    Binding="{Binding Description}"
-                                                    Width="3*"
-                                                    ElementStyle="{StaticResource TopCenterCellTextStyle}"/>
-                            </DataGrid.Columns>
+                <Button Style="{StaticResource DeleteHoverRedButtonStyle}"
+                        Content="🗑 حذف المحدد"
+                        Width="140"
+                        Command="{Binding DeleteSelectedCommand}"/>
+            </StackPanel>
+        </Grid>
 
-                        </DataGrid>
-                    </Border>
+        <!-- ================= Table (keep old frame) ================= -->
+        <Border Grid.Row="1"
+                Margin="0,20,0,0"
+                Style="{StaticResource GlowingTableOuterBorder}">
 
-                </Grid>
-            </Border>
+            <DataGrid ItemsSource="{Binding ItemsView}"
+                      SelectedItem="{Binding Selected}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      ColumnWidth="*"
+                      Style="{StaticResource NiceDataGridStyle}"
+                      ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
+                      RowStyle="{StaticResource NiceDataGridRowStyle}"
+                      CellStyle="{StaticResource NiceDataGridCellStyle}">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="الكود"
+                                        Binding="{Binding Id}"
+                                        Width="*"
+                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
+                    <DataGridTextColumn Header="الاسم"
+                                        Binding="{Binding Name}"
+                                        Width="*"
+                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
+                    <DataGridTextColumn Header="الوصف"
+                                        Binding="{Binding Description}"
+                                        Width="2*"
+                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+                </DataGrid.Columns>
+            </DataGrid>
         </Border>
+
+        <!-- ================= Error (like expenses) ================= -->
+        <TextBlock Grid.Row="2"
+                   Text="{Binding Error}"
+                   Foreground="Red"
+                   FontSize="14"
+                   Margin="10"
+                   HorizontalAlignment="Center"/>
     </Grid>
 </Page>

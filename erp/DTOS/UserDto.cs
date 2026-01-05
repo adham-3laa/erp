@@ -1,10 +1,7 @@
-﻿
-
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-
 
 namespace erp.DTOS
 {
@@ -20,17 +17,11 @@ namespace erp.DTOS
         public int FilteredCount { get; set; }
     }
 
-
-    
-
     public class UserStatusDto
     {
-
         [JsonPropertyName("isactive")]
         public bool IsActive { get; set; }
     }
-
-
 
     public class UserDto : INotifyPropertyChanged
     {
@@ -40,8 +31,25 @@ namespace erp.DTOS
         public string Email { get; set; }
         public string? SalesRepId { get; set; }
         public string Phonenumber { get; set; }
+
         [JsonPropertyName("usertype")]
         public string UserType { get; set; }
+
+        // خاصية للعرض العربي - للقراءة فقط
+        private string _displayUserType;
+        public string DisplayUserType
+        {
+            get => _displayUserType;
+            set
+            {
+                if (_displayUserType != value)
+                {
+                    _displayUserType = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         [JsonPropertyName("isactive")]
         private bool _isActive;
         public bool IsActive
@@ -57,7 +65,6 @@ namespace erp.DTOS
             }
         }
 
-
         public string ImagePath { get; set; }
 
         [JsonPropertyName("dateofcreation")]
@@ -68,6 +75,4 @@ namespace erp.DTOS
         private void OnPropertyChanged([CallerMemberName] string prop = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
     }
-
-
 }

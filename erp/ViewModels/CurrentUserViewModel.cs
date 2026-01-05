@@ -131,9 +131,9 @@ namespace erp.ViewModels
 
         private void OnBack()
         {
-            Debug.WriteLine("[CurrentUser] Back button clicked");
-            Application.Current.MainWindow?.Focus();
+            NavigationService.GoBack();
         }
+
 
         private void OnEditProfile()
         {
@@ -244,4 +244,5 @@ namespace erp.ViewModels
             ErrorMessage = message;
         }
     }
+
 }

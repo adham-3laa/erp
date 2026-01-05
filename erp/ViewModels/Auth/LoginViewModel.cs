@@ -1,10 +1,12 @@
 ﻿using erp.Commands;
 using erp.DTOS.Auth.Requests;
 using erp.Services;
+using erp.ViewModels;
 using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace erp.ViewModels.Auth
 {
@@ -13,6 +15,9 @@ namespace erp.ViewModels.Auth
         private readonly AuthService _auth;
         private readonly Action _onLoginSuccess;
         private CancellationTokenSource? _cts;
+
+        // ✅ Timer لرسالة الـ UI
+        private CancellationTokenSource? _messageCts;
 
         public LoginViewModel(AuthService auth, Action onLoginSuccess)
         {
@@ -27,7 +32,7 @@ namespace erp.ViewModels.Auth
             get => _email;
             set
             {
-                if (Set(ref _email, value))
+                if (SetProperty(ref _email, value))
                     LoginCommand.RaiseCanExecuteChanged();
             }
         }
@@ -38,7 +43,7 @@ namespace erp.ViewModels.Auth
             get => _password;
             set
             {
-                if (Set(ref _password, value))
+                if (SetProperty(ref _password, value))
                     LoginCommand.RaiseCanExecuteChanged();
             }
         }
@@ -49,7 +54,7 @@ namespace erp.ViewModels.Auth
             get => _isBusy;
             private set
             {
-                if (Set(ref _isBusy, value))
+                if (SetProperty(ref _isBusy, value))
                     LoginCommand.RaiseCanExecuteChanged();
             }
         }
@@ -58,7 +63,7 @@ namespace erp.ViewModels.Auth
         public string? Message
         {
             get => _message;
-            private set => Set(ref _message, value);
+            private set => SetProperty(ref _message, value);
         }
 
         public AsyncRelayCommand LoginCommand { get; }
@@ -72,7 +77,8 @@ namespace erp.ViewModels.Auth
         {
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
-            Message = null;
+
+            SetMessageAutoHide(null);
 
             try
             {
@@ -87,32 +93,90 @@ namespace erp.ViewModels.Auth
                     result?.Success == true &&
                     !string.IsNullOrWhiteSpace(result.Auth?.Token))
                 {
-                    // ✅ تخزين التوكن
                     TokenStore.Token = result.Auth.Token;
-
-                    // ✅ الانتقال بعد النجاح
                     _onLoginSuccess.Invoke();
                     return;
                 }
 
-                // ❌ بيانات غير صحيحة
+                // ❌ بيانات غير صحيحة (رسالة من السيرفر)
                 if (result != null && result.Success == false)
                 {
-                    Message = $"❌ {result.Message ?? "البريد الإلكتروني أو كلمة المرور خاطئة"}";
+                    var clean = SanitizeApiMessage(result.Message);
+                    SetMessageAutoHide($"❌ {clean}");
                     return;
                 }
 
                 // ❌ حالة غير متوقعة
-                Message = "❌ فشل تسجيل الدخول. تحقق من بياناتك";
+                SetMessageAutoHide("❌ فشل تسجيل الدخول. تحقق من بياناتك");
             }
             catch (Exception ex)
             {
-                Message = $"❌ حدث خطأ: {ex.Message}";
+                SetMessageAutoHide($"❌ {SanitizeApiMessage(ex.Message)}");
             }
             finally
             {
                 IsBusy = false;
             }
+        }
+
+        // ✅ تعرض الرسالة ثم تخفيها بعد 5 ثواني
+        private void SetMessageAutoHide(string? value)
+        {
+            // اعرض الرسالة فورًا
+            Message = value;
+
+            // ألغِ أي عدّاد قديم
+            _messageCts?.Cancel();
+            _messageCts = null;
+
+            // لو مفيش رسالة، خلاص
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+            var current = value;
+            _messageCts = new CancellationTokenSource();
+            var token = _messageCts.Token;
+
+            _ = HideMessageAfterDelayAsync(current, token);
+        }
+
+        private async Task HideMessageAfterDelayAsync(string currentMessage, CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3), token);
+
+                if (token.IsCancellationRequested)
+                    return;
+
+                // امسحها على UI thread وبشرط إنها لسه نفس الرسالة
+                Application.Current?.Dispatcher?.Invoke(() =>
+                {
+                    if (Message == currentMessage)
+                        Message = null;
+                });
+            }
+            catch (TaskCanceledException)
+            {
+                // ignore
+            }
+        }
+
+        // ✅ تنضيف رسائل السيرفر اللي فيها traceId / ProblemDetails
+        private static string SanitizeApiMessage(string? msg)
+        {
+            if (string.IsNullOrWhiteSpace(msg))
+                return "البريد الإلكتروني أو كلمة المرور خاطئة";
+
+            if (msg.Contains("traceId", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("errors", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("{", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("validation", StringComparison.OrdinalIgnoreCase))
+            {
+                return "البريد الإلكتروني أو كلمة المرور خاطئة";
+            }
+
+            return msg.Trim();
         }
     }
 }

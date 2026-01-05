@@ -1,11 +1,10 @@
-﻿using System.Windows.Controls;
-
-// Users
-using erp.Views.Users;
-
+﻿using erp.DTOS;
+using erp.ViewModels;
 // Reports
 using erp.Views.Reports;
-using erp.DTOS;
+// Users
+using erp.Views.Users;
+using System.Windows.Controls;
 
 namespace erp.Services
 {
@@ -39,6 +38,14 @@ namespace erp.Services
         {
             _mainFrame?.Navigate(new CurrentUserPage());
         }
+        public static void GoBack()
+        {
+            if (_mainFrame != null && _mainFrame.CanGoBack)
+            {
+                _mainFrame.GoBack();
+            }
+        }
+
 
         // ===================== REPORTS =====================
         public static void NavigateToSalesReport()
@@ -53,12 +60,44 @@ namespace erp.Services
         //======================InvoicesForUsers==============
         public static void NavigateToUserInvoices(UserDto user)
         {
-            _mainFrame?.Navigate(
-                new UserInvoicesPage(user)
-            );
+            _mainFrame?.Navigate(new UserInvoicesPage(user));
         }
 
+        // Overload جديد لقبول WrappedUserDto
+        public static void NavigateToUserInvoices(WrappedUserDto wrappedUser)
+        {
+            // تحويل WrappedUserDto إلى UserDto
+            var userDto = new UserDto
+            {
+                Id = wrappedUser.Id,
+                Fullname = wrappedUser.Fullname,
+                Username = wrappedUser.Username,
+                Email = wrappedUser.Email,
+                SalesRepId = wrappedUser.SalesRepId,
+                Phonenumber = wrappedUser.Phonenumber,
+                UserType = wrappedUser.UserType,
+                IsActive = wrappedUser.IsActive,
+                ImagePath = wrappedUser.ImagePath,
+                DateOfCreation = wrappedUser.DateOfCreation,
+                FarmsCount = wrappedUser.FarmsCount
+            };
 
+            _mainFrame?.Navigate(new UserInvoicesPage(userDto));
+        }
+
+        // Overload آخر لإرسال ID فقط
+        public static void NavigateToUserInvoices(string userId)
+        {
+            // يمكنك إنشاء UserDto مؤقت أو تعديل الصفحة لتقبل ID فقط
+            var userDto = new UserDto
+            {
+                Id = userId,
+                Fullname = "مستخدم",
+                // باقي الخصائص يمكن تركها null أو قيم افتراضية
+            };
+
+            _mainFrame?.Navigate(new UserInvoicesPage(userDto));
+        }
         // ===================== BACK =====================
         public static void NavigateBack()
         {

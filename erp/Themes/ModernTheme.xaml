@@ -158,7 +158,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bd"
-                        CornerRadius="18"
+                        CornerRadius="16"
                         Background="{TemplateBinding Background}">
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.14"/>

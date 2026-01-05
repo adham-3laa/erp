@@ -88,13 +88,19 @@
 
                                     <Border Style="{StaticResource GlowInputFrame}">
                                         <Border Style="{StaticResource GlowInputInner}">
-                                            <ComboBox ItemsSource="{Binding UserTypes}"
-                                                      SelectedItem="{Binding SelectedUserType}"
-                                                      Background="Transparent"
-                                                      BorderThickness="0"
-                                                      FontSize="14"
-                                                      Padding="4">
-                                            </ComboBox>
+                                            <!-- تعديل الـ ComboBox -->
+                                            <ComboBox
+    ItemsSource="{Binding UserTypes}"
+    SelectedItem="{Binding SelectedUserType}"
+    DisplayMemberPath="Text"
+    SelectedValuePath="Value"
+    SelectedIndex="-1"
+    Background="Transparent"
+    BorderThickness="0"
+    FontSize="14"
+    Padding="4"/>
+
+
                                         </Border>
                                     </Border>
                                 </StackPanel>
@@ -156,15 +162,17 @@
                         </Grid>
 
                         <!-- Loading Overlay -->
-                        <Border Grid.Row="1" 
-                                Background="#80FFFFFF"
-                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Panel.ZIndex="100">
+                        <Border
+        Background="#80FFFFFF"
+        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+        IsHitTestVisible="{Binding IsLoading}"
+        Panel.ZIndex="999" Margin="-10,260,10,18" Grid.Row="1">
+
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="جاري إنشاء المستخدم..."
+                       Margin="0,12,0,0"
+                       Foreground="{StaticResource TextMutedBrush}"/>
                                 <ProgressBar IsIndeterminate="True" Width="200" Height="6"/>
-                                <TextBlock Text="جاري إنشاء المستخدم..." 
-                                           Margin="0,12,0,0"
-                                           Foreground="{StaticResource TextMutedBrush}"/>
                             </StackPanel>
                         </Border>
 
@@ -200,7 +208,9 @@
                                    FontSize="14"
                                    HorizontalAlignment="Center"
                                    Margin="0,268,0,10"
-                                   Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" Grid.Row="1" TextWrapping="WrapWithOverflow"/>
+                                   Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" 
+                                   Grid.Row="1" 
+                                   TextWrapping="WrapWithOverflow"/>
                     </Grid>
                 </ScrollViewer>
             </Border>
