@@ -219,7 +219,9 @@ namespace erp.ViewModels
         private void OnCancel()
         {
             ClearForm();
+            NavigationService.NavigateBack();
         }
+
     }
 
 }
