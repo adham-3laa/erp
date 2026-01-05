@@ -38,6 +38,14 @@ namespace erp.Services
         {
             _mainFrame?.Navigate(new CurrentUserPage());
         }
+        public static void GoBack()
+        {
+            if (_mainFrame != null && _mainFrame.CanGoBack)
+            {
+                _mainFrame.GoBack();
+            }
+        }
+
 
         // ===================== REPORTS =====================
         public static void NavigateToSalesReport()
