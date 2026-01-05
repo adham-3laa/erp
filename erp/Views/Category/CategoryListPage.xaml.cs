@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 using erp.ViewModels.CategoryView;
 using erp.Views.Shared;
@@ -11,6 +12,10 @@ public partial class CategoryListPage : Page
     {
         InitializeComponent();
 
+        // ✅ يمنع XDG0003 في الـ Designer
+        if (!DesignerProperties.GetIsInDesignMode(this))
+            DataContext ??= new CategoryListViewModel();
+
         Loaded += async (_, __) =>
         {
             if (DataContext is CategoryListViewModel vm)
@@ -21,6 +26,8 @@ public partial class CategoryListPage : Page
     private void Add_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is not CategoryListViewModel listVm) return;
+
+        // Create
         NavigationService?.Navigate(new CategoryEditPage(listVm));
     }
 
@@ -35,6 +42,12 @@ public partial class CategoryListPage : Page
             return;
         }
 
-        NavigationService?.Navigate(new CategoryEditPage(listVm.Selected, listVm));
+        // ✅ Edit (بنحط الداتا في Property قبل Navigate)
+        var page = new CategoryEditPage(listVm)
+        {
+            EditDto = listVm.Selected
+        };
+
+        NavigationService?.Navigate(page);
     }
 }

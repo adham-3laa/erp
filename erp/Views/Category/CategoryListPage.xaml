@@ -118,60 +118,81 @@
             <Border Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <!-- ✅ صف واحد: العنوان + السيرش + الأزرار -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Headline -->
+                        <!-- ✅ Error -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Search + Buttons -->
-                        <RowDefinition Height="Auto"/>
-                        <!-- Error -->
+                        <!-- ✅ Table -->
                         <RowDefinition Height="*"/>
-                        <!-- Table -->
                     </Grid.RowDefinitions>
 
-                    <!-- ===== Headline (Centered) ===== -->
-                    <Grid Grid.Row="0" Margin="0,0,0,10">
-                        <TextBlock Text="الأصــــــــــــنــــــــاف"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Foreground="Black"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <!-- ===== Search + Buttons (Same Row) ===== -->
-                    <Grid Grid.Row="1" Margin="0,0,0,12">
+                    <!-- ================= Top Row (Like Expenses Page) ================= -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
-                            <!-- RTL: Column 0 appears on the right -->
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <!-- RTL: Col 0 يظهر يمين -->
+                            <ColumnDefinition Width="Auto"/>  <!-- Title (Right) -->
+                            <ColumnDefinition Width="*"/>     <!-- Search (Center) -->
+                            <ColumnDefinition Width="Auto"/>  <!-- Buttons (Left) -->
                         </Grid.ColumnDefinitions>
 
-                        <!-- Search (Right side) -->
-                        <StackPanel Grid.Column="0"
+                        <!-- ✅ Headline (Right) - Color like Expenses table header -->
+                        <TextBlock Grid.Column="0"
+                                   Text="الأصناف"
+                                   FontSize="26"
+                                   FontWeight="Bold"
+                                   Foreground="#FF1F2937"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,14,0"/>
+
+                        <!-- ✅ Search (Center) -->
+                        <StackPanel Grid.Column="1"
                                     Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
+                                    HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
 
-                            <TextBlock Text="بحث بالاسم :"
+                            <TextBlock Text="بحث :"
                                        VerticalAlignment="Center"
-                                       Foreground="Black"
+                                       Foreground="#FF1F2937"
                                        FontWeight="ExtraBold"
-                                       Margin="20,0,10,0"/>
+                                       Margin="0,0,10,0"/>
 
-                            <Border Style="{StaticResource GlowInputFrame}" Width="260">
+                            <Border Style="{StaticResource GlowInputFrame}" Width="200" Height="40">
                                 <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Grid>
+                                        <TextBox x:Name="SearchTextBox"
+                                                 Style="{StaticResource GlowTextBox}"
+                                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                        <!-- Placeholder -->
+                                        <TextBlock Text="اسم الصنف"
+                                                   Foreground="#9A000000"
+                                                   Margin="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
                                 </Border>
                             </Border>
                         </StackPanel>
 
-                        <!-- Buttons (Left side) -->
-                        <StackPanel Grid.Column="1"
+                        <!-- ✅ Buttons (Left) -->
+                        <StackPanel Grid.Column="2"
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Margin="150,0,0,0">
+                                    VerticalAlignment="Center">
 
                             <Button Style="{StaticResource DarkButtonStyle}"
                                     Content="➕ إضافة"
@@ -195,8 +216,8 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- ===== Error ===== -->
-                    <Border Grid.Row="2"
+                    <!-- ================= Error ================= -->
+                    <Border Grid.Row="1"
                             Margin="0,0,0,10"
                             CornerRadius="14"
                             Background="#FFFEE2E2"
@@ -213,9 +234,8 @@
                         </DockPanel>
                     </Border>
 
-                    <!-- ===== Table ===== -->
-                    <Border Grid.Row="3" Style="{StaticResource GlowingTableOuterBorder}">
-
+                    <!-- ================= Table ================= -->
+                    <Border Grid.Row="2" Style="{StaticResource GlowingTableOuterBorder}">
                         <DataGrid Style="{StaticResource ProDataGridStyle}"
                                   ColumnHeaderStyle="{StaticResource CenteredHeaderStyle}"
                                   RowStyle="{StaticResource ProDataGridRowStyle}"
@@ -227,17 +247,17 @@
                                   Foreground="Black">
 
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="الـــــــــــكـــــــــــود"
+                                <DataGridTextColumn Header="الــــــــــــــــــــكــــــــــــــــــــود"
                                                     Binding="{Binding Id}"
                                                     Width="2*"
                                                     ElementStyle="{StaticResource TopCenterCellTextStyle}"/>
 
-                                <DataGridTextColumn Header="الاســــــــــــــــــــــم"
+                                <DataGridTextColumn Header="الاســــــــــــــــــــــــــــــم"
                                                     Binding="{Binding Name}"
                                                     Width="2*"
                                                     ElementStyle="{StaticResource TopCenterCellTextStyle}"/>
 
-                                <DataGridTextColumn Header="الـــــــــــوصـــــــــــف"
+                                <DataGridTextColumn Header="الــــــــــــــــــــوصــــــــــــــــــــف"
                                                     Binding="{Binding Description}"
                                                     Width="3*"
                                                     ElementStyle="{StaticResource TopCenterCellTextStyle}"/>

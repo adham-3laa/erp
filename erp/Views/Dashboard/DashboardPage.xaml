@@ -106,7 +106,7 @@
         </Grid>
 
         <!-- Dashboard Cards -->
-        <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,12">
+        <UniformGrid Grid.Row="1" Columns="4" Margin="170,0,0,12">
 
             <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
                 <StackPanel>
@@ -128,15 +128,6 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="عدد الطلبات المعلّقة" Opacity="0.75"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
-                    <TextBlock Text="{Binding PendingOrdersCount}" FontSize="20" FontWeight="Bold"
-                               Foreground="{StaticResource PrimaryBrush}"
-                               HorizontalAlignment="Center" TextAlignment="Center"/>
-                </StackPanel>
-            </Border>
 
             <Border Style="{StaticResource NeonCardStyle}" Margin="6" Padding="12">
                 <StackPanel>
