@@ -6,24 +6,21 @@
 
     <Page.Resources>
 
-        <!-- ===== Glow (same design we agreed on) ===== -->
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
                           BlurRadius="16"
                           ShadowDepth="0"
                           Opacity="0.35"/>
 
-        <!-- ===== Outer Frame (same as AddExpensePage) ===== -->
         <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
         </Style>
 
-        <!-- ===== Result Card Style (keeps your logic, just styling) ===== -->
         <Style x:Key="ResultCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
             <Setter Property="CornerRadius" Value="12"/>
@@ -41,187 +38,107 @@
         </Grid.RowDefinitions>
 
         <!-- ================= Header ================= -->
-        <!-- Title on the RIGHT, Back button on the LEFT -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-                <!-- ===== Top Bar ===== -->
-                <DockPanel Margin="0,0,0,20">
-                    <Button Content="⬅ رجوع"
-                            Width="90"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Click="Back_Click"/>
+            <Button Content="⬅ رجوع"
+                    Width="100"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="Back_Click"/>
 
-            <!-- Right: section label/title -->
-            <TextBlock Grid.Column="0"
+            <TextBlock Grid.Column="1"
                        Text="جرد المخزون"
                        FontSize="26"
                        FontWeight="Bold"
                        Foreground="{StaticResource TextDarkBrush}"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Right"/>
-
-            <!-- Center spacer -->
-            <Border Grid.Column="1" Opacity="0"/>
-
-
-            <!-- Left: back button -->
-            <Button Grid.Column="2"
-                    Content="رجوع"
-                    Width="120"
-                    Style="{StaticResource DarkButtonStyle}"
-                    HorizontalAlignment="Left"
-                    Click="Back_Click"/>
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
         </Grid>
 
-                <!-- Product Name -->
-                <TextBlock Text="اسم المنتج"/>
-                <Border BorderBrush="#CBD5E1"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="6">
-                    <TextBox x:Name="ProductNameTextBox"
-                             Style="{StaticResource GlowTextBox}"/>
-                </Border>
-
-        <!-- ================= Form (Centered + agreed design) ================= -->
+        <!-- ================= Form ================= -->
         <Border Grid.Row="1"
                 Style="{StaticResource GlowingTableOuterBorder}"
+                Width="650"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
 
+            <StackPanel>
 
-            <Border Style="{StaticResource InnerCardContainer}"
-                    Width="620"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Margin="0">
+                <!-- اسم المنتج -->
+                <TextBlock Text="اسم المنتج"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,6"/>
+                <TextBox x:Name="ProductNameTextBox"
+                         Height="36"
+                         Margin="0,0,0,16"/>
 
+                <!-- كود المنتج -->
+                <TextBlock Text="كود المنتج"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,6"/>
+                <TextBox x:Name="ProductIdTextBox"
+                         Height="36"
+                         Margin="0,0,0,16"/>
 
-                <!-- Update Stock Choice -->
+                <!-- الكمية الفعلية -->
+                <TextBlock Text="الكمية الفعلية"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,6"/>
+                <TextBox x:Name="ActualQuantityTextBox"
+                         Height="36"
+                         FlowDirection="LeftToRight"
+                         Margin="0,0,0,16"/>
+
+                <!-- Update Stock -->
                 <TextBlock Text="هل تريد تحديث الكمية في المخزون؟"
-                           Margin="0,16,0,6"
-                           FontWeight="Bold"/>
+                           FontWeight="Bold"
+                           Margin="0,0,0,6"/>
 
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                     <RadioButton x:Name="UpdateYesRadio"
                                  Content="نعم"
-                                 Margin="0,0,20,0"
-                                 IsChecked="True"/>
+                                 IsChecked="True"
+                                 Margin="0,0,20,0"/>
                     <RadioButton x:Name="UpdateNoRadio"
                                  Content="لا"/>
                 </StackPanel>
 
-                <!-- Execute Button -->
+                <!-- Execute -->
                 <Button Content="تنفيذ الجرد"
-                        Width="140"
-                        Margin="0,20,0,0"
-                        HorizontalAlignment="Right"
+                        Width="160"
+                        Height="40"
+                        HorizontalAlignment="Left"
                         Style="{StaticResource DarkButtonStyle}"
                         Click="Adjust_Click"/>
 
-                <StackPanel>
-
-
-                    <!-- Product ID -->
-                    <TextBlock Text="كود المنتج"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="0,0,0,6"/>
-
+                <!-- ================= Result ================= -->
+                <Border x:Name="ResultCard"
+                        Visibility="Collapsed"
+                        Margin="0,24,0,0"
+                        Style="{StaticResource ResultCardStyle}">
 
                     <StackPanel>
+
                         <TextBlock x:Name="ResultTitleText"
                                    FontSize="18"
                                    FontWeight="Bold"
                                    Margin="0,0,0,10"/>
 
-                    <Border Style="{StaticResource GlowInputFrame}">
-                        <Border Style="{StaticResource GlowInputInner}">
-                            <TextBox x:Name="ProductIdTextBox"
-                                     Height="36"
-                                     Padding="8"
-                                     FontSize="14"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource GlowTextBox}"/>
-                        </Border>
-                    </Border>
+                        <TextBlock x:Name="ResultMessageText"
+                                   Margin="0,0,0,8"/>
 
-                    <!-- Actual Quantity -->
-                    <TextBlock Text="الكمية الفعلية"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="0,20,0,6"/>
-                    <Border Style="{StaticResource GlowInputFrame}">
-                        <Border Style="{StaticResource GlowInputInner}">
-                            <TextBox x:Name="ActualQuantityTextBox"
-                                     Height="36"
-                                     Padding="8"
-                                     FontSize="14"
-                                     VerticalContentAlignment="Center"
-                                     TextAlignment="Left"
-                                     FlowDirection="LeftToRight"
-                                     Style="{StaticResource GlowTextBox}"/>
-                        </Border>
-                    </Border>
+                        <TextBlock x:Name="OldQuantityText"/>
+                        <TextBlock x:Name="NewQuantityText"/>
 
-                    <!-- Execute Button (on the LEFT) -->
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Left"
-                                Margin="0,32,0,0">
-
-                        <Button Content="تنفيذ الجرد"
-                                MinWidth="140"
-                                Height="40"
-                                FontSize="14"
-                                Style="{StaticResource DarkButtonStyle}"
-                                Click="Adjust_Click"/>
+                        <TextBlock x:Name="FinancialImpactText"
+                                   Margin="0,8,0,0"/>
                     </StackPanel>
+                </Border>
 
-                    <!-- ===== Result Card (same logic: Visibility/Names unchanged) ===== -->
-                    <Border x:Name="ResultCard"
-                            Visibility="Collapsed"
-                            Margin="0,24,0,0"
-                            Style="{StaticResource ResultCardStyle}">
-
-                        <StackPanel>
-
-                            <TextBlock x:Name="ResultTitleText"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextDarkBrush}"
-                                       Margin="0,0,0,10"/>
-
-                            <TextBlock x:Name="ResultMessageText"
-                                       FontSize="14"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,0,0,8"/>
-
-                            <TextBlock x:Name="OldQuantityText"
-                                       FontSize="13"
-                                       Foreground="{StaticResource TextMutedBrush}"/>
-
-                            <TextBlock x:Name="NewQuantityText"
-                                       FontSize="13"
-                                       Foreground="{StaticResource TextMutedBrush}"/>
-
-                            <TextBlock x:Name="FinancialImpactText"
-                                       FontSize="13"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                </StackPanel>
-
-            </Border>
+            </StackPanel>
         </Border>
 
     </Grid>

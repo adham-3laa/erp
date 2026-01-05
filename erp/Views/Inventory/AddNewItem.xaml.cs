@@ -14,8 +14,8 @@ namespace erp.Views.Inventory
         private int _count;
         private int _index;
 
-        // SupplierId بيتحدد مرة واحدة
-        private string _supplierId = "";
+        // اسم المورد (بيتبعت للـ API كـ supplierName)
+        private string _supplierName = "";
 
         public AddNewItem()
         {
@@ -32,9 +32,10 @@ namespace erp.Views.Inventory
         // زرار "ابدأ"
         private void StartWizard_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(SupplierIdTextBox.Text))
+            // ✅ FIX: الاسم الصحيح من XAML
+            if (string.IsNullOrWhiteSpace(SupplierNameTextBox.Text))
             {
-                MessageBox.Show("من فضلك أدخل SupplierId");
+                MessageBox.Show("من فضلك أدخل اسم المورد");
                 return;
             }
 
@@ -44,7 +45,7 @@ namespace erp.Views.Inventory
                 return;
             }
 
-            _supplierId = SupplierIdTextBox.Text.Trim();
+            _supplierName = SupplierNameTextBox.Text.Trim();
 
             _products.Clear();
             for (int i = 0; i < _count; i++)
@@ -115,9 +116,11 @@ namespace erp.Views.Inventory
 
             try
             {
-                await _service.AddProductsWithCategoryNameAsync(_products, _supplierId);
+                // ✅ FIX: استخدام اسم المورد
+                await _service.AddProductsWithCategoryNameAsync(_products, _supplierName);
+
                 MessageBox.Show("تم إضافة المنتجات بنجاح ✅");
-                NavigationService.GoBack();
+                NavigationService?.GoBack();
             }
             catch (System.Exception ex)
             {
@@ -125,7 +128,7 @@ namespace erp.Views.Inventory
             }
         }
 
-        // ================== Validation (آمنة 100%) ==================
+        // ================== Validation ==================
         private bool IsProductValid(Product product)
         {
             if (product == null)
@@ -169,10 +172,8 @@ namespace erp.Views.Inventory
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            // يرجّعك للصفحة اللي قبلها (InventoryPage)
-            if (NavigationService.CanGoBack)
+            if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
         }
-
     }
 }

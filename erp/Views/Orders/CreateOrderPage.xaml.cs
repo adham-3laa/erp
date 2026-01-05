@@ -13,24 +13,46 @@ namespace erp.Views.Orders
     {
         private readonly OrdersService _ordersService;
 
+        // 🔹 مصدر البيانات للـ DataGrid
+        private readonly List<CreateOrderItemDto> _items =
+            new List<CreateOrderItemDto>();
+
         public CreateOrderPage()
         {
             InitializeComponent();
 
             _ordersService = new OrdersService(App.Api);
 
-            ItemsGrid.ItemsSource = new List<CreateOrderItemDto>
-            {
-                new CreateOrderItemDto()
-            };
+            // صف افتراضي
+            _items.Add(new CreateOrderItemDto());
+            ItemsGrid.ItemsSource = _items;
 
             OrdersTopBarControl.ApprovedOrdersClicked += (_, __) =>
                 NavigationService.Navigate(new ApprovedOrdersPage());
         }
 
+        // 🔢 أرقام فقط
         private void NumberOnly(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !e.Text.All(char.IsDigit);
+        }
+
+        // ➕ إضافة منتج
+        private void AddItem_Click(object sender, RoutedEventArgs e)
+        {
+            _items.Add(new CreateOrderItemDto());
+            ItemsGrid.Items.Refresh();
+        }
+
+        // ❌ حذف منتج
+        private void RemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn &&
+                btn.DataContext is CreateOrderItemDto item)
+            {
+                _items.Remove(item);
+                ItemsGrid.Items.Refresh();
+            }
         }
 
         private async void ConfirmOrder_Click(object sender, RoutedEventArgs e)
@@ -53,12 +75,11 @@ namespace erp.Views.Orders
                 return;
             }
 
-            var items = ItemsGrid.Items
-                .OfType<CreateOrderItemDto>()
+            var validItems = _items
                 .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.quantity > 0)
                 .ToList();
 
-            if (!items.Any())
+            if (!validItems.Any())
             {
                 MessageBox.Show("أدخل منتج واحد على الأقل");
                 return;
@@ -68,7 +89,7 @@ namespace erp.Views.Orders
             {
                 customername = CustomerNameTextBox.Text.Trim(),
                 salesrepname = SalesRepNameTextBox.Text.Trim(),
-                items = items
+                items = validItems
             };
 
             try
@@ -89,10 +110,9 @@ namespace erp.Views.Orders
             SalesRepNameTextBox.Clear();
             CommissionTextBox.Clear();
 
-            ItemsGrid.ItemsSource = new List<CreateOrderItemDto>
-            {
-                new CreateOrderItemDto()
-            };
+            _items.Clear();
+            _items.Add(new CreateOrderItemDto());
+            ItemsGrid.Items.Refresh();
         }
     }
 }
