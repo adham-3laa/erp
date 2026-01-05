@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace EduGate.Views.Inventory
+namespace erp.Views.Inventory
 {
     public partial class InventoryTopBar : UserControl
     {

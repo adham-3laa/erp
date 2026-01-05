@@ -1,4 +1,4 @@
-using EduGate.Views.Inventory;
+using erp.Views.Inventory;
 using erp.Services;
 using erp.ViewModels.Returns;
 using erp.Views.Category;
@@ -127,7 +127,7 @@ namespace erp
                     break;
 
                 case "Orders":
-                    MainFrame.Navigate(new EduGate.Views.Orders.ApprovedOrdersPage());
+                    MainFrame.Navigate(new erp.Views.Orders.ApprovedOrdersPage());
                     SelectNavItem("Orders");
                     break;
 

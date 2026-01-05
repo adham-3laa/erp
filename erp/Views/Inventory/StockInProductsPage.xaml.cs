@@ -1,11 +1,11 @@
-﻿using EduGate.Services;
+﻿using erp.Services;
 using erp.DTOS.Inventory.Requests;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace EduGate.Views.Inventory
+namespace erp.Views.Inventory
 {
     public partial class StockInProductsPage : Page
     {

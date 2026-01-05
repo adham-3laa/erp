@@ -53,7 +53,6 @@ namespace erp.Services
             response.EnsureSuccessStatusCode();
 
             var jsonString = await response.Content.ReadAsStringAsync();
-<<<<<<< HEAD
 
             var apiResponse =
                 JsonSerializer.Deserialize<ApiResponse<List<InventoryItemResponse>>>(
@@ -62,7 +61,6 @@ namespace erp.Services
                     {
                         PropertyNameCaseInsensitive = true
                     });
-=======
             if (string.IsNullOrWhiteSpace(jsonString))
                 return new List<InventoryProductInfo>();
 
@@ -82,7 +80,6 @@ namespace erp.Services
 
                 string? GetNullableString(string name)
                     => p.TryGetProperty(name, out var el) && el.ValueKind == JsonValueKind.String ? el.GetString() : null;
->>>>>>> 4e220c83e3af7be7397965530701d15ff1eb99fd
 
                 decimal GetDecimal(string name)
                 {
@@ -123,35 +120,26 @@ namespace erp.Services
         {
             var infos = await GetAllProductsInfoAsync(skip: 0, take: 1000);
 
+            if (infos == null)
+                return new List<Product>();
+
             return infos.Select(p => new Product
             {
-<<<<<<< HEAD
-                ProductId = p.productid,
-                Name = p.productname,
-                SalePrice = (int)p.saleprice,
-                BuyPrice = (int)p.buyprice,
-                Quantity = p.quantity,
-                SKU = p.sku,
-                Category = p.categoryname
-            }).ToList() ?? new List<Product>();
-=======
                 ProductId = p.ProductId,
-                Name = p.ProductName,
+                Name = p.ProductName ?? "",
 
-                // ✅ تحويل آمن من decimal لـ int
                 SalePrice = Convert.ToInt32(p.SalePrice),
-
-                // كان زمان بيرجع categoryid (guid) — هنخليه زي ما هو علشان باقي السيستم
-                Category = p.CategoryId ?? "",
-
                 BuyPrice = Convert.ToInt32(p.BuyPrice),
+
                 Quantity = p.Quantity > 0 ? p.Quantity : 1,
                 SKU = string.IsNullOrWhiteSpace(p.SKU) ? "N/A" : p.SKU,
+
+                Category = p.CategoryId ?? "",
                 Description = p.Description ?? "",
                 Supplier = ""
             }).ToList();
->>>>>>> 4e220c83e3af7be7397965530701d15ff1eb99fd
         }
+
 
 
         // ================== Delete ==================
@@ -280,24 +268,18 @@ namespace erp.Services
             }
         }
 
-<<<<<<< HEAD
-
 
 
 
         // ================== Inventory Check ==================
         public async Task<InventoryAdjustmentResponse> AdjustInventoryByNameAsync(
-        string productName,
-        int actualQuantity,
-        bool updateStock)
-=======
-        public async Task<InventoryAdjustmentResponse> AdjustInventoryAsync(
-            string productId,
-            int actualQuantity)
->>>>>>> 4e220c83e3af7be7397965530701d15ff1eb99fd
+      string productName,
+      int actualQuantity,
+      bool updateStock)
         {
             _client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+                new System.Net.Http.Headers.AuthenticationHeaderValue(
+                    "Bearer", TokenStore.Token);
 
             var body = new
             {
@@ -321,6 +303,7 @@ namespace erp.Services
                 json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         }
+
 
 
         // ================== Search Product By Name ==================
@@ -391,9 +374,6 @@ namespace erp.Services
             return result?.value ?? 0;
         }
 
-<<<<<<< HEAD
-
-=======
         public class ProductLookupDto
         {
             public string ProductId { get; set; } = "";
@@ -418,6 +398,5 @@ namespace erp.Services
                 CategoryName = p.CategoryName
             }).ToList();
         }
->>>>>>> 4e220c83e3af7be7397965530701d15ff1eb99fd
     }
 }

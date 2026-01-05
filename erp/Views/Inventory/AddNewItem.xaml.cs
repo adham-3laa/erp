@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace EduGate.Views.Inventory
+namespace erp.Views.Inventory
 {
     public partial class AddNewItem : Page
     {
