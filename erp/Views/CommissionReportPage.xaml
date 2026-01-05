@@ -3,51 +3,88 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       FlowDirection="RightToLeft"
-      Background="#F5F6FA">
+      Background="{StaticResource PageBgBrush}">
 
-    <!-- ✅ Resources -->
+    <!-- ================= Resources (Same Reference Look) ================= -->
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
-        <!-- Base Button -->
-        <Style x:Key="SimpleButton" TargetType="Button">
-            <Setter Property="Background" Value="#6B7280"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="14,8"/>
+        <!-- ===== Glow (needed for old frame) ===== -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="16"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+
+        <!-- ===== Old Frame (Like CategoryListPage) ===== -->
+        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <!-- ===== Tabs ===== -->
+        <Style x:Key="ActiveTabButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource DarkButtonStyle}">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="18,10"/>
+        </Style>
+
+        <Style x:Key="InactiveTabButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#6B7280"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border x:Name="Bd"
+                                CornerRadius="18"
+                                Background="{TemplateBinding Background}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.14"/>
+                            </Border.Effect>
+
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#4B5563"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#374151"/>
+                                <Setter TargetName="Bd" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <Style x:Key="ActiveTabButton" TargetType="Button" BasedOn="{StaticResource SimpleButton}">
-            <Setter Property="Background" Value="#1E1B4B"/>
-        </Style>
-
-        <!-- ✅ Search small -->
-        <Style x:Key="SearchTextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="Background" Value="#FFFFFF"/>
-        </Style>
-
-        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource SimpleButton}">
-            <Setter Property="Background" Value="#1E1B4B"/>
-            <Setter Property="Padding" Value="18,8"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-
+        <!-- Card value text -->
         <Style x:Key="CardValue" TargetType="TextBlock">
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -56,50 +93,73 @@
         </Style>
     </Page.Resources>
 
+    <!-- ================= Layout ================= -->
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- Header + Tabs -->
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <!-- Search -->
             <RowDefinition Height="*"/>
+            <!-- Content -->
         </Grid.RowDefinitions>
 
-        <!-- 🔝 Top Nav -->
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-            <Button Content="📊 تقرير المبيعات"
-                    Style="{StaticResource SimpleButton}"
-                    Click="OpenSalesReport"
-                    Margin="0,0,8,0"/>
+        <!-- ================= Header (Title + Tabs + Subtitle) ================= -->
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <Button Content="📦 حركة صنف"
-                    Style="{StaticResource SimpleButton}"
-                    Click="OpenStockMovementReport"
-                    Margin="0,0,8,0"/>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <Button Content="💰 عمولات المندوبين"
-                    Style="{StaticResource ActiveTabButton}"/>
-        </StackPanel>
+                <!-- Title -->
+                <TextBlock Grid.Column="0"
+                           Text="💰 عمولات المندوبين"
+                           FontSize="26"
+                           FontWeight="Bold"
+                           Foreground="#FF1F2937"
+                           VerticalAlignment="Center"
+                           Margin="0,0,14,0"/>
 
-        <!-- 🧾 العنوان -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,12">
-            <TextBlock Text="تقرير عمولات المندوبين"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       Foreground="#111827"/>
-            <TextBlock Text="عرض العمولات وعدد الطلبات لكل مندوب"
-                       FontSize="13"
+                <!-- Tabs -->
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+
+                    <Button Content="📊 تقرير المبيعات"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
+                            Click="OpenSalesReport"/>
+
+                    <Button Content="📦 حركة صنف"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
+                            Click="OpenStockMovementReport"/>
+
+                    <Button Content="💰 عمولات المندوبين"
+                            Style="{StaticResource ActiveTabButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Subtitle -->
+            <TextBlock Grid.Row="1"
+                       Text="عرض العمولات وعدد الطلبات لكل مندوب"
+                       FontSize="14"
                        Foreground="#6B7280"
-                       Margin="0,4,0,0"/>
-        </StackPanel>
+                       Margin="0,6,0,0"/>
+        </Grid>
 
-        <!-- 🔍 البحث (أصغر) -->
-        <Border Grid.Row="2"
-                Background="White"
-                CornerRadius="18"
-                BorderBrush="#E5E7EB"
-                BorderThickness="1"
-                Padding="12"
-                Margin="0,0,0,14">
+        <!-- ================= Search (Old Frame) ================= -->
+        <Border Grid.Row="1"
+                Margin="0,18,0,0"
+                Style="{StaticResource GlowingTableOuterBorder}">
 
             <Grid VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
@@ -107,25 +167,33 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox Grid.Column="0"
-                         Width="420"
-                         Style="{StaticResource SearchTextBox}"
-                         Text="{Binding SalesRepId, UpdateSourceTrigger=PropertyChanged}"
-                         materialDesign:HintAssist.Hint="رقم المندوب (SalesRep ID)"
-                         materialDesign:HintAssist.Foreground="#6B7280"/>
+                <!-- Input (Glow) -->
+                <Border Grid.Column="0"
+                        Style="{StaticResource GlowInputFrame}"
+                        Width="420"
+                        Height="40">
+                    <Border Style="{StaticResource GlowInputInner}">
+                        <TextBox Height="40"
+                                 Style="{StaticResource GlowTextBox}"
+                                 Text="{Binding SalesRepId, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="رقم المندوب (SalesRep ID)"
+                                 materialDesign:HintAssist.Foreground="#6B7280"/>
+                    </Border>
+                </Border>
 
+                <!-- Button -->
                 <Button Grid.Column="1"
-                        Width="130"
+                        Width="140"
                         Content="تحميل"
                         Command="{Binding LoadReportCommand}"
-                        Style="{StaticResource PrimaryButton}"
+                        Style="{StaticResource DarkButtonStyle}"
                         Margin="10,0,0,0"
-                        Height="34"/>
+                        Height="40"/>
             </Grid>
         </Border>
 
-        <!-- 📊 المحتوى -->
-        <Grid Grid.Row="3">
+        <!-- ================= Content ================= -->
+        <Grid Grid.Row="2" Margin="0,14,0,0">
 
             <!-- ✅ الجدول موجود لكن مخفي نهائيًا (مش هنحذفه) -->
             <materialDesign:Card Padding="8"
@@ -182,8 +250,8 @@
                                     Margin="8"
                                     Padding="18"
                                     CornerRadius="18"
-                                    Background="White"
-                                    BorderBrush="#E5E7EB"
+                                    Background="{StaticResource CardBrush}"
+                                    BorderBrush="{StaticResource SoftBorderBrush}"
                                     BorderThickness="1">
                                 <StackPanel>
 
