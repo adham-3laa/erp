@@ -2,24 +2,21 @@
 using erp.Services;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
-
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.ComponentModel;
 
 namespace erp.ViewModels
 {
     public class AllUsersViewModel : BaseViewModel
     {
-        private readonly UserService _userService =
-            new UserService(App.Api);
+        private readonly UserService _userService = new UserService(App.Api);
         private Timer _searchTimer;
-
-           
 
         public AllUsersViewModel()
         {
@@ -29,10 +26,21 @@ namespace erp.ViewModels
         }
 
         // ===================== Collections =====================
-        public ObservableCollection<UserDto> Users { get; } = new();
-
-        public ObservableCollection<string> UserTypes { get; private set; }
+        public ObservableCollection<WrappedUserDto> Users { get; } = new();
+        public ObservableCollection<UserTypeOption> UserTypes { get; private set; }
         public ObservableCollection<StatusOption> StatusOptions { get; private set; }
+
+        // قاموس لتحويل الإنجليزية إلى العربية
+        private readonly Dictionary<string, string> _userTypeTranslations = new()
+        {
+            ["SystemAdmin"] = "مدير النظام",
+            ["User"] = "مستخدم",
+            ["Customer"] = "عميل",
+            ["SalesRep"] = "مندوب مبيعات",
+            ["StoreManager"] = "مدير مخزن",
+            ["Supplier"] = "مورد",
+            ["Accountant"] = "محاسب"
+        };
 
         // ===================== Filters =====================
         private string _searchText;
@@ -122,8 +130,7 @@ namespace erp.ViewModels
         public RelayCommand NextPageCommand { get; private set; }
         public RelayCommand PreviousPageCommand { get; private set; }
         public RelayCommand NavigateToCreateCommand { get; private set; }
-        public RelayCommand<UserDto> ViewUserInvoicesCommand { get; private set; }
-
+        public RelayCommand<WrappedUserDto> ViewUserInvoicesCommand { get; private set; }
 
         private void InitializeCommands()
         {
@@ -145,10 +152,9 @@ namespace erp.ViewModels
             );
 
             ViewUserCommand = new RelayCommand<string>(
-    OnViewUser,
-    id => !IsLoading && !string.IsNullOrWhiteSpace(id)
-);
-
+                OnViewUser,
+                id => !IsLoading && !string.IsNullOrWhiteSpace(id)
+            );
 
             NextPageCommand = new RelayCommand(
                 () => CurrentPage++,
@@ -164,12 +170,12 @@ namespace erp.ViewModels
                 () => NavigationService.NavigateToCreateUser()
             );
 
-            ViewUserInvoicesCommand = new RelayCommand<UserDto>(
+            ViewUserInvoicesCommand = new RelayCommand<WrappedUserDto>(
                 user => NavigationService.NavigateToUserInvoices(user),
                 user => user != null
             );
-
         }
+
         private void OnViewUser(string? userId)
         {
             if (IsLoading || string.IsNullOrWhiteSpace(userId))
@@ -181,19 +187,32 @@ namespace erp.ViewModels
         // ===================== Init =====================
         private void InitializeCollections()
         {
-            UserTypes = new ObservableCollection<string>
+            UserTypes = new ObservableCollection<UserTypeOption>
             {
-                "SystemAdmin","User","Customer","SalesRep",
-                "StoreManager","Supplier","Accountant"
+                new UserTypeOption("جميع الأنواع", null),
+                new UserTypeOption("مدير النظام", "SystemAdmin"),
+                new UserTypeOption("مستخدم", "User"),
+                new UserTypeOption("عميل", "Customer"),
+                new UserTypeOption("مندوب مبيعات", "SalesRep"),
+                new UserTypeOption("مدير مخزن", "StoreManager"),
+                new UserTypeOption("مورد", "Supplier"),
+                new UserTypeOption("محاسب", "Accountant")
             };
 
             StatusOptions = new ObservableCollection<StatusOption>
-{
-    new StatusOption("جميع الحالات", null),
-    new StatusOption("نشط", true),
-    new StatusOption("غير نشط", false)
-};
+            {
+                new StatusOption("جميع الحالات", null),
+                new StatusOption("نشط", true),
+                new StatusOption("غير نشط", false)
+            };
+        }
 
+        // ===================== Helper Methods =====================
+        public string GetUserTypeDisplay(string userType)
+        {
+            return _userTypeTranslations.TryGetValue(userType, out var arabicName)
+                ? arabicName
+                : userType;
         }
 
         // ===================== Core Logic =====================
@@ -222,7 +241,9 @@ namespace erp.ViewModels
                 Users.Clear();
                 foreach (var user in res.Users ?? Enumerable.Empty<UserDto>())
                 {
-                    Users.Add(user);
+                    // إنشاء WrappedUserDto الذي يحتوي على DisplayUserType
+                    var wrappedUser = new WrappedUserDto(user, this);
+                    Users.Add(wrappedUser);
                 }
 
                 TotalCount = res.TotalCount;
@@ -328,25 +349,6 @@ namespace erp.ViewModels
             NavigationService.NavigateToUpdateUser(userId);
         }
 
-        private void ViewUserDetails(string userId)
-        {
-            var user = Users.FirstOrDefault(u => u.Id == userId);
-            if (user != null)
-            {
-                MessageBox.Show(
-                    $"الاسم: {user.Fullname}\n" +
-                    $"البريد: {user.Email}\n" +
-                    $"الهاتف: {user.Phonenumber}\n" +
-                    $"النوع: {user.UserType}\n" +
-                    $"الحالة: {(user.IsActive ? "نشط" : "غير نشط")}\n" +
-                    $"تاريخ التسجيل: {user.DateOfCreation:yyyy-MM-dd}",
-                    "تفاصيل المستخدم",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-            }
-        }
-
         // ===================== Search Debounce =====================
         private void DebounceSearch()
         {
@@ -362,5 +364,153 @@ namespace erp.ViewModels
         }
     }
 
+    // ===================== WrappedUserDto Class =====================
+    // ===================== WrappedUserDto Class =====================
+    public class WrappedUserDto : INotifyPropertyChanged
+    {
+        private readonly UserDto _originalUser;
+        private readonly AllUsersViewModel _viewModel;
+
+        public WrappedUserDto(UserDto originalUser, AllUsersViewModel viewModel)
+        {
+            _originalUser = originalUser;
+            _viewModel = viewModel;
+        }
+
+        // خاصية للعرض العربي
+        public string DisplayUserType => _viewModel.GetUserTypeDisplay(_originalUser.UserType);
+
+        // خصائص الـ UserDto الأصلية - جعلها قابلة للقراءة والكتابة
+        private string _id;
+        public string Id
+        {
+            get => _originalUser.Id;
+            set
+            {
+                _id = value;
+                OnPropertyChanged(nameof(Id));
+            }
+        }
+
+        private string _fullname;
+        public string Fullname
+        {
+            get => _originalUser.Fullname;
+            set
+            {
+                _fullname = value;
+                OnPropertyChanged(nameof(Fullname));
+            }
+        }
+
+        private string _username;
+        public string Username
+        {
+            get => _originalUser.Username;
+            set
+            {
+                _username = value;
+                OnPropertyChanged(nameof(Username));
+            }
+        }
+
+        private string _email;
+        public string Email
+        {
+            get => _originalUser.Email;
+            set
+            {
+                _email = value;
+                OnPropertyChanged(nameof(Email));
+            }
+        }
+
+        private string _salesRepId;
+        public string? SalesRepId
+        {
+            get => _originalUser.SalesRepId;
+            set
+            {
+                _salesRepId = value;
+                OnPropertyChanged(nameof(SalesRepId));
+            }
+        }
+
+        private string _phonenumber;
+        public string Phonenumber
+        {
+            get => _originalUser.Phonenumber;
+            set
+            {
+                _phonenumber = value;
+                OnPropertyChanged(nameof(Phonenumber));
+            }
+        }
+
+        private string _userType;
+        public string UserType
+        {
+            get => _originalUser.UserType;
+            set
+            {
+                _userType = value;
+                OnPropertyChanged(nameof(UserType));
+            }
+        }
+
+        private bool _isActive;
+        public bool IsActive
+        {
+            get => _originalUser.IsActive;
+            set
+            {
+                _originalUser.IsActive = value;
+                _isActive = value;
+                OnPropertyChanged(nameof(IsActive));
+            }
+        }
+
+        private string _imagePath;
+        public string ImagePath
+        {
+            get => _originalUser.ImagePath;
+            set
+            {
+                _imagePath = value;
+                OnPropertyChanged(nameof(ImagePath));
+            }
+        }
+
+        private DateTime _dateOfCreation;
+        public DateTime DateOfCreation
+        {
+            get => _originalUser.DateOfCreation;
+            set
+            {
+                _dateOfCreation = value;
+                OnPropertyChanged(nameof(DateOfCreation));
+            }
+        }
+
+        private int _farmsCount;
+        public int FarmsCount
+        {
+            get => _originalUser.FarmsCount;
+            set
+            {
+                _farmsCount = value;
+                OnPropertyChanged(nameof(FarmsCount));
+            }
+        }
+
+        // INotifyPropertyChanged implementation
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public record UserTypeOption(string Display, string Value);
     public record StatusOption(string Display, bool? Value);
 }

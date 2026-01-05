@@ -6,6 +6,81 @@
       Background="{StaticResource PageBgBrush}"
       Loaded="Page_Loaded">
 
+    <Page.Resources>
+
+        <!-- ===== Glow (needed for old table frame) ===== -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="16"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+
+        <!-- ===== Old Table Frame (our design) ===== -->
+        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <!-- ================= DataGrid Styles (our reference) ================= -->
+
+        <Style x:Key="NiceDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="RowHeight" Value="48"/>
+            <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFF6F6F6"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#FF1F2937"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="NiceDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFE5E7EB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#FFCBD5E1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="CenteredTextColumnElementStyle" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+    </Page.Resources>
+
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,22 +88,34 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ================= Header ================= -->
-        <StackPanel Grid.Row="0"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,0,0,20">
+        <!-- ================= Header (Reference Layout) ================= -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <TextBlock Text="إدارة الفواتير"
+            <TextBlock Grid.Column="0"
+                       Text="إدارة الفواتير"
                        FontSize="26"
                        FontWeight="Bold"
-                       Foreground="{StaticResource TextDarkBrush}"
-                       VerticalAlignment="Center"/>
-        </StackPanel>
+                       Foreground="#FF1F2937"
+                       VerticalAlignment="Center"
+                       Margin="0,0,14,0"/>
 
-        <!-- ================= Filters ================= -->
+            <Border Grid.Column="1" Opacity="0"/>
+
+            <Button Grid.Column="2"
+                    Content="بحث"
+                    Width="120"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Command="{Binding LoadInvoicesCommand}"/>
+        </Grid>
+
+        <!-- ================= Filters (Our Frame) ================= -->
         <Border Grid.Row="1"
-                Style="{StaticResource CardStyle}"
+                Style="{StaticResource GlowingTableOuterBorder}"
                 Margin="0,0,0,20">
 
             <Grid>
@@ -60,14 +147,12 @@
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
                             <ComboBox SelectedItem="{Binding InvoiceType}">
-                                <!-- القيم الفعلية -->
                                 <sys:String>الكل</sys:String>
                                 <sys:String>فواتير العملاء</sys:String>
                                 <sys:String>فواتير العمولات</sys:String>
                                 <sys:String>فواتير الموردين</sys:String>
                                 <sys:String>فواتير المرتجعات</sys:String>
                             </ComboBox>
-
                         </Border>
                     </Border>
                 </StackPanel>
@@ -127,117 +212,62 @@
             </Grid>
         </Border>
 
-        <!-- 🔎 زر البحث -->
-        <Button Grid.Row="1"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Margin="0,0,0,24"
-                Content="بحث"
-                Width="120"
-                Style="{StaticResource DarkButtonStyle}"
-                Command="{Binding LoadInvoicesCommand}"/>
+        <!-- ================= Table (Our Frame + Our DataGrid style) ================= -->
+        <Border Grid.Row="2"
+                Style="{StaticResource GlowingTableOuterBorder}">
 
-        <!-- ================= Table ================= -->
-        <Border Grid.Row="2" Style="{StaticResource CardStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- ✅ أضف MouseDoubleClick هنا -->
                 <DataGrid Grid.Row="0"
                           ItemsSource="{Binding Invoices}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
                           HeadersVisibility="Column"
                           ColumnWidth="*"
-                          GridLinesVisibility="None"
                           CanUserResizeColumns="False"
-                          RowHeight="42"
-                          Style="{StaticResource ProDataGridStyle}"
-                          ColumnHeaderStyle="{StaticResource ProDataGridHeaderStyle}"
-                          RowStyle="{StaticResource ProDataGridRowStyle}"
-                          CellStyle="{StaticResource ProDataGridCellStyle}"
-                          MouseDoubleClick="InvoicesGrid_DoubleClick">
+                          MouseDoubleClick="InvoicesGrid_DoubleClick"
+                          Style="{StaticResource NiceDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
+                          RowStyle="{StaticResource NiceDataGridRowStyle}"
+                          CellStyle="{StaticResource NiceDataGridCellStyle}">
 
                     <DataGrid.Columns>
-
-                        <!-- النوع -->
-                        <DataGridTextColumn Header="النوع"
-                            Binding="{Binding Type}"
-                            Width="*">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="TextAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-
-                        <!-- المستلم -->
                         <DataGridTextColumn Header="المستلم"
-                            Binding="{Binding RecipientName}"
-                            Width="*">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="TextAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
+                                            Binding="{Binding RecipientName}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
-                        <!-- الإجمالي -->
-                        <DataGridTextColumn Header="الإجمالي"
-                            Binding="{Binding Amount, StringFormat=N2}"
-                            Width="*">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="TextAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-
-                        <!-- المدفوع -->
+                        <DataGridTextColumn Header="النوع"
+                                            Binding="{Binding Type}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+                        
                         <DataGridTextColumn Header="المدفوع"
-                            Binding="{Binding PaidAmount, StringFormat=N2}"
-                            Width="*">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="TextAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
+                                            Binding="{Binding PaidAmount, StringFormat=N2}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
-                        <!-- المتبقي -->
                         <DataGridTextColumn Header="المتبقي"
-                            Binding="{Binding RemainingAmount, StringFormat=N2}"
-                            Width="*">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="TextAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-
-                        <!-- التاريخ -->
+                                            Binding="{Binding RemainingAmount, StringFormat=N2}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+                        
+                        <DataGridTextColumn Header="الإجمالي"
+                                            Binding="{Binding Amount, StringFormat=N2}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+                        
                         <DataGridTextColumn Header="التاريخ"
-                            Binding="{Binding GeneratedDate, StringFormat=yyyy-MM-dd}"
-                            Width="*">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="TextAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
+                                            Binding="{Binding GeneratedDate, StringFormat=yyyy-MM-dd}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
                     </DataGrid.Columns>
                 </DataGrid>
-
 
                 <!-- Pagination -->
                 <StackPanel Grid.Row="1"
@@ -259,5 +289,6 @@
                 </StackPanel>
             </Grid>
         </Border>
+
     </Grid>
 </Page>

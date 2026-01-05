@@ -32,6 +32,11 @@ namespace erp.Views.Users
             Loaded -= Page_Loaded;
             Unloaded -= Page_Unloaded;
         }
+        private void OnBack()
+        {
+            NavigationService.GoBack();
+        }
+
     }
 
 }

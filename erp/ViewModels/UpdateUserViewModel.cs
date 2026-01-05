@@ -1,7 +1,11 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using erp.DTOS;
 using erp.Services;
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -21,6 +25,8 @@ namespace erp.ViewModels
             _userId = userId;
             _userService = App.Users;
 
+            InitializeUserTypes();
+
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
             CancelCommand = new RelayCommand(Cancel);
 
@@ -28,7 +34,6 @@ namespace erp.ViewModels
         }
 
         // ================= PROPERTIES =================
-
         private string _fullname;
         public string Fullname
         {
@@ -59,14 +64,10 @@ namespace erp.ViewModels
             }
         }
 
-        public ObservableCollection<string> UserTypes { get; } = new()
-        {
-            "SystemAdmin", "User", "Customer", "SalesRep",
-            "StoreManager", "Supplier", "Accountant"
-        };
+        public ObservableCollection<UserTypeOption> UserTypes { get; private set; }
 
-        private string _selectedUserType;
-        public string SelectedUserType
+        private UserTypeOption _selectedUserType;
+        public UserTypeOption SelectedUserType
         {
             get => _selectedUserType;
             set => SetProperty(ref _selectedUserType, value);
@@ -100,11 +101,23 @@ namespace erp.ViewModels
         }
 
         // ================= COMMANDS =================
-
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        // ================= LOGIC =================
+        // ================= INITIALIZATION =================
+        private void InitializeUserTypes()
+        {
+            UserTypes = new ObservableCollection<UserTypeOption>
+            {
+                new UserTypeOption("مدير النظام", "SystemAdmin"),
+                new UserTypeOption("مستخدم", "User"),
+                new UserTypeOption("عميل", "Customer"),
+                new UserTypeOption("مندوب مبيعات", "SalesRep"),
+                new UserTypeOption("مدير مخزن", "StoreManager"),
+                new UserTypeOption("مورد", "Supplier"),
+                new UserTypeOption("محاسب", "Accountant")
+            };
+        }
 
         private async void LoadUserAsync()
         {
@@ -120,16 +133,25 @@ namespace erp.ViewModels
                 return;
             }
 
+       
+
             Fullname = _user.Fullname;
-            SelectedUserType = _user.UserType;
             IsActive = _user.IsActive;
             ImagePath = _user.ImagePath;
+
+            // تعيين نوع المستخدم مع تجاهل الكيس والمسافات
+            var userTypeOption = UserTypes
+                .FirstOrDefault(x => string.Equals(x.Value?.Trim(), _user.UserType?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            SelectedUserType = userTypeOption ?? UserTypes.FirstOrDefault();
 
             IsLoading = false;
         }
 
         private bool CanSave()
-            => !string.IsNullOrWhiteSpace(Fullname) && !IsLoading;
+            => !string.IsNullOrWhiteSpace(Fullname) &&
+               SelectedUserType != null &&
+               !IsLoading;
 
         private async Task SaveAsync()
         {
@@ -138,7 +160,7 @@ namespace erp.ViewModels
             var dto = new UserUpdateDto
             {
                 Fullname = Fullname,
-                UserType = SelectedUserType,
+                UserType = SelectedUserType?.Value,
                 IsActive = IsActive,
                 ImagePath = ImagePath
             };
@@ -146,7 +168,6 @@ namespace erp.ViewModels
             try
             {
                 var result = await _userService.UpdateUserAsync(_userId, dto);
-
                 IsLoading = false;
 
                 if (result != null)
@@ -157,54 +178,14 @@ namespace erp.ViewModels
                 }
                 else
                 {
-                    // عرض رسالة فشل عامة
                     MessageBox.Show("فشل تحديث المستخدم",
                         "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            catch (HttpRequestException ex)
-            {
-                IsLoading = false;
-
-                // هنا هنعالج الـ error
-                var msg = ex.Message ?? "";
-
-                var jsonStart = msg.IndexOf('{');
-                if (jsonStart >= 0)
-                {
-                    var json = msg.Substring(jsonStart);
-
-                    try
-                    {
-                        using var doc = JsonDocument.Parse(json);
-                        var root = doc.RootElement;
-
-                        var statusCode = root.TryGetProperty("statusCode", out var sc) ? sc.GetInt32() : 0;
-                        var apiMessage = root.TryGetProperty("message", out var m) ? (m.GetString() ?? "") : "";
-
-                        if (statusCode == 500 &&
-                            apiMessage.Contains("saving the entity changes", StringComparison.OrdinalIgnoreCase))
-                        {
-                            MessageBox.Show("الاسم أو البريد الإلكتروني مستخدم قبل كده ❌", "بيانات مكررة",
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
-                            return;
-                        }
-                    }
-                    catch
-                    {
-                        // لو الـ JSON مش قابل للقراءة، هنكمل ونعرض رسالة خطأ عامة
-                    }
-                }
-
-                // رسالة عامة لأي خطأ تاني
-                MessageBox.Show("فشل تحديث المستخدم. تأكد من البيانات وحاول مرة أخرى.", "خطأ",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
             catch (Exception ex)
             {
                 IsLoading = false;
-                MessageBox.Show(ex.Message, "خطأ",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -212,5 +193,20 @@ namespace erp.ViewModels
         {
             NavigationService.NavigateToUsers();
         }
+        public class UserTypeOption
+        {
+            public string Text { get; set; }   // النص العربي
+            public string Value { get; set; }  // القيمة الإنجليزية
+
+            public UserTypeOption(string text, string value)
+            {
+                Text = text;
+                Value = value;
+            }
+
+            // اختياري: لو عايز ToString يرجع النص العربي مباشرة
+            public override string ToString() => Text;
+        }
+
     }
 }

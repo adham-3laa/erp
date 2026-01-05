@@ -128,7 +128,7 @@
                                FontWeight="SemiBold"
                                Foreground="#111827"
                                HorizontalAlignment="Center"
-                               Margin="0,8,0,0"/>
+                               Margin="0,0,0,0"/>
                     <TextBlock Text="عرض وتعديل بيانات حسابك"
                                FontSize="14"
                                Foreground="#6B7280"
@@ -210,21 +210,7 @@
                                 </Border>
 
                                 <!-- Farms Count Badge -->
-                                <Border Background="#10B981"
-                                        Padding="8,4"
-                                        CornerRadius="8">
-                                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="Farm"
-                                                                 Width="14"
-                                                                 Height="14"
-                                                                 Foreground="White"
-                                                                 Margin="0,0,4,0"/>
-                                        <TextBlock Text="{Binding CurrentUser.FarmsCount, StringFormat='{}{0} مزرعة'}"
-                                                   Foreground="White"
-                                                   FontWeight="Medium"
-                                                   FontSize="12"/>
-                                    </StackPanel>
-                                </Border>
+                                
                             </WrapPanel>
                         </StackPanel>
 
@@ -374,7 +360,7 @@
                                     <materialDesign:PackIcon Kind="AccountEdit"
                                                              Width="20"
                                                              Height="20"
-                                                             Margin="0,0,8,0"/>
+                                                             Margin="0,0,0,0"/>
                                     <TextBlock Text="تعديل الملف الشخصي"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>

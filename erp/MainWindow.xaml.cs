@@ -2,7 +2,7 @@ using EduGate.Views.Inventory;
 using erp.Services;
 using erp.ViewModels.Returns;
 using erp.Views.Category;
-using erp.Views.Dashboard;     // ✅ NEW
+using erp.Views.Dashboard;
 using erp.Views.Expenses;
 using erp.Views.Invoices;
 using erp.Views.Payments;
@@ -11,8 +11,6 @@ using erp.Views.Users;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-
-
 
 namespace erp
 {
@@ -29,13 +27,21 @@ namespace erp
         {
             InitializeComponent();
 
+            // ✅ مهم جدًا مع WindowStyle=None + AllowsTransparency=True
+            // علشان الـ Maximized يظبط على WorkArea (بدون مشاكل Taskbar)
+            Loaded += (_, __) =>
+            {
+                MaxHeight = SystemParameters.WorkArea.Height;
+                MaxWidth = SystemParameters.WorkArea.Width;
+                WindowState = WindowState.Maximized;
+            };
+
             var httpClient = ApiClient.CreateHttpClient();
             _apiClient = new ApiClient(httpClient, null);
 
             erp.Services.NavigationService.Initialize(MainFrame);
             NavigateToDashboard();
         }
-
 
         // ====== Navigation Methods ======
 
@@ -94,30 +100,20 @@ namespace erp
                 case "Items":
                     MainFrame.Navigate(new CategoryListPage());
                     break;
+
                 case "Returns":
                     {
                         var returnsService = new ReturnsService(_apiClient);
 
                         var returnsVm = new ReturnsOrderItemsViewModel(returnsService);
-
                         var createReturnVm = new CreateReturnViewModel(returnsService);
 
                         MainFrame.Navigate(
                             new ReturnsOrderItemsView(returnsVm, createReturnVm)
                         );
-
                         break;
                     }
 
-
-
-
-
-
-
-
-
-                // 👇 هنا تضيف التقارير
                 case "Reports":
                     MainFrame.Navigate(new erp.Views.Reports.SalesReportPage());
                     break;
@@ -134,7 +130,6 @@ namespace erp
                     break;
             }
         }
-
 
         private static void ShowUnderDevelopment(string tag)
         {

@@ -4,27 +4,48 @@
       FlowDirection="RightToLeft"
       Background="{StaticResource PageBgBrush}">
 
-    <!-- ================= Styles ================= -->
+    <!-- ================= Styles (Reference Design) ================= -->
     <Page.Resources>
+
+        <!-- ===== Glow (needed for old table frame) ===== -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="16"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+
+        <!-- ===== Old Table Frame (same as Category reference) ===== -->
+        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
 
         <!-- DataGrid -->
         <Style x:Key="NiceDataGridStyle" TargetType="DataGrid">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="RowHeight" Value="44"/>
+            <Setter Property="RowHeight" Value="48"/>
             <Setter Property="CanUserResizeColumns" Value="False"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
             <Setter Property="AlternatingRowBackground" Value="#FFF6F6F6"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <!-- Header -->
+        <!-- ✅ Header (bigger + centered) -->
         <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="#FF1F2937"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="17"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
@@ -33,6 +54,7 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#FFE5E7EB"/>
@@ -43,46 +65,68 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Cell -->
+        <!-- ✅ Cell (always centered) -->
         <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Padding" Value="8"/>
             <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <!-- ✅ Text inside TextColumns (always centered) -->
+        <Style x:Key="CenteredTextColumnElementStyle" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
     </Page.Resources>
 
-    <!-- ================= Layout ================= -->
+    <!-- ================= Layout (Reference) ================= -->
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ================= Header ================= -->
-        <Grid>
+        <!-- ================= Header (same structure as Category) ================= -->
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="مصروفات المحاسب"
+            <!-- Title -->
+            <TextBlock Grid.Column="0"
+                       Text="مصروفات المحاسب"
                        FontSize="26"
                        FontWeight="Bold"
-                       Foreground="{StaticResource TextDarkBrush}"/>
+                       Foreground="#FF1F2937"
+                       VerticalAlignment="Center"
+                       Margin="0,0,14,0"/>
 
-            <Button Grid.Column="1"
-                    Content="رجوع"
-                    Width="120"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="Back_Click"/>
+            <!-- Center spacer -->
+            <Border Grid.Column="1" Opacity="0"/>
+
+            <!-- Button -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
+
+                <Button Content="رجوع"
+                        Width="120"
+                        Style="{StaticResource DarkButtonStyle}"
+                        Click="Back_Click"/>
+            </StackPanel>
         </Grid>
 
-        <!-- ================= Table ================= -->
+        <!-- ================= Table (old frame like reference) ================= -->
         <Border Grid.Row="1"
                 Margin="0,20,0,0"
-                Style="{StaticResource CardStyle}">
+                Style="{StaticResource GlowingTableOuterBorder}">
 
             <DataGrid ItemsSource="{Binding Expenses}"
                       AutoGenerateColumns="False"
@@ -97,19 +141,23 @@
 
                     <DataGridTextColumn Header="المبلغ"
                                         Binding="{Binding Amount, StringFormat=N2}"
-                                        Width="*"/>
+                                        Width="*"
+                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
                     <DataGridTextColumn Header="الوصف"
                                         Binding="{Binding Description}"
-                                        Width="*"/>
+                                        Width="*"
+                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
                     <DataGridTextColumn Header="تاريخ الإنشاء"
                                         Binding="{Binding CreatedAt, StringFormat=yyyy-MM-dd}"
-                                        Width="*"/>
+                                        Width="*"
+                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
                     <DataGridTextColumn Header="اسم المحاسب"
                                         Binding="{Binding AccountantName}"
-                                        Width="*"/>
+                                        Width="*"
+                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
                 </DataGrid.Columns>
             </DataGrid>
