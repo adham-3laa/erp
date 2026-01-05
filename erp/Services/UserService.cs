@@ -22,9 +22,10 @@ namespace erp.Services
         public async Task<CreateUserResponseDto> CreateUserAsync(UserPostDto userDto)
         {
             return await _api.PostAsync<CreateUserResponseDto>(
-                $"api/users/create?userType={userDto.UserType}",
-                userDto
-            );
+    "api/users/create",
+    userDto
+);
+
         }
 
         // ===================== UPDATE USER =====================
