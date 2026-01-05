@@ -119,20 +119,60 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <!-- Headline -->
                         <RowDefinition Height="Auto"/>
+                        <!-- Search + Buttons -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Error -->
                         <RowDefinition Height="*"/>
+                        <!-- Table -->
                     </Grid.RowDefinitions>
 
-                    <!-- ===== Header ===== -->
-                    <DockPanel Grid.Row="0" Margin="0,0,0,12">
-
-                        <TextBlock Text="الأصناف"
+                    <!-- ===== Headline (Centered) ===== -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="الأصــــــــــــنــــــــاف"
                                    FontSize="20"
                                    FontWeight="Bold"
                                    Foreground="Black"
-                                   DockPanel.Dock="Left"/>
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
 
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <!-- ===== Search + Buttons (Same Row) ===== -->
+                    <Grid Grid.Row="1" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <!-- RTL: Column 0 appears on the right -->
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Search (Right side) -->
+                        <StackPanel Grid.Column="0"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+
+                            <TextBlock Text="بحث بالاسم :"
+                                       VerticalAlignment="Center"
+                                       Foreground="Black"
+                                       FontWeight="ExtraBold"
+                                       Margin="20,0,10,0"/>
+
+                            <Border Style="{StaticResource GlowInputFrame}" Width="260">
+                                <Border Style="{StaticResource GlowInputInner}">
+                                    <TextBox Style="{StaticResource GlowTextBox}"
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Border>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Buttons (Left side) -->
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Margin="150,0,0,0">
+
                             <Button Style="{StaticResource DarkButtonStyle}"
                                     Content="➕ إضافة"
                                     Margin="6,0"
@@ -153,10 +193,10 @@
                                     Margin="6,0"
                                     Command="{Binding DeleteSelectedCommand}"/>
                         </StackPanel>
-                    </DockPanel>
+                    </Grid>
 
                     <!-- ===== Error ===== -->
-                    <Border Grid.Row="1"
+                    <Border Grid.Row="2"
                             Margin="0,0,0,10"
                             CornerRadius="14"
                             Background="#FFFEE2E2"
@@ -174,30 +214,30 @@
                     </Border>
 
                     <!-- ===== Table ===== -->
-                    <Border Grid.Row="2" Style="{StaticResource GlowingTableOuterBorder}">
+                    <Border Grid.Row="3" Style="{StaticResource GlowingTableOuterBorder}">
 
                         <DataGrid Style="{StaticResource ProDataGridStyle}"
                                   ColumnHeaderStyle="{StaticResource CenteredHeaderStyle}"
                                   RowStyle="{StaticResource ProDataGridRowStyle}"
                                   CellStyle="{StaticResource TopCenterGridCellStyle}"
-                                  ItemsSource="{Binding Items}"
+                                  ItemsSource="{Binding ItemsView}"
                                   SelectedItem="{Binding Selected}"
                                   HeadersVisibility="Column"
                                   GridLinesVisibility="None"
                                   Foreground="Black">
 
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="الكود"
+                                <DataGridTextColumn Header="الـــــــــــكـــــــــــود"
                                                     Binding="{Binding Id}"
                                                     Width="2*"
                                                     ElementStyle="{StaticResource TopCenterCellTextStyle}"/>
 
-                                <DataGridTextColumn Header="الاسم"
+                                <DataGridTextColumn Header="الاســــــــــــــــــــــم"
                                                     Binding="{Binding Name}"
                                                     Width="2*"
                                                     ElementStyle="{StaticResource TopCenterCellTextStyle}"/>
 
-                                <DataGridTextColumn Header="الوصف"
+                                <DataGridTextColumn Header="الـــــــــــوصـــــــــــف"
                                                     Binding="{Binding Description}"
                                                     Width="3*"
                                                     ElementStyle="{StaticResource TopCenterCellTextStyle}"/>

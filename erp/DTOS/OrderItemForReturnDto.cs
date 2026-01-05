@@ -1,19 +1,8 @@
-﻿using System.Text.Json.Serialization;
-
-public class OrderItemForReturnDto
+﻿public class OrderItemForReturnDto
 {
-    [JsonPropertyName("productid")]
-    public string ProductId { get; set; }
-
-    [JsonPropertyName("quantity")]
+    public string Productid { get; set; }
     public int Quantity { get; set; }
-
-    [JsonPropertyName("unitprice")]
-    public decimal UnitPrice { get; set; }
-
-    [JsonPropertyName("customerid")]
-    public string CustomerId { get; set; }
-
-    public int ReturnQuantity { get; set; }
-    public string Reason { get; set; }
+    public decimal Unitprice { get; set; }
+    public string Customerid { get; set; }
+    public string Productname { get; set; }
 }

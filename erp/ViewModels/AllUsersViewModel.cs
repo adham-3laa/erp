@@ -19,6 +19,8 @@ namespace erp.ViewModels
             new UserService(App.Api);
         private Timer _searchTimer;
 
+           
+
         public AllUsersViewModel()
         {
             InitializeCommands();
@@ -120,6 +122,8 @@ namespace erp.ViewModels
         public RelayCommand NextPageCommand { get; private set; }
         public RelayCommand PreviousPageCommand { get; private set; }
         public RelayCommand NavigateToCreateCommand { get; private set; }
+        public RelayCommand<UserDto> ViewUserInvoicesCommand { get; private set; }
+
 
         private void InitializeCommands()
         {
@@ -141,9 +145,10 @@ namespace erp.ViewModels
             );
 
             ViewUserCommand = new RelayCommand<string>(
-                id => ViewUserDetails(id),
-                id => !IsLoading && !string.IsNullOrEmpty(id)
-            );
+    OnViewUser,
+    id => !IsLoading && !string.IsNullOrWhiteSpace(id)
+);
+
 
             NextPageCommand = new RelayCommand(
                 () => CurrentPage++,
@@ -158,6 +163,19 @@ namespace erp.ViewModels
             NavigateToCreateCommand = new RelayCommand(
                 () => NavigationService.NavigateToCreateUser()
             );
+
+            ViewUserInvoicesCommand = new RelayCommand<UserDto>(
+                user => NavigationService.NavigateToUserInvoices(user),
+                user => user != null
+            );
+
+        }
+        private void OnViewUser(string? userId)
+        {
+            if (IsLoading || string.IsNullOrWhiteSpace(userId))
+                return;
+
+            NavigationService.NavigateToUserProfile(userId);
         }
 
         // ===================== Init =====================
@@ -170,11 +188,12 @@ namespace erp.ViewModels
             };
 
             StatusOptions = new ObservableCollection<StatusOption>
-            {
-                new("جميع الحالات", null),
-                new("نشط", true),
-                new("غير نشط", false)
-            };
+{
+    new StatusOption("جميع الحالات", null),
+    new StatusOption("نشط", true),
+    new StatusOption("غير نشط", false)
+};
+
         }
 
         // ===================== Core Logic =====================

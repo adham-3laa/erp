@@ -15,10 +15,16 @@ namespace erp.ViewModels
     public class CurrentUserViewModel : ObservableObject
     {
         private readonly UserService _userService;
+
         private CurrentUserDto _currentUser;
         private bool _isLoading;
+
         private string _errorMessage;
         private bool _hasError;
+
+        private string _successMessage;
+        private readonly string? _userId;
+
 
         public CurrentUserDto CurrentUser
         {
@@ -36,6 +42,8 @@ namespace erp.ViewModels
             }
         }
 
+        public bool HasUserData => CurrentUser != null;
+
         public bool IsLoading
         {
             get => _isLoading;
@@ -45,7 +53,11 @@ namespace erp.ViewModels
         public string ErrorMessage
         {
             get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
+            set
+            {
+                if (SetProperty(ref _errorMessage, value))
+                    OnPropertyChanged(nameof(HasError));
+            }
         }
 
         public bool HasError
@@ -54,7 +66,17 @@ namespace erp.ViewModels
             set => SetProperty(ref _hasError, value);
         }
 
-        public bool HasUserData => CurrentUser != null;
+        public string SuccessMessage
+        {
+            get => _successMessage;
+            set
+            {
+                if (SetProperty(ref _successMessage, value))
+                    OnPropertyChanged(nameof(HasSuccess));
+            }
+        }
+
+        public bool HasSuccess => !string.IsNullOrWhiteSpace(SuccessMessage);
 
         public string FormattedDate
         {
@@ -77,8 +99,7 @@ namespace erp.ViewModels
                 if (CurrentUser == null || string.IsNullOrWhiteSpace(CurrentUser.Fullname))
                     return "??";
 
-                var parts = CurrentUser.Fullname
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var parts = CurrentUser.Fullname.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 if (parts.Length >= 2)
                     return $"{parts[0][0]}{parts[1][0]}".ToUpper();
@@ -92,27 +113,25 @@ namespace erp.ViewModels
         public ICommand BackCommand { get; }
         public ICommand EditProfileCommand { get; }
         public ICommand ChangePasswordCommand { get; }
-        public ICommand RefreshCommand { get; }
 
-        public CurrentUserViewModel()
+        // ✅ صح للـ async
+        public IAsyncRelayCommand RefreshCommand { get; }
+
+        public CurrentUserViewModel(string? userId = null)
         {
+            _userId = userId;
             _userService = new UserService(App.Api);
 
             BackCommand = new RelayCommand(OnBack);
             EditProfileCommand = new RelayCommand(OnEditProfile);
             ChangePasswordCommand = new RelayCommand(OnChangePassword);
-            RefreshCommand = new RelayCommand(async () => await LoadCurrentUserAsync());
-
-            // لا تحمل البيانات هنا
+            RefreshCommand = new AsyncRelayCommand(LoadUserAsync);
         }
+
 
         private void OnBack()
         {
             Debug.WriteLine("[CurrentUser] Back button clicked");
-            // استخدم الطريقة الصحيحة للرجوع
-            // NavigationService.NavigateToUsers();
-
-            // بديل مؤقت حتى تحدد طريقة التنقل الصحيحة:
             Application.Current.MainWindow?.Focus();
         }
 
@@ -120,129 +139,109 @@ namespace erp.ViewModels
         {
             Debug.WriteLine("[CurrentUser] Edit profile button clicked");
 
-            if (CurrentUser == null || string.IsNullOrEmpty(CurrentUser.Id))
+            if (CurrentUser == null || string.IsNullOrWhiteSpace(CurrentUser.Id))
             {
-                HasError = true;
-                ErrorMessage = "تعذر تحميل بيانات المستخدم";
+                SetError("تعذر تحميل بيانات المستخدم");
                 return;
             }
 
-            // 👈 الانتقال لصفحة تحديث المستخدم
             NavigationService.NavigateToUpdateUser(CurrentUser.Id);
         }
 
-
         private void OnChangePassword()
-{
-    Debug.WriteLine("[CurrentUser] Change password button clicked");
-
-    try
-    {
-        // التحقق من وجود بيانات المستخدم
-        if (CurrentUser == null || string.IsNullOrEmpty(CurrentUser.Id))
         {
-            ErrorMessage = "تعذر تحميل بيانات المستخدم. الرجاء المحاولة مرة أخرى.";
-            return;
-        }
+            Debug.WriteLine("[CurrentUser] Change password button clicked");
 
-                // فتح نافذة تغيير كلمة المرور
+            try
+            {
+                ClearMessages();
+
+                if (CurrentUser == null || string.IsNullOrWhiteSpace(CurrentUser.Id))
+                {
+                    SetError("تعذر تحميل بيانات المستخدم. الرجاء المحاولة مرة أخرى.");
+                    return;
+                }
+
                 var changePasswordWindow = new ChangePasswordWindow(
-             CurrentUser.Id,
-             App.Session   // 👈 نفس Session المستخدم في ApiClient
-         )
+                    CurrentUser.Id,
+                    App.Session
+                )
                 {
                     Owner = Application.Current.MainWindow,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 };
 
-                changePasswordWindow.ShowDialog();
-
+                // ✅ مرة واحدة بس
                 var result = changePasswordWindow.ShowDialog();
 
-        if (result == true)
-        {
-            // تم تغيير كلمة المرور بنجاح
-            Debug.WriteLine("[CurrentUser] تم تغيير كلمة المرور بنجاح");
-            
-            // يمكنك إضافة رسالة نجاح هنا إذا أردت
-            // SuccessMessage = "تم تغيير كلمة المرور بنجاح!";
-        }
-        else if (result == false)
-        {
-            Debug.WriteLine("[CurrentUser] ألغى المستخدم العملية");
-        }
-    }
-    catch (Exception ex)
-    {
-        Debug.WriteLine($"[CurrentUser] خطأ في فتح نافذة تغيير كلمة المرور: {ex.Message}");
-        ErrorMessage = $"حدث خطأ: {ex.Message}";
-    }
-}
-        // إضافة خاصية جديدة
-        private string _successMessage;
-        public string SuccessMessage
-        {
-            get => _successMessage;
-            set => SetProperty(ref _successMessage, value);
-        }
-        public bool HasSuccess => !string.IsNullOrEmpty(SuccessMessage);
-
-        public async Task LoadCurrentUserAsync()
-        {
-            try
-            {
-                // إعادة تعيين حالة الخطأ
-                HasError = false;
-                ErrorMessage = string.Empty;
-
-                // بدء التحميل
-                IsLoading = true;
-                Debug.WriteLine($"[CurrentUser] [{DateTime.Now:HH:mm:ss}] بدء تحميل بيانات المستخدم...");
-
-                var response = await _userService.GetCurrentUserAsync();
-
-                if (response != null)
+                if (result == true)
                 {
-                    Debug.WriteLine($"[CurrentUser] [{DateTime.Now:HH:mm:ss}] تم استلام الاستجابة:");
-                    Debug.WriteLine($"  - الاسم: {response.Fullname}");
-                    Debug.WriteLine($"  - البريد: {response.Email}");
-                    Debug.WriteLine($"  - النوع: {response.UserType}");
-                    Debug.WriteLine($"  - الحالة: {(response.IsActive ? "نشط" : "غير نشط")}");
-                    Debug.WriteLine($"  - عدد المزارع: {response.FarmsCount}");
-
-                    CurrentUser = response;
-                    Debug.WriteLine($"[CurrentUser] [{DateTime.Now:HH:mm:ss}] تم تعيين بيانات المستخدم في ViewModel");
+                    Debug.WriteLine("[CurrentUser] تم تغيير كلمة المرور بنجاح");
+                    SuccessMessage = "تم تغيير كلمة المرور بنجاح ✅";
                 }
                 else
                 {
-                    Debug.WriteLine($"[CurrentUser] [{DateTime.Now:HH:mm:ss}] فشل: الاستجابة فارغة");
-
-                    HasError = true;
-                    ErrorMessage = "لم يتم العثور على بيانات المستخدم. الرجاء المحاولة مرة أخرى.";
-
-                    MessageBox.Show("تعذر تحميل بيانات المستخدم. يرجى التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى.",
-                        "خطأ في التحميل", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    Debug.WriteLine("[CurrentUser] المستخدم أغلق النافذة أو ألغى العملية");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[CurrentUser] [{DateTime.Now:HH:mm:ss}] حدث خطأ:");
-                Debug.WriteLine($"  - الرسالة: {ex.Message}");
-                Debug.WriteLine($"  - Stack Trace: {ex.StackTrace}");
+                Debug.WriteLine($"[CurrentUser] خطأ في فتح نافذة تغيير كلمة المرور: {ex.Message}");
+                SetError($"حدث خطأ: {ex.Message}");
+            }
+        }
 
+        public async Task LoadUserAsync()
+        {
+            try
+            {
+                HasError = false;
+                ErrorMessage = string.Empty;
+                IsLoading = true;
+
+                CurrentUserDto? response;
+
+                // ✅ لو الصفحة اتفتحت بـ id → هات المستخدم ده
+                if (!string.IsNullOrWhiteSpace(_userId))
+                    response = await _userService.GetUserDetailsByIdAsync(_userId);
+                else
+                    response = await _userService.GetCurrentUserAsync();
+
+                if (response != null)
+                {
+                    CurrentUser = response;
+                }
+                else
+                {
+                    HasError = true;
+                    ErrorMessage = "لم يتم العثور على بيانات المستخدم.";
+                }
+            }
+            catch (Exception ex)
+            {
                 HasError = true;
                 ErrorMessage = $"حدث خطأ: {ex.Message}";
-
-                Debug.WriteLine($"[CurrentUser] عرض رسالة الخطأ للمستخدم");
-                MessageBox.Show($"حدث خطأ أثناء تحميل بيانات المستخدم:\n{ex.Message}",
-                    "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 IsLoading = false;
-                Debug.WriteLine($"[CurrentUser] [{DateTime.Now:HH:mm:ss}] انتهى التحميل. IsLoading = false");
             }
         }
 
+
+        // ===================== Helpers =====================
+        private void ClearMessages()
+        {
+            HasError = false;
+            ErrorMessage = string.Empty;
+
+            SuccessMessage = string.Empty;
+        }
+
+        private void SetError(string message)
+        {
+            HasError = true;
+            ErrorMessage = message;
+        }
     }
 }

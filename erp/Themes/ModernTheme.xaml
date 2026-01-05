@@ -19,8 +19,31 @@
     <Color x:Key="TextMuted">#6B7280</Color>
     <!-- Colors -->
     <Color x:Key="PrimaryPressed">#0F172A</Color>
+    <!-- ====== Gold (Logo/Text) ====== -->
+    <Color x:Key="GoldDark">#BF9C76</Color>
+    <Color x:Key="GoldMid">#DCBD91</Color>
+    <Color x:Key="GoldLight">#F2DDB8</Color>
+    <Color x:Key="GoldTop">#FFFDED</Color>
 
     <!-- ====== Brushes ====== -->
+    <!-- Gold Solid -->
+    <SolidColorBrush x:Key="GoldBrushSolid" Color="{StaticResource GoldMid}"/>
+
+    <!-- Gold Gradient (زي اللوجو) -->
+    <LinearGradientBrush x:Key="GoldBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource GoldDark}" Offset="0.00"/>
+        <GradientStop Color="{StaticResource GoldMid}"  Offset="0.45"/>
+        <GradientStop Color="{StaticResource GoldLight}" Offset="0.85"/>
+        <GradientStop Color="{StaticResource GoldTop}"  Offset="1.00"/>
+    </LinearGradientBrush>
+
+    <!-- Shadow خفيف للنص (اختياري) -->
+    <DropShadowEffect x:Key="GoldTextShadow"
+                  Color="#66000000"
+                  BlurRadius="8"
+                  ShadowDepth="2"
+                  Opacity="0.6"/>
+
     <SolidColorBrush x:Key="PageBgBrush" Color="{StaticResource PageBg}"/>
     <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardBg}"/>
     <SolidColorBrush x:Key="SoftBorderBrush" Color="{StaticResource SoftBorder}"/>
@@ -135,7 +158,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bd"
-                        CornerRadius="16"
+                        CornerRadius="18"
                         Background="{TemplateBinding Background}">
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.14"/>

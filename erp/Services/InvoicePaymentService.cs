@@ -22,7 +22,7 @@ namespace erp.Services
 
             _client = new HttpClient(handler)
             {
-                BaseAddress = new Uri("https://be-positive.runasp.net/")
+                BaseAddress = new Uri("http://be-positive.runasp.net/")
             };
 
             if (!string.IsNullOrEmpty(TokenStore.Token))
@@ -34,48 +34,37 @@ namespace erp.Services
 
         // ================= Payed Amount From Customer / Supplier =================
         public async Task<PaidAmountResponseDto> PayedAmountFromCustomerByOrderID(
-            string targetType,   // Customer | SalesRep | Supplier
-            string orderId,
-            decimal paidAmount)
+    string targetType,   // Customer | SalesRep
+    string orderId,
+    decimal paidAmount)
         {
-            var body = new
+            if (paidAmount <= 0)
+                throw new ArgumentException("Paid amount must be greater than zero");
+
+            var url =
+                $"api/Invoices/PayedAmountFromCustomerByOrderId" +
+                $"?customerOrSalesRep={targetType}" +
+                $"&orderId={orderId}" +
+                $"&PayiedAmount={paidAmount}";
+
+            var response = await _client.PutAsync(url, null);
+
+            if (!response.IsSuccessStatusCode)
             {
-                targetType,   // عميل / مندوب / مورد
-                orderId,
-                paidAmount
-            };
-
-            var content = new StringContent(
-                JsonSerializer.Serialize(body),
-                Encoding.UTF8,
-                "application/json"
-            );
-
-            var response = await _client.PostAsync(
-                "api/Invoices/PayedAmountFromCustomerByOrderID",
-                content);
-
-            response.EnsureSuccessStatusCode();
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
+            }
 
             var json = await response.Content.ReadAsStringAsync();
 
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            return new PaidAmountResponseDto
-            {
-                PaidAmount = root.GetProperty("paidamount").GetDecimal(),
-                RemainingAmount = root.GetProperty("remainingamount").GetDecimal(),
-                CustomerName = root.TryGetProperty("customername", out var c)
-                                ? c.GetString()
-                                : null,
-                SupplierName = root.TryGetProperty("suppliername", out var s)
-                                ? s.GetString()
-                                : null,
-                SalesRepName = root.TryGetProperty("salesrepname", out var r)
-                                ? r.GetString()
-                                : null
-            };
+            return JsonSerializer.Deserialize<PaidAmountResponseDto>(
+                json,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
         }
+
     }
 }

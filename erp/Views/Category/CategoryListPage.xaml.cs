@@ -29,7 +29,7 @@ public partial class CategoryListPage : Page
 
         if (listVm.Selected == null)
         {
-            MessageBox.Show("اختار صنف الأول.", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("اختار صنف الأول", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 

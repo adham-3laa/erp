@@ -2,9 +2,11 @@
 using erp.DTOs;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using erp.Services.Category;
 
 namespace erp.ViewModels.CategoryView;
@@ -15,6 +17,33 @@ public sealed class CategoryListViewModel : BaseViewModel
     private CancellationTokenSource? _cts;
 
     public ObservableCollection<CategoryDto> Items { get; } = new();
+
+    // ✅ NEW: CollectionView for filtering
+    private readonly ICollectionView _itemsView;
+    public ICollectionView ItemsView => _itemsView;
+
+    private string _searchText = "";
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (Set(ref _searchText, value))
+                _itemsView.Refresh();
+        }
+    }
+
+    private bool FilterItems(object obj)
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+            return true;
+
+        if (obj is not CategoryDto c)
+            return false;
+
+        return (c.Name ?? string.Empty)
+            .IndexOf(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase) >= 0;
+    }
 
     private CategoryDto? _selected;
     public CategoryDto? Selected
@@ -51,7 +80,7 @@ public sealed class CategoryListViewModel : BaseViewModel
     public AsyncRelayCommand RefreshCommand { get; }
     public AsyncRelayCommand DeleteSelectedCommand { get; }
 
-    // ✅ NEW: parameterless ctor عشان XAML يقدر ينشئ الـ VM
+    // ✅ Parameterless ctor for XAML
     public CategoryListViewModel() : this(App.Categories)
     {
     }
@@ -59,6 +88,10 @@ public sealed class CategoryListViewModel : BaseViewModel
     public CategoryListViewModel(CategoryService categoryService)
     {
         _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+
+        // ✅ NEW: hook filtering without touching API logic
+        _itemsView = CollectionViewSource.GetDefaultView(Items);
+        _itemsView.Filter = FilterItems;
 
         RefreshCommand = new AsyncRelayCommand(RefreshAsync, () => !IsBusy);
         DeleteSelectedCommand = new AsyncRelayCommand(DeleteSelectedAsync, () => !IsBusy && Selected != null);
@@ -78,6 +111,9 @@ public sealed class CategoryListViewModel : BaseViewModel
             Items.Clear();
             foreach (var c in list)
                 Items.Add(c);
+
+            // ✅ ensure filter re-applies after refresh
+            _itemsView.Refresh();
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -114,6 +150,9 @@ public sealed class CategoryListViewModel : BaseViewModel
 
             Items.Remove(Selected);
             Selected = null;
+
+            // ✅ keep filtered view correct after delete
+            _itemsView.Refresh();
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)

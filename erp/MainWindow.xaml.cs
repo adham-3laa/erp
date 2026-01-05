@@ -20,6 +20,10 @@ namespace erp
     {
         private readonly ApiClient _apiClient;
 
+        private void Logo_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
+        {
+            MessageBox.Show(e.ErrorException?.Message ?? "Image failed");
+        }
 
         public MainWindow()
         {
@@ -97,11 +101,18 @@ namespace erp
                 case "Returns":
                     {
                         var returnsService = new ReturnsService(_apiClient);
-                        var vm = new ReturnsOrderItemsViewModel(returnsService);
 
-                        MainFrame.Navigate(new ReturnsOrderItemsView(vm));
+                        var returnsVm = new ReturnsOrderItemsViewModel(returnsService);
+
+                        var createReturnVm = new CreateReturnViewModel(returnsService);
+
+                        MainFrame.Navigate(
+                            new ReturnsOrderItemsView(returnsVm, createReturnVm)
+                        );
+
                         break;
                     }
+
 
 
 

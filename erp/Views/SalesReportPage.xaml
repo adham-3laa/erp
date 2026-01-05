@@ -44,7 +44,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <!-- ✅ صف الكروت -->
             <RowDefinition Height="*"/>
+            <!-- ✅ صف فاضي تحت -->
         </Grid.RowDefinitions>
 
         <!-- ========== Header ========== -->
@@ -64,7 +67,7 @@
                 Background="#F3F4F6"
                 CornerRadius="16"
                 Padding="8"
-                Margin="0,0,0,24">
+                Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
 
                 <Button Content="📊 تقرير المبيعات"
@@ -89,7 +92,8 @@
                 BorderThickness="1"
                 BorderBrush="#E5E7EB"
                 Padding="20"
-                Margin="0,0,0,24">
+                Margin="0,0,0,10">
+            <!-- ✅ قللنا المسافة تحت -->
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 
@@ -117,49 +121,54 @@
             </StackPanel>
         </Border>
 
-        <!-- ========== Result Cards ========== -->
-        <Grid Grid.Row="3">
+        <!-- ========== Result Cards (قريبة وتحت بعض) ========== -->
+        <Grid Grid.Row="3" Margin="0" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Total Sales -->
             <Border Grid.Column="0"
-                    Margin="8"
-                    Padding="28"
-                    CornerRadius="20"
-                    Background="#1E1B4B">
-                <StackPanel>
+                    Margin="8,8,4,8"
+                    Padding="16"
+                    Height="90"
+                    CornerRadius="16"
+                    Background="#FF4E88D2"
+                    VerticalAlignment="Top">
+                <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="إجمالي المبيعات"
-                               Foreground="#C7D2FE"
-                               FontSize="14"/>
-                    <TextBlock Text="{Binding Report.TotalSales,
-                               StringFormat='{}{0:N0} ج.م'}"
+                               Foreground="#DBEAFE"
+                               FontSize="13"/>
+                    <TextBlock Text="{Binding Report.TotalSales, StringFormat='{}{0:N0} ج.م'}"
                                Foreground="White"
-                               FontSize="32"
+                               FontSize="22"
                                FontWeight="Bold"
-                               Margin="0,10,0,0"/>
+                               Margin="0,6,0,0"/>
                 </StackPanel>
             </Border>
 
             <!-- Total Orders -->
             <Border Grid.Column="1"
-                    Margin="8"
-                    Padding="28"
-                    CornerRadius="20"
-                    Background="#10B981">
-                <StackPanel>
+                    Margin="4,8,8,8"
+                    Padding="16"
+                    Height="90"
+                    CornerRadius="16"
+                    Background="#FF549476"
+                    VerticalAlignment="Top">
+                <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="عدد الطلبات"
                                Foreground="#D1FAE5"
-                               FontSize="14"/>
+                               FontSize="13"/>
                     <TextBlock Text="{Binding Report.TotalOrders}"
                                Foreground="White"
-                               FontSize="32"
+                               FontSize="22"
                                FontWeight="Bold"
-                               Margin="0,10,0,0"/>
+                               Margin="0,6,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
+
+        <!-- Row 4 فاضي للتمدد -->
     </Grid>
 </Page>
