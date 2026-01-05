@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace EduGate.Views.Orders
+namespace erp.Views.Orders
 {
     public partial class OrdersTopBar : UserControl
     {

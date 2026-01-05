@@ -1,6 +1,4 @@
-﻿using EduGate.Services;
-using EduGate.Models;
-using erp;
+﻿using erp.Services;
 using erp.DTOS.Orders;
 using erp.Services;
 using System;
@@ -9,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace EduGate.Views.Orders
+namespace erp.Views.Orders
 {
     public partial class CreateOrderPage : Page
     {

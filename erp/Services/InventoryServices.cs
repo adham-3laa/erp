@@ -1,4 +1,4 @@
-﻿using EduGate.Models;
+﻿using erp.ViewModels;
 using erp;
 using erp.DTOS.Inventory.Requests;
 using erp.DTOS.Inventory.Responses;
@@ -11,8 +11,9 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EduGate.Models;
 
-namespace EduGate.Services
+namespace erp.Services
 {
     public class InventoryService
     {
