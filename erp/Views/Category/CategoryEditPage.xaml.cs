@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 using erp.DTOs;
 using erp.ViewModels.CategoryView;
@@ -8,47 +9,43 @@ namespace erp.Views.Category;
 public partial class CategoryEditPage : Page
 {
     private readonly CategoryListViewModel? _listVm;
+    private bool _initialized;
 
-    // Create
+    // ✅ دي اللي بتحدد وضع الصفحة: Edit لو مش null
+    public CategoryDto? EditDto { get; set; }
+
     public CategoryEditPage(CategoryListViewModel? listVm = null)
     {
         InitializeComponent();
         _listVm = listVm;
 
-        Loaded += (_, __) =>
-        {
-            if (DataContext is CategoryEditViewModel vm)
-            {
-                vm.LoadForCreate();
+        // ✅ يمنع مشاكل الـ Designer (XDG0003)
+        if (!DesignerProperties.GetIsInDesignMode(this))
+            DataContext ??= new CategoryEditViewModel();
 
-                // ✅ subscribe once
-                vm.RequestClose -= OnRequestClose;
-                vm.RequestClose += OnRequestClose;
-            }
-        };
+        Loaded += CategoryEditPage_Loaded;
     }
 
-    // Edit
-    public CategoryEditPage(CategoryDto dto, CategoryListViewModel? listVm = null)
+    private void CategoryEditPage_Loaded(object sender, RoutedEventArgs e)
     {
-        InitializeComponent();
-        _listVm = listVm;
+        if (_initialized) return;
+        _initialized = true;
 
-        Loaded += (_, __) =>
-        {
-            if (DataContext is CategoryEditViewModel vm)
-            {
-                vm.LoadForEdit(dto);
+        if (DataContext is not CategoryEditViewModel vm) return;
 
-                vm.RequestClose -= OnRequestClose;
-                vm.RequestClose += OnRequestClose;
-            }
-        };
+        // ✅ 결정 نهائي: Edit ولا Create
+        if (EditDto != null)
+            vm.LoadForEdit(EditDto);
+        else
+            vm.LoadForCreate();
+
+        // ✅ subscribe once
+        vm.RequestClose -= OnRequestClose;
+        vm.RequestClose += OnRequestClose;
     }
 
     private async void OnRequestClose()
     {
-        // ✅ ارجع لليست واعمل Refresh
         if (_listVm != null)
             await _listVm.RefreshAsync();
 

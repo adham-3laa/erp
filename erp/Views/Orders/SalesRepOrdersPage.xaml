@@ -4,6 +4,81 @@
       xmlns:local="clr-namespace:EduGate.Views.Orders"
       Background="Transparent">
 
+    <Page.Resources>
+
+        <!-- ===== Glow (our old frame) ===== -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="16"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+
+        <!-- ===== Old Table Frame (our design) ===== -->
+        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <!-- ================= DataGrid Styles (our reference) ================= -->
+
+        <Style x:Key="NiceDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="RowHeight" Value="48"/>
+            <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFF6F6F6"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#FF1F2937"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="NiceDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFE5E7EB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#FFCBD5E1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="CenteredTextColumnElementStyle" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+    </Page.Resources>
+
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -11,13 +86,14 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- TopBar -->
-        <local:OrdersTopBar x:Name="TopBar"/>
+        <!-- TopBar (keep as-is) -->
+        <local:OrdersTopBar x:Name="TopBar"
+                            Grid.Row="0"/>
 
-        <!-- جدول الطلبات -->
+        <!-- Table (our frame) -->
         <Border Grid.Row="1"
-                Style="{StaticResource CardStyle}"
-                Padding="8">
+                Margin="0,20,0,0"
+                Style="{StaticResource GlowingTableOuterBorder}">
 
             <DataGrid x:Name="OrdersGrid"
                       AutoGenerateColumns="False"
@@ -25,12 +101,15 @@
                       CanUserAddRows="False"
                       ColumnWidth="*"
                       HeadersVisibility="Column"
-
                       SelectionUnit="CellOrRowHeader"
                       SelectionMode="Extended"
-                      ClipboardCopyMode="ExcludeHeader">
+                      ClipboardCopyMode="ExcludeHeader"
+                      Style="{StaticResource NiceDataGridStyle}"
+                      ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
+                      RowStyle="{StaticResource NiceDataGridRowStyle}"
+                      CellStyle="{StaticResource NiceDataGridCellStyle}">
 
-                <!-- كليك يمين → نسخ -->
+                <!-- Right click → copy -->
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="نسخ"
@@ -40,44 +119,42 @@
 
                 <DataGrid.Columns>
 
-                    <!-- رقم الطلب -->
-                    <DataGridTextColumn Header="رقم الطلب"
-                                        Binding="{Binding id}"
-                                        Width="2*"/>
-
-                    <!-- العميل -->
-                    <DataGridTextColumn Header="العميل (ID)"
-                                        Binding="{Binding customerid}"
-                                        Width="*"/>
-
-                    <!-- المندوب -->
-                    <DataGridTextColumn Header="المندوب (ID)"
-                                        Binding="{Binding salesrepid}"
-                                        Width="*"/>
-
-                    <!-- الإجمالي -->
-                    <DataGridTextColumn Header="الإجمالي"
-                                        Binding="{Binding TotalAmountDisplay}"
-                                        Width="*"/>
-
-                    <!-- العمولة -->
-                    <DataGridTextColumn Header="العمولة"
-                                        Binding="{Binding commissionamount}"
-                                        Width="*"/>
-
-                    <!-- الحالة -->
-                    <DataGridTextColumn Header="الحالة"
-                                        Binding="{Binding status}"
-                                        Width="*"/>
-
-                    <!-- التاريخ -->
                     <DataGridTextColumn Header="تاريخ الإنشاء"
-                                        Binding="{Binding CreatedAt}"
-                                        Width="*"/>
+                          Binding="{Binding CreatedAt}"
+                          Width="*"
+                          ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
-                    <!-- اعتماد (زر صغير) -->
-                    <DataGridTemplateColumn Header="اعتماد"
-                                            Width="50">
+                    <DataGridTextColumn Header="الإجمالي"
+                          Binding="{Binding TotalAmountDisplay}"
+                          Width="*"
+                          ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
+                    <DataGridTextColumn Header="العمولة"
+                          Binding="{Binding commissionamount}"
+                          Width="*"
+                          ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
+                    <DataGridTextColumn Header="الحالة"
+                          Binding="{Binding status}"
+                          Width="*"
+                          ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
+                    <DataGridTextColumn Header="كود المندوب"
+                          Binding="{Binding salesrepid}"
+                          Width="*"
+                          ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
+                    <DataGridTextColumn Header="كود العميل"
+                          Binding="{Binding customerid}"
+                          Width="*"
+                          ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="رقم الطلب"
+                          Binding="{Binding id}"
+                          Width="2*"
+                          ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
+                    <!-- Approve (same logic) -->
+                    <DataGridTemplateColumn Header="اعتماد" Width="70">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="✔"
@@ -98,7 +175,7 @@
             </DataGrid>
         </Border>
 
-        <!-- Pagination Placeholder -->
+        <!-- Pagination Placeholder (keep simple, same spacing) -->
         <TextBlock Grid.Row="2"
                    Text="صفحة 1"
                    HorizontalAlignment="Center"

@@ -18,7 +18,6 @@ public sealed class CategoryListViewModel : BaseViewModel
 
     public ObservableCollection<CategoryDto> Items { get; } = new();
 
-    // ✅ NEW: CollectionView for filtering
     private readonly ICollectionView _itemsView;
     public ICollectionView ItemsView => _itemsView;
 
@@ -80,16 +79,12 @@ public sealed class CategoryListViewModel : BaseViewModel
     public AsyncRelayCommand RefreshCommand { get; }
     public AsyncRelayCommand DeleteSelectedCommand { get; }
 
-    // ✅ Parameterless ctor for XAML
-    public CategoryListViewModel() : this(App.Categories)
-    {
-    }
+    public CategoryListViewModel() : this(App.Categories) { }
 
     public CategoryListViewModel(CategoryService categoryService)
     {
         _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
 
-        // ✅ NEW: hook filtering without touching API logic
         _itemsView = CollectionViewSource.GetDefaultView(Items);
         _itemsView.Filter = FilterItems;
 
@@ -112,7 +107,6 @@ public sealed class CategoryListViewModel : BaseViewModel
             foreach (var c in list)
                 Items.Add(c);
 
-            // ✅ ensure filter re-applies after refresh
             _itemsView.Refresh();
         }
         catch (OperationCanceledException) { }
@@ -151,7 +145,6 @@ public sealed class CategoryListViewModel : BaseViewModel
             Items.Remove(Selected);
             Selected = null;
 
-            // ✅ keep filtered view correct after delete
             _itemsView.Refresh();
         }
         catch (OperationCanceledException) { }

@@ -50,7 +50,7 @@ namespace erp.Printing
                                   .FontSize(16)
                                   .Bold();
 
-                        col.Item().Text($"العميل: {_user.Fullname}")
+                        col.Item().Text($"{_user.Fullname} : العميل")
                                   .FontSize(10);
                     });
                 });

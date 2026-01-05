@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -8,6 +9,7 @@ namespace erp.DTOS.InvoicesDTOS
     {
         public Guid Id { get; set; }
 
+        // CustomerInvoice | SupplierInvoice
         public string? Type { get; set; }
 
         public string? RecipientName { get; set; }
@@ -44,7 +46,11 @@ namespace erp.DTOS.InvoicesDTOS
 
         public DateTime GeneratedDate { get; set; }
 
+        // موجودة في Customer Invoice
         public Guid? OrderId { get; set; }
+
+        // ✅ جديدة – موجودة في Supplier Invoice
+        public List<InvoiceItemDto>? Items { get; set; }
 
         // ================= INotifyPropertyChanged =================
         public event PropertyChangedEventHandler? PropertyChanged;

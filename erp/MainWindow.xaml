@@ -8,7 +8,8 @@
         Background="Transparent"
         WindowStartupLocation="CenterScreen"
         AllowsTransparency="True"
-        WindowStyle="None">
+        WindowStyle="None"
+        WindowState="Maximized">
 
     <Window.Resources>
         <!-- إضافة Style بسيط للأزرار -->
@@ -102,7 +103,6 @@
                                                FontStretch="Expanded"
                                                Effect="{StaticResource GoldTextShadow}"
                                                SnapsToDevicePixels="True"/>
-                                    
 
                                     <TextBlock Text="SOFTWARE DEVELOPMENT"
                                                Margin="0"
@@ -113,7 +113,7 @@
                                                Opacity="0.95"
                                                Effect="{StaticResource GoldTextShadow}"
                                                SnapsToDevicePixels="True"/>
-                                    
+
                                     <TextBlock Text="01225360781  |  01094029794"
                                                Margin="0"
                                                Foreground="{StaticResource GoldBrush}"
@@ -126,8 +126,6 @@
                                 </StackPanel>
                             </Grid>
                         </Border>
-
-                       
 
                         <!-- Navigation List -->
                         <ListBox x:Name="NavListBox"

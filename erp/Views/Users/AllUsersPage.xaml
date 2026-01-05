@@ -58,7 +58,7 @@
                     <TextBlock Text="نوع المستخدم"
                                FontSize="12"
                                Foreground="{StaticResource TextMutedBrush}"
-                               Margin="0,0,0,4"/>
+                               Margin="115,0,0,4"/>
                     <ComboBox ItemsSource="{Binding UserTypes}"
                               DisplayMemberPath="Display"
                               SelectedValuePath="Value"
@@ -76,7 +76,7 @@
                     <TextBlock Text="الحالة"
                                FontSize="12"
                                Foreground="{StaticResource TextMutedBrush}"
-                               Margin="0,0,0,4"/>
+                               Margin="150,0,0,4"/>
                     <ComboBox ItemsSource="{Binding StatusOptions}"
                               DisplayMemberPath="Display"
                               SelectedValuePath="Value"
@@ -396,5 +396,67 @@
         </Border>
 
         <!-- Pagination -->
+
+        <Border Grid.Row="3" 
+                Background="{StaticResource CardBrush}"
+                CornerRadius="14"
+                BorderThickness="1"
+                BorderBrush="{StaticResource SoftBorderBrush}"
+                Padding="5"
+                Margin="16,0,16,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Page Info -->
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="الصفحة {0} من {1}">
+                            <Binding Path="CurrentPage"/>
+                            <Binding Path="TotalPages"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+
+                <!-- Pagination Controls -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Command="{Binding PreviousPageCommand}"
+                            IsEnabled="{Binding HasPreviousPage}"
+                            Margin="0,0,4,0"
+                            Background="Transparent"
+                            BorderThickness="0">
+                        <materialDesign:PackIcon Kind="ChevronRight"/>
+                    </Button>
+
+                    <Button Command="{Binding NextPageCommand}"
+                            IsEnabled="{Binding HasNextPage}"
+                            Margin="4,0,0,0"
+                            Background="Transparent"
+                            BorderThickness="0">
+                        <materialDesign:PackIcon Kind="ChevronLeft"/>
+                    </Button>
+                </StackPanel>
+
+                <!-- Items Per Page -->
+                <ComboBox Grid.Column="2"
+                          SelectedIndex="1"
+                          HorizontalAlignment="Right"
+                          Width="120"
+                          Height="25"
+                          FontSize="14"
+                          Padding="4"
+                          BorderThickness="1"
+                          BorderBrush="{StaticResource SoftBorderBrush}"
+                          Background="White">
+                    <ComboBoxItem Content="10 عناصر"/>
+                    <ComboBoxItem Content="20 عناصر"/>
+                    <ComboBoxItem Content="50 عناصر"/>
+                    <ComboBoxItem Content="100 عنصر"/>
+                </ComboBox>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>
