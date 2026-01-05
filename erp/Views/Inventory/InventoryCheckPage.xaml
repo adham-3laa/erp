@@ -56,6 +56,7 @@
                             DockPanel.Dock="Left"
                             Style="{StaticResource DarkButtonStyle}"
                             Click="Back_Click"/>
+
             <!-- Right: section label/title -->
             <TextBlock Grid.Column="0"
                        Text="جرد المخزون"
@@ -67,6 +68,7 @@
 
             <!-- Center spacer -->
             <Border Grid.Column="1" Opacity="0"/>
+
 
             <!-- Left: back button -->
             <Button Grid.Column="2"
@@ -93,11 +95,13 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
 
+
             <Border Style="{StaticResource InnerCardContainer}"
                     Width="620"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Margin="0">
+
 
                 <!-- Update Stock Choice -->
                 <TextBlock Text="هل تريد تحديث الكمية في المخزون؟"
@@ -123,6 +127,7 @@
 
                 <StackPanel>
 
+
                     <!-- Product ID -->
                     <TextBlock Text="كود المنتج"
                                FontSize="14"
@@ -130,11 +135,13 @@
                                Foreground="{StaticResource TextMutedBrush}"
                                Margin="0,0,0,6"/>
 
+
                     <StackPanel>
                         <TextBlock x:Name="ResultTitleText"
                                    FontSize="18"
                                    FontWeight="Bold"
                                    Margin="0,0,0,10"/>
+
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
                             <TextBox x:Name="ProductIdTextBox"
@@ -152,7 +159,6 @@
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextMutedBrush}"
                                Margin="0,20,0,6"/>
-
                     <Border Style="{StaticResource GlowInputFrame}">
                         <Border Style="{StaticResource GlowInputInner}">
                             <TextBox x:Name="ActualQuantityTextBox"

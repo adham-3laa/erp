@@ -72,12 +72,17 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
 
+            <Border Style="{StaticResource InnerCardContainer}">
+                <StackPanel>
+
             <Border Style="{StaticResource InnerCardContainer}"
                     Width="620"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
 
+
                 <StackPanel>
+
 
                     <!-- اسم العميل -->
                     <TextBlock Text="اسم العميل"/>
@@ -124,6 +129,7 @@
                             Width="160"
                             Click="ConfirmOrder_Click"/>
                 </StackPanel>
+=======
                     <!-- كود العميل -->
                     <TextBlock Text="كود العميل"
                                FontSize="14"
@@ -195,7 +201,6 @@
                     </StackPanel>
 
                 </StackPanel>
-
 
             </Border>
         </Border>

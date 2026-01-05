@@ -148,16 +148,15 @@
                                Grid.Row="0"/>
 
         <!-- ================= Error + Search ================= -->
-        <!--<StackPanel Grid.Row="1"
+        <StackPanel Grid.Row="1"
                     Orientation="Vertical"
-                    Margin="0,10">-->
+                    Margin="0,10">
 
             <TextBlock x:Name="ErrorTextBlock"
                        Foreground="Red"
                        FontSize="14"
                        Visibility="Collapsed"
                        Margin="0,0,0,10"/>
-
         <!-- ✅ TopBar (موجود عشان الكود بيستخدم InventoryTopBarControl) -->
         <local:InventoryTopBar x:Name="InventoryTopBarControl"
                                Grid.Row="0"/>
@@ -229,6 +228,7 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
+
                         </Grid>
                     </Border>
                 </Border>
@@ -246,9 +246,17 @@
             </StackPanel>
         </Grid>
 
+        <!-- ================= Table (Old Frame) ================= -->
+        <Border Grid.Row="2"
+                Margin="0,20,0,0"
+                Style="{StaticResource GlowingTableOuterBorder}">
+
+
         <!-- ================= DataGrid ================= -->
         <Border Grid.Row="2"
                 Style="{StaticResource CardStyle}">
+
+
 
             <DataGrid x:Name="ProductsDataGrid"
                       AutoGenerateColumns="False"
@@ -261,6 +269,7 @@
                       CellStyle="{StaticResource NiceDataGridCellStyle}">
 
                 <DataGrid.Columns>
+
 
                     <!-- productid -->
                     <DataGridTextColumn Header="ID"
@@ -298,20 +307,10 @@
                                         Width="150"/>
 
                     <!-- Edit -->
-                    <DataGridTemplateColumn Header="تعديل"
+                            <DataGridTemplateColumn Header="تعديل"
                                             Width="50">
 
-                    <DataGridTextColumn Header="كود المنتج"
-                                        Binding="{Binding ProductId}"
-                                        Width="*"
-                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
-
-                    <DataGridTextColumn Header="اسم المنتج"
-                                        Binding="{Binding Name}"
-                                        Width="*"
-                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
-
-                    <DataGridTextColumn Header="سعر البيع"
+                   <DataGridTextColumn Header="سعر البيع"
                                         Binding="{Binding SalePrice}"
                                         Width="*"
                                         ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
@@ -321,9 +320,8 @@
                                         Width="*"
                                         ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
-                    <!-- Edit --><!--
-                    <DataGridTemplateColumn Header="تعديل" Width="70">-->
-
+                    <!-- Edit -->
+                    <DataGridTemplateColumn Header="تعديل" Width="70">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="✏"
@@ -339,10 +337,12 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
+                    <!-- Delete -->
+                    <DataGridTemplateColumn Header="حذف"
+                                            Width="50">
 
                     <!-- Delete (Hover => Red) -->
                     <DataGridTemplateColumn Header="حذف" Width="70">
-
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="🗑"
@@ -362,11 +362,8 @@
             </DataGrid>
         </Border>
 
-
         <!-- ================= Pagination ================= -->
-
         <!-- Pagination (Styled) -->
-
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
