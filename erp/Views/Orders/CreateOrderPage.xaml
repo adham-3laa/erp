@@ -5,6 +5,9 @@
       Background="{StaticResource PageBgBrush}"
       FlowDirection="RightToLeft">
 
+    <!-- لو الـ OrdersTopBar في نفس المشروع خلاص سيب xmlns زي ما هو.
+         لو مش ظاهر، جرّب: xmlns:local="clr-namespace:EduGate.Views.Orders;assembly=erp" -->
+
     <Page.Resources>
 
         <!-- ===== Glow (same design we agreed on) ===== -->
@@ -29,16 +32,18 @@
     <Grid Margin="24" MinWidth="720">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- TopBar -->
             <RowDefinition Height="Auto"/>
+            <!-- Header -->
             <RowDefinition Height="*"/>
+            <!-- Form -->
         </Grid.RowDefinitions>
 
-        <!-- TopBar (same as your page) -->
+        <!-- ✅ TopBar (لازم موجود عشان الكود بيستخدم OrdersTopBarControl) -->
         <local:OrdersTopBar x:Name="OrdersTopBarControl"
                             Grid.Row="0"/>
 
         <!-- ================= Header ================= -->
-        <!-- "طلبات" on the RIGHT, title centered -->
         <Grid Grid.Row="1" Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -55,13 +60,11 @@
                        HorizontalAlignment="Center"
                        TextAlignment="Center"/>
 
-            <!-- left spacer (optional) -->
             <Border Grid.Column="2" Width="1" Opacity="0"/>
         </Grid>
 
-        <!-- ================= Form (Centered + agreed design) ================= -->
+        <!-- ================= Form ================= -->
         <Border Grid.Row="2"
-                Margin="0"
                 Style="{StaticResource GlowingTableOuterBorder}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
@@ -69,8 +72,7 @@
             <Border Style="{StaticResource InnerCardContainer}"
                     Width="620"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Margin="0">
+                    VerticalAlignment="Center">
 
                 <StackPanel>
 
@@ -131,7 +133,7 @@
                         </Border>
                     </Border>
 
-                    <!-- زر الحفظ (Buttons on the LEFT) -->
+                    <!-- زر التأكيد -->
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left"
                                 Margin="0,32,0,0">

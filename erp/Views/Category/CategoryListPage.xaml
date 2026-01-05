@@ -5,9 +5,6 @@
       FlowDirection="RightToLeft"
       Background="{StaticResource PageBgBrush}">
 
-    <Page.DataContext>
-        <vm:CategoryListViewModel/>
-    </Page.DataContext>
 
     <Page.Resources>
 
