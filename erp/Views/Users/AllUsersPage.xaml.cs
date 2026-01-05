@@ -13,6 +13,11 @@ namespace erp.Views.Users
             InitializeComponent();
             DataContext = new ViewModels.AllUsersViewModel();
         }
+
+        private void UsersTopBar_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     // محول Inverse Boolean محلي

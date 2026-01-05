@@ -244,4 +244,5 @@ namespace erp.ViewModels
             ErrorMessage = message;
         }
     }
+
 }

@@ -10,7 +10,7 @@
              d:DesignHeight="600" d:DesignWidth="800">
 
     <UserControl.Resources>
-        <!-- تعريف الموارد المحلية إذا لم تكن موجودة في App.xaml -->
+        <!-- تعريف الموارد المحلية -->
         <SolidColorBrush x:Key="SuccessGreenBrush" Color="#10B981"/>
         <SolidColorBrush x:Key="ErrorRedBrush" Color="#EF4444"/>
         <SolidColorBrush x:Key="PrimaryBrush" Color="#1E1B4B"/>
@@ -24,9 +24,6 @@
         <converters:InitialsConverter x:Key="InitialsConverter"/>
         <converters:StatusTooltipConverter x:Key="StatusTooltipConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-
-        <!-- محول InverseBool بديل بسيط -->
-
         <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
     </UserControl.Resources>
 
@@ -39,7 +36,7 @@
         </Grid.RowDefinitions>
 
         <!-- استبدال Top Bar بـ UsersTopBar -->
-        <local:UsersTopBar Grid.Row="0"/>
+        <local:UsersTopBar Grid.Row="0" Loaded="UsersTopBar_Loaded"/>
 
         <!-- Filters -->
         <Border Grid.Row="1" 
@@ -56,26 +53,22 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- User Type Filter -->
+                <!-- User Type Filter - تم التعديل -->
                 <StackPanel Grid.Column="0" Margin="0,0,12,0">
                     <TextBlock Text="نوع المستخدم"
                                FontSize="12"
                                Foreground="{StaticResource TextMutedBrush}"
                                Margin="0,0,0,4"/>
                     <ComboBox ItemsSource="{Binding UserTypes}"
-                              SelectedItem="{Binding SelectedUserType}"
+                              DisplayMemberPath="Display"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding SelectedUserType}"
                               Height="38"
                               FontSize="14"
                               Padding="8"
                               BorderThickness="1"
                               BorderBrush="{StaticResource SoftBorderBrush}"
-                              Background="White">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                              Background="White"/>
                 </StackPanel>
 
                 <!-- Status Filter -->
@@ -103,15 +96,6 @@
                             Margin="8,0"
                             CornerRadius="10">
                         <TextBlock Text="{Binding TotalCount, StringFormat='إجمالي: {0}'}"
-                                   Foreground="White"
-                                   FontWeight="Medium"/>
-                    </Border>
-
-                    <Border Background="{StaticResource SuccessGreenBrush}" 
-                            Padding="12,8"
-                            Margin="8,0"
-                            CornerRadius="10">
-                        <TextBlock Text="{Binding ActiveCount, StringFormat='نشط: {0}'}"
                                    Foreground="White"
                                    FontWeight="Medium"/>
                     </Border>
@@ -173,141 +157,151 @@
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
                                             </Border>
+
                                             <!-- User Info -->
                                             <StackPanel Grid.Column="1" Margin="8,12">
-
                                                 <!-- Full Name -->
                                                 <TextBlock Text="{Binding Fullname}"
-               FontSize="16"
-               FontWeight="SemiBold"
-               Foreground="{StaticResource TextDarkBrush}"/>
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource TextDarkBrush}"/>
 
-                                                <!-- ✅ User ID (Selectable & Copyable) -->
+                                                <!-- User ID -->
                                                 <TextBox Text="{Binding Id}"
-             FontSize="11"
-             Foreground="{StaticResource TextMutedBrush}"
-             Background="Transparent"
-             BorderThickness="0"
-             IsReadOnly="True"
-             IsReadOnlyCaretVisible="False"
-             Padding="0"
-             Margin="0,2,0,4"
-             Cursor="IBeam"
-             ToolTip="اضغط واسحب لنسخ الـ ID"/>
+                                                         FontSize="11"
+                                                         Foreground="{StaticResource TextMutedBrush}"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         IsReadOnly="True"
+                                                         IsReadOnlyCaretVisible="False"
+                                                         Padding="0"
+                                                         Margin="0,2,0,4"
+                                                         Cursor="IBeam"
+                                                         ToolTip="اضغط واسحب لنسخ الـ ID"/>
 
                                                 <!-- Details -->
                                                 <WrapPanel Margin="0,4,0,0">
-                                                    <TextBlock Text="{Binding UserType}"
-                   Foreground="{StaticResource PrimaryBrush}"
-                   FontWeight="Medium"
-                   Margin="0,0,12,0"/>
+                                                    <!-- تم التعديل هنا لاستخدام DisplayUserType -->
+                                                    <TextBlock Text="{Binding DisplayUserType}"
+                                                               Foreground="{StaticResource PrimaryBrush}"
+                                                               FontWeight="Medium"
+                                                               Margin="0,0,12,0"/>
 
                                                     <materialDesign:PackIcon Kind="Email"
-                                 Width="14"
-                                 Height="14"
-                                 Foreground="{StaticResource TextMutedBrush}"
-                                 VerticalAlignment="Center"
-                                 Margin="0,0,4,0"/>
+                                                                              Width="14"
+                                                                              Height="14"
+                                                                              Foreground="{StaticResource TextMutedBrush}"
+                                                                              VerticalAlignment="Center"
+                                                                              Margin="0,0,4,0"/>
                                                     <TextBlock Text="{Binding Email}"
-                   Foreground="{StaticResource TextMutedBrush}"
-                   VerticalAlignment="Center"
-                   Margin="0,0,12,0"/>
+                                                               Foreground="{StaticResource TextMutedBrush}"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,12,0"/>
 
                                                     <materialDesign:PackIcon Kind="Phone"
-                                 Width="14"
-                                 Height="14"
-                                 Foreground="{StaticResource TextMutedBrush}"
-                                 VerticalAlignment="Center"
-                                 Margin="0,0,4,0"/>
+                                                                              Width="14"
+                                                                              Height="14"
+                                                                              Foreground="{StaticResource TextMutedBrush}"
+                                                                              VerticalAlignment="Center"
+                                                                              Margin="0,0,4,0"/>
                                                     <TextBlock Text="{Binding Phonenumber}"
-                   Foreground="{StaticResource TextMutedBrush}"
-                   VerticalAlignment="Center"/>
+                                                               Foreground="{StaticResource TextMutedBrush}"
+                                                               VerticalAlignment="Center"/>
                                                 </WrapPanel>
 
                                                 <TextBlock Text="{Binding DateOfCreation, StringFormat='تاريخ التسجيل: {0:yyyy-MM-dd}'}"
-               FontSize="12"
-               Foreground="{StaticResource TextMutedBrush}"
-               Margin="0,4,0,0"/>
+                                                           FontSize="12"
+                                                           Foreground="{StaticResource TextMutedBrush}"
+                                                           Margin="0,4,0,0"/>
                                             </StackPanel>
-
 
                                             <!-- Actions -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="16">
                                                 <!-- Status Toggle -->
                                                 <ToggleButton
-    IsChecked="{Binding IsActive, Mode=OneWay}"
-    IsEnabled="{Binding DataContext.IsLoading,
-                RelativeSource={RelativeSource AncestorType=UserControl},
-                Converter={StaticResource InverseBoolConverter}}"
-    Command="{Binding DataContext.ToggleStatusCommand,
-              RelativeSource={RelativeSource AncestorType=UserControl}}"
-    CommandParameter="{Binding Id}"
-    ToolTip="{Binding IsActive, Converter={StaticResource StatusTooltipConverter}}"
-    Width="60"
-    Height="32"
-    Margin="0,0,8,0">
+                                                    IsChecked="{Binding IsActive, Mode=OneWay}"
+                                                    IsEnabled="{Binding DataContext.IsLoading,
+                                                        RelativeSource={RelativeSource AncestorType=UserControl},
+                                                        Converter={StaticResource InverseBoolConverter}}"
+                                                    Command="{Binding DataContext.ToggleStatusCommand,
+                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding Id}"
+                                                    ToolTip="{Binding IsActive, Converter={StaticResource StatusTooltipConverter}}"
+                                                    Width="120"
+                                                    Height="34"
+                                                    Margin="0,0,8,0">
                                                     <ToggleButton.Style>
                                                         <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
                                                             <Setter Property="Template">
                                                                 <Setter.Value>
                                                                     <ControlTemplate TargetType="ToggleButton">
                                                                         <Border x:Name="Bd"
-                                                                                CornerRadius="10"
+                                                                                CornerRadius="8"
                                                                                 Background="{TemplateBinding Background}"
                                                                                 BorderThickness="1"
                                                                                 BorderBrush="{StaticResource SoftBorderBrush}">
                                                                             <Grid>
-                                                                                <Grid.ColumnDefinitions>
-                                                                                    <ColumnDefinition Width="*"/>
-                                                                                    <ColumnDefinition Width="*"/>
-                                                                                </Grid.ColumnDefinitions>
-
-                                                                                <!-- Active State -->
-                                                                                <Border x:Name="ActivePart"
-                                                                                        Grid.Column="0"
-                                                                                        CornerRadius="9"
-                                                                                        Background="{StaticResource SuccessGreenBrush}">
-                                                                                    <TextBlock Text="نشط"
-                                                                                               Foreground="White"
-                                                                                               HorizontalAlignment="Center"
-                                                                                               VerticalAlignment="Center"
-                                                                                               FontWeight="Medium"/>
-                                                                                </Border>
-
-                                                                                <!-- Inactive State -->
-                                                                                <Border x:Name="InactivePart"
-                                                                                        Grid.Column="1"
-                                                                                        CornerRadius="9"
-                                                                                        Background="{StaticResource SoftBorderBrush}">
-                                                                                    <TextBlock Text="غير نشط"
-                                                                                               Foreground="{StaticResource TextMutedBrush}"
-                                                                                               HorizontalAlignment="Center"
-                                                                                               VerticalAlignment="Center"
-                                                                                               FontWeight="Medium"/>
-                                                                                </Border>
-
-                                                                                <!-- Thumb -->
+                                                                                <!-- Thumb المتحرك -->
                                                                                 <Border x:Name="Thumb"
-                                                                                        Width="50"
-                                                                                        Height="28"
-                                                                                        CornerRadius="8"
+                                                                                        Width="58"
+                                                                                        Height="30"
+                                                                                        CornerRadius="7"
                                                                                         Background="White"
                                                                                         HorizontalAlignment="Left"
-                                                                                        Margin="3">
-                                                                                    <!-- لا نستخدم Effect هنا -->
+                                                                                        Margin="3"
+                                                                                        VerticalAlignment="Center">
+                                                                                    <Border.Effect>
+                                                                                        <DropShadowEffect ShadowDepth="1" 
+                                                                                                          BlurRadius="3" 
+                                                                                                          Opacity="0.1"/>
+                                                                                    </Border.Effect>
+                                                                                    <TextBlock x:Name="ThumbText"
+                                                                                               Text="نشط"
+                                                                                               Foreground="{StaticResource SuccessGreenBrush}"
+                                                                                               FontWeight="SemiBold"
+                                                                                               HorizontalAlignment="Center"
+                                                                                               VerticalAlignment="Center"/>
                                                                                 </Border>
+
+                                                                                <!-- الخلفية الثابتة -->
+                                                                                <Border x:Name="BackgroundTrack"
+                                                                                        CornerRadius="7"
+                                                                                        Background="{StaticResource SoftBorderBrush}"
+                                                                                        Margin="2"/>
+
+                                                                                <!-- النص الخلفي الثابت -->
+                                                                                <TextBlock x:Name="TrackText"
+                                                                                           Text="غير نشط"
+                                                                                           Foreground="{StaticResource TextMutedBrush}"
+                                                                                           FontWeight="Medium"
+                                                                                           HorizontalAlignment="Right"
+                                                                                           VerticalAlignment="Center"
+                                                                                           Margin="0,0,14,0"/>
                                                                             </Grid>
                                                                         </Border>
                                                                         <ControlTemplate.Triggers>
+                                                                            <!-- حالة النشط -->
                                                                             <Trigger Property="IsChecked" Value="True">
                                                                                 <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right"/>
-                                                                                <Setter TargetName="InactivePart" Property="Background" Value="{StaticResource SoftBorderBrush}"/>
-                                                                                <Setter TargetName="ActivePart" Property="Background" Value="{StaticResource SuccessGreenBrush}"/>
+                                                                                <Setter TargetName="BackgroundTrack" Property="Background" Value="{StaticResource SuccessGreenBrush}"/>
+                                                                                <Setter TargetName="TrackText" Property="HorizontalAlignment" Value="Left"/>
+                                                                                <Setter TargetName="TrackText" Property="Margin" Value="14,0,0,0"/>
+                                                                                <Setter TargetName="TrackText" Property="Text" Value="نشط"/>
+                                                                                <Setter TargetName="TrackText" Property="Foreground" Value="White"/>
+                                                                                <Setter TargetName="ThumbText" Property="Text" Value="غير نشط"/>
+                                                                                <Setter TargetName="ThumbText" Property="Foreground" Value="{StaticResource ErrorRedBrush}"/>
                                                                             </Trigger>
+
+                                                                            <!-- حالة غير النشط -->
                                                                             <Trigger Property="IsChecked" Value="False">
                                                                                 <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Left"/>
-                                                                                <Setter TargetName="InactivePart" Property="Background" Value="{StaticResource ErrorRedBrush}"/>
-                                                                                <Setter TargetName="ActivePart" Property="Background" Value="{StaticResource SoftBorderBrush}"/>
+                                                                                <Setter TargetName="BackgroundTrack" Property="Background" Value="{StaticResource SoftBorderBrush}"/>
+                                                                                <Setter TargetName="TrackText" Property="HorizontalAlignment" Value="Right"/>
+                                                                                <Setter TargetName="TrackText" Property="Margin" Value="0,0,14,0"/>
+                                                                                <Setter TargetName="TrackText" Property="Text" Value="غير نشط"/>
+                                                                                <Setter TargetName="TrackText" Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+                                                                                <Setter TargetName="ThumbText" Property="Text" Value="نشط"/>
+                                                                                <Setter TargetName="ThumbText" Property="Foreground" Value="{StaticResource SuccessGreenBrush}"/>
                                                                             </Trigger>
                                                                         </ControlTemplate.Triggers>
                                                                     </ControlTemplate>
@@ -354,6 +348,7 @@
                                                         Height="32">
                                                     <materialDesign:PackIcon Kind="Eye" Width="16" Height="16"/>
                                                 </Button>
+
                                                 <!-- User Invoices Button -->
                                                 <Button Command="{Binding DataContext.ViewUserInvoicesCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -364,9 +359,8 @@
                                                         Width="32"
                                                         Height="32"
                                                         Margin="10,0,0,0">
-                                                        <materialDesign:PackIcon Kind="FileDocumentMultiple" Width="16" Height="16"/>
+                                                    <materialDesign:PackIcon Kind="FileDocumentMultiple" Width="16" Height="16"/>
                                                 </Button>
-
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -374,7 +368,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <!-- Empty State (Centered) - أبسط طريقة -->
+                        <!-- Empty State -->
                         <TextBlock Text="لا توجد مستخدمين لعرضهم"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
@@ -417,7 +411,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Page Info -->
-                <TextBlock>
+                <TextBlock Foreground="{StaticResource TextDarkBrush}">
                     <TextBlock.Text>
                         <MultiBinding StringFormat="الصفحة {0} من {1}">
                             <Binding Path="CurrentPage"/>
