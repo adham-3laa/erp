@@ -22,8 +22,7 @@ namespace erp.Views.Orders
             OrdersTopBarControl.CreateOrderClicked += (_, __) =>
                 NavigationService.Navigate(new CreateOrderPage());
 
-            OrdersTopBarControl.SalesRepOrdersClicked += (_, __) =>
-                NavigationService.Navigate(new SalesRepOrdersPage());
+           
         }
 
         private async void LoadApprovedOrders(object sender, RoutedEventArgs e)

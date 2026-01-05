@@ -40,42 +40,43 @@
 
                 <DataGrid.Columns>
 
-                    <!-- رقم الطلب (عريض) -->
+                    <!-- رقم الطلب -->
                     <DataGridTextColumn Header="رقم الطلب"
-                                        Binding="{Binding id}"
-                                        Width="2*"/>
+                        Binding="{Binding OrderId}"
+                        Width="2*" />
 
-                    <!-- العميل -->
-                    <DataGridTextColumn Header="العميل (ID)"
-                                        Binding="{Binding customerid}"
-                                        Width="*"/>
+                    <!-- اسم العميل -->
+                    <DataGridTextColumn Header="العميل"
+                        Binding="{Binding CustomerName}"
+                        Width="*" />
 
-                    <!-- المندوب -->
-                    <DataGridTextColumn Header="المندوب (ID)"
-                                        Binding="{Binding salesrepid}"
-                                        Width="*"/>
+                    <!-- اسم المندوب -->
+                    <DataGridTextColumn Header="المندوب"
+                        Binding="{Binding SalesRepName}"
+                        Width="*" />
 
                     <!-- الإجمالي -->
                     <DataGridTextColumn Header="الإجمالي"
-                                        Binding="{Binding TotalAmountDisplay}"
-                                        Width="*"/>
+                        Binding="{Binding TotalAmountDisplay}"
+                        Width="*" />
 
                     <!-- العمولة -->
                     <DataGridTextColumn Header="العمولة"
-                                        Binding="{Binding commissionamount}"
-                                        Width="*"/>
+                        Binding="{Binding commissionamount}"
+                        Width="*" />
 
                     <!-- الحالة -->
                     <DataGridTextColumn Header="الحالة"
-                                        Binding="{Binding status}"
-                                        Width="*"/>
+                        Binding="{Binding status}"
+                        Width="*" />
 
                     <!-- التاريخ -->
                     <DataGridTextColumn Header="تاريخ الإنشاء"
-                                        Binding="{Binding CreatedAt}"
-                                        Width="*"/>
+                        Binding="{Binding CreatedAt}"
+                        Width="*" />
 
                 </DataGrid.Columns>
+
             </DataGrid>
         </Border>
     </Grid>

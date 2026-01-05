@@ -20,14 +20,7 @@
                 Width="720">
 
             <Border Style="{StaticResource InnerCardContainer}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                <StackPanel>
 
                     <!-- Title -->
                     <TextBlock Text="إنشاء طلب جديد"
@@ -36,74 +29,51 @@
                                Foreground="{StaticResource PrimaryBrush}"
                                Margin="0,0,0,16"/>
 
-                    <!-- كود العميل -->
-                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                        <TextBlock Text="كود العميل"
-                                   Foreground="#6B7280"
-                                   Margin="0,0,0,4"/>
-                        <Border Style="{StaticResource GlowInputFrame}">
-                            <Border Style="{StaticResource GlowInputInner}">
-                                <TextBox x:Name="CustomerCodeTextBox"
-                                         Height="36"
-                                         Padding="8"
-                                         FontSize="14"
-                                         VerticalContentAlignment="Center"
-                                         Style="{StaticResource GlowTextBox}"/>
-                            </Border>
-                        </Border>
-                    </StackPanel>
+                    <!-- اسم العميل -->
+                    <TextBlock Text="اسم العميل"/>
+                    <TextBox x:Name="CustomerNameTextBox"
+                             Height="36"
+                             Margin="0,0,0,12"/>
 
-                    <!-- اسم المنتج -->
-                    <StackPanel Grid.Row="2" Margin="0,0,0,16">
-                        <TextBlock Text="اسم المنتج"
-                                   Foreground="#6B7280"
-                                   Margin="0,0,0,4"/>
-                        <Border Style="{StaticResource GlowInputFrame}">
-                            <Border Style="{StaticResource GlowInputInner}">
-                                <TextBox x:Name="ProductNameTextBox"
-                                         Height="36"
-                                         Padding="8"
-                                         FontSize="14"
-                                         VerticalContentAlignment="Center"
-                                         Style="{StaticResource GlowTextBox}"/>
-                            </Border>
-                        </Border>
-                    </StackPanel>
+                    <!-- اسم المندوب -->
+                    <TextBlock Text="اسم المندوب"/>
+                    <TextBox x:Name="SalesRepNameTextBox"
+                             Height="36"
+                             Margin="0,0,0,12"/>
 
-                    <!-- الكمية -->
-                    <StackPanel Grid.Row="3" Margin="0,0,0,16">
-                        <TextBlock Text="الكمية"
-                                   Foreground="#6B7280"
-                                   Margin="0,0,0,4"/>
-                        <Border Style="{StaticResource GlowInputFrame}">
-                            <Border Style="{StaticResource GlowInputInner}">
-                                <TextBox x:Name="QuantityTextBox"
-                                         Height="36"
-                                         Padding="8"
-                                         FontSize="14"
-                                         VerticalContentAlignment="Center"
-                                         TextAlignment="Left"
-                                         FlowDirection="LeftToRight"
-                                         Style="{StaticResource GlowTextBox}"
-                                         PreviewTextInput="Quantity_PreviewTextInput"/>
-                            </Border>
-                        </Border>
-                    </StackPanel>
+                    <!-- العمولة -->
+                    <TextBlock Text="نسبة العمولة (%)"/>
+                    <TextBox x:Name="CommissionTextBox"
+                             Height="36"
+                             PreviewTextInput="NumberOnly"
+                             Margin="0,0,0,16"/>
+
+                    <!-- المنتجات -->
+                    <TextBlock Text="المنتجات"/>
+                    <DataGrid x:Name="ItemsGrid"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="True"
+                              Height="200"
+                              Margin="0,8,0,16">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="اسم المنتج"
+                                                Binding="{Binding productname}"
+                                                Width="*"/>
+
+                            <DataGridTextColumn Header="الكمية"
+                                                Binding="{Binding quantity}"
+                                                Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
                     <!-- زر الحفظ -->
-                    <StackPanel Grid.Row="4"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Margin="0,8,0,0">
-                        <Button Content="تأكيد الطلب"
-                                MinWidth="140"
-                                Height="40"
-                                FontSize="14"
-                                Style="{StaticResource DarkButtonStyle}"
-                                Click="ConfirmOrder_Click"/>
-                    </StackPanel>
-
-                </Grid>
+                    <Button Content="تأكيد الطلب"
+                            Height="40"
+                            HorizontalAlignment="Right"
+                            Width="160"
+                            Click="ConfirmOrder_Click"/>
+                </StackPanel>
             </Border>
         </Border>
     </Grid>
