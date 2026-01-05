@@ -32,7 +32,6 @@
         </Grid.RowDefinitions>
 
         <!-- ================= Header ================= -->
-        <!-- Title on the RIGHT, Back button on the LEFT -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -263,7 +262,7 @@
 
                     </Grid>
 
-                    <!-- ================= ACTIONS (Start + Prev side-by-side) ================= -->
+                    <!-- ================= ACTIONS ================= -->
                     <StackPanel Grid.Row="1"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Left"
@@ -275,12 +274,20 @@
                                 Style="{StaticResource DarkButtonStyle}"
                                 Click="Prev_Click"/>
 
+                        <!-- ✅ NextBtn مطلوب عشان الكود بيستعمله -->
+                        <Button x:Name="NextBtn"
+                                Content="التالي"
+                                Width="120"
+                                Style="{StaticResource DarkButtonStyle}"
+                                Visibility="Collapsed"
+                                Click="Next_Click"/>
+
                         <Button Content="ابدأ"
                                 Width="120"
+                                Margin="12,0,0,0"
                                 Style="{StaticResource DarkButtonStyle}"
                                 Click="StartWizard_Click"/>
 
-                        <!-- Save stays (same logic) -->
                         <Button x:Name="SaveBtn"
                                 Content="حفظ"
                                 Width="120"

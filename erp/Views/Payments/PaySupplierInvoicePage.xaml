@@ -59,13 +59,7 @@
                            Visibility="{Binding ErrorMessage,
                                Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
 
-                <!-- Success Message -->
-                <TextBlock Text="تم تحديث المبلغ بنجاح ✔"
-                            Foreground="#16A34A"
-                            FontWeight="SemiBold"
-                            Margin="0,12,0,0"
-                            Visibility="{Binding IsSuccess,
-                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+
 
 
                 <!-- Actions -->

@@ -130,13 +130,18 @@
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- TopBar -->
             <RowDefinition Height="Auto"/>
+            <!-- Header -->
             <RowDefinition Height="*"/>
+            <!-- Table -->
             <RowDefinition Height="Auto"/>
+            <!-- Pagination -->
             <RowDefinition Height="Auto"/>
+            <!-- Error -->
         </Grid.RowDefinitions>
 
-        <!-- TopBar (KEEP) -->
+        <!-- ✅ TopBar (موجود عشان الكود بيستخدم InventoryTopBarControl) -->
         <local:InventoryTopBar x:Name="InventoryTopBarControl"
                                Grid.Row="0"/>
 
