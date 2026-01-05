@@ -65,9 +65,9 @@ namespace EduGate.Views.Inventory
             DataContext = _products[_index];
             StepTitle.Text = $"المنتج {_index + 1} من {_count}";
 
-            NextBtn.Visibility = _index == _count - 1
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            //NextBtn.Visibility = _index == _count - 1
+            //    ? Visibility.Collapsed
+            //    : Visibility.Visible;
 
             SaveBtn.Visibility = _index == _count - 1
                 ? Visibility.Visible
