@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using erp.ViewModels.CategoryView;
+using erp.Views.Shared;
 
 namespace erp.Views.Category;
 
@@ -29,7 +30,8 @@ public partial class CategoryListPage : Page
 
         if (listVm.Selected == null)
         {
-            MessageBox.Show("اختار صنف الأول", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Information);
+            var owner = Window.GetWindow(this);
+            ThemedDialog.ShowWarning(owner, "تنبيه", "اختار صنف الأول");
             return;
         }
 
