@@ -83,10 +83,6 @@ namespace erp
                     MainFrame.Navigate(new InventoryPage());
                     break;
 
-                case "Payments":
-                    MainFrame.Navigate(new PaymentsMenuPage());
-                    break;
-
                 case "Invoices":
                     MainFrame.Navigate(new InvoicesListPage());
                     break;
