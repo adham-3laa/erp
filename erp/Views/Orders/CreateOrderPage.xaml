@@ -7,14 +7,14 @@
 
     <Page.Resources>
 
-        <!-- ===== Glow (same as AddExpensePage) ===== -->
+        <!-- ===== Glow (same design we agreed on) ===== -->
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
                           BlurRadius="16"
                           ShadowDepth="0"
                           Opacity="0.35"/>
 
-        <!-- ===== Old Frame (same as AddExpensePage) ===== -->
+        <!-- ===== Outer Frame (same as AddExpensePage) ===== -->
         <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
@@ -26,35 +26,46 @@
 
     </Page.Resources>
 
-    <Grid Margin="24">
+    <Grid Margin="24" MinWidth="720">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- TopBar -->
+        <!-- TopBar (same as your page) -->
         <local:OrdersTopBar x:Name="OrdersTopBarControl"
                             Grid.Row="0"/>
 
         <!-- ================= Header ================= -->
-        <Grid Grid.Row="1" Margin="0,0,0,0">
-            <TextBlock Text="إنشاء طلب جديد"
+        <!-- "طلبات" on the RIGHT, title centered -->
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Center: page title -->
+            <TextBlock Grid.Column="1"
+                       Text="إنشاء طلب جديد"
                        FontSize="26"
                        FontWeight="Bold"
                        Foreground="{StaticResource TextDarkBrush}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"/>
+
+            <!-- left spacer (optional) -->
+            <Border Grid.Column="2" Width="1" Opacity="0"/>
         </Grid>
 
-        <!-- ================= Form (Centered + Same Frame) ================= -->
+        <!-- ================= Form (Centered + agreed design) ================= -->
         <Border Grid.Row="2"
                 Margin="0"
                 Style="{StaticResource GlowingTableOuterBorder}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
 
-            <!-- Inner Card (same clean design) -->
             <Border Style="{StaticResource InnerCardContainer}"
                     Width="620"
                     HorizontalAlignment="Center"
@@ -63,7 +74,7 @@
 
                 <StackPanel>
 
-                    <!-- ================= Customer Code ================= -->
+                    <!-- كود العميل -->
                     <TextBlock Text="كود العميل"
                                FontSize="14"
                                FontWeight="SemiBold"
@@ -81,7 +92,7 @@
                         </Border>
                     </Border>
 
-                    <!-- ================= Product Name ================= -->
+                    <!-- اسم المنتج -->
                     <TextBlock Text="اسم المنتج"
                                FontSize="14"
                                FontWeight="SemiBold"
@@ -99,7 +110,7 @@
                         </Border>
                     </Border>
 
-                    <!-- ================= Quantity ================= -->
+                    <!-- الكمية -->
                     <TextBlock Text="الكمية"
                                FontSize="14"
                                FontWeight="SemiBold"
@@ -120,24 +131,21 @@
                         </Border>
                     </Border>
 
-                    <!-- ================= Actions ================= -->
+                    <!-- زر الحفظ (Buttons on the LEFT) -->
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left"
                                 Margin="0,32,0,0">
 
                         <Button Content="تأكيد الطلب"
-                                Width="160"
-                                Margin="0,0,12,0"
+                                MinWidth="140"
+                                Height="40"
+                                FontSize="14"
                                 Style="{StaticResource DarkButtonStyle}"
                                 Click="ConfirmOrder_Click"/>
-
-                        <Button Content="رجوع"
-                                Width="120"
-                                Style="{StaticResource DarkButtonStyle}"
-                                Click="Back_Click"/>
                     </StackPanel>
 
                 </StackPanel>
+
             </Border>
         </Border>
 
