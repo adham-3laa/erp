@@ -2,27 +2,25 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:local="clr-namespace:erp.Views.Inventory"
-      Background="Transparent">
-      xmlns:local="clr-namespace:EduGate.Views.Inventory"
-      FlowDirection="RightToLeft"
-      Background="{StaticResource PageBgBrush}">
+      Background="{StaticResource PageBgBrush}"
+      FlowDirection="RightToLeft">
 
-    <!-- ================= Modern Styles (Like Reference) ================= -->
+    <!-- ================= Styles ================= -->
     <Page.Resources>
 
-        <!-- ===== Glow (needed for old table frame) ===== -->
+        <!-- Shadow -->
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="16"
+                          BlurRadius="14"
                           ShadowDepth="0"
-                          Opacity="0.35"/>
+                          Opacity="0.25"/>
 
-        <!-- ===== Old Table Frame ===== -->
+        <!-- Table Card -->
         <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SoftBorderBrush}"/>
             <Setter Property="Padding" Value="12"/>
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
         </Style>
@@ -32,43 +30,24 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="RowHeight" Value="48"/>
-            <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="RowHeight" Value="46"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="AlternatingRowBackground" Value="#FFF6F6F6"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CanUserResizeColumns" Value="False"/>
         </Style>
 
-        <!-- ✅ Header (bigger + centered) -->
+        <!-- Header -->
         <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#FF1F2937"/>
+            <Setter Property="Background" Value="#1F2937"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Padding" Value="12"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <!-- Row -->
-        <Style x:Key="NiceDataGridRowStyle" TargetType="DataGridRow">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFE5E7EB"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FFCBD5E1"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- ✅ Cell (always centered) -->
+        <!-- Cell -->
         <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -76,93 +55,41 @@
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <!-- ✅ Text inside TextColumns (always centered) -->
-        <Style x:Key="CenteredTextColumnElementStyle" TargetType="TextBlock">
-            <Setter Property="TextAlignment" Value="Center"/>
+        <!-- Text inside TextColumn -->
+        <Style x:Key="CenteredTextStyle" TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextAlignment" Value="Center"/>
         </Style>
 
-        <!-- ✅ Delete Hover => Red -->
+        <!-- Delete Button -->
         <Style x:Key="DeleteHoverRedButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#1E1B4B"/>
-            <Setter Property="BorderBrush" Value="#4F46E5"/>
+            <Setter Property="Background" Value="#DC2626"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#B91C1C"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#EF4444"/>
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#7F1D1D"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#B91C1C"/>
-                            </Trigger>
-
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.6"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
 
     </Page.Resources>
 
-    <!-- ================= Layout (Like Reference) ================= -->
+    <!-- ================= Layout ================= -->
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- TopBar -->
             <RowDefinition Height="Auto"/>
-            <!-- Header -->
             <RowDefinition Height="*"/>
-            <!-- Table -->
             <RowDefinition Height="Auto"/>
-            <!-- Pagination -->
             <RowDefinition Height="Auto"/>
-            <!-- Error -->
         </Grid.RowDefinitions>
 
         <!-- ================= TopBar ================= -->
         <local:InventoryTopBar x:Name="InventoryTopBarControl"
                                Grid.Row="0"/>
 
-        <!-- ================= Error + Search ================= -->
-        <StackPanel Grid.Row="1"
-                    Orientation="Vertical"
-                    Margin="0,10">
-
-            <TextBlock x:Name="ErrorTextBlock"
-                       Foreground="Red"
-                       FontSize="14"
-                       Visibility="Collapsed"
-                       Margin="0,0,0,10"/>
-        <!-- ✅ TopBar (موجود عشان الكود بيستخدم InventoryTopBarControl) -->
-        <local:InventoryTopBar x:Name="InventoryTopBarControl"
-                               Grid.Row="0"/>
-
-        <!-- ================= Header ================= -->
-        <Grid Grid.Row="1" Margin="0,14,0,0">
+        <!-- ================= Header + Search ================= -->
+        <Grid Grid.Row="1" Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -170,155 +97,124 @@
             </Grid.ColumnDefinitions>
 
             <!-- Title -->
-            <TextBlock Grid.Column="0"
-                       Text="المخزون"
+            <TextBlock Text="المخزون"
                        FontSize="26"
                        FontWeight="Bold"
-                       Foreground="#FF1F2937"
-                       VerticalAlignment="Center"
-                       Margin="0,0,14,0"/>
+                       VerticalAlignment="Center"/>
 
-            <!-- ✅ Search (Center) -->
-            <StackPanel Grid.Column="1"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+            <!-- Search Box (WPF Placeholder Safe) -->
+            <Border Grid.Column="1"
+                    Width="320"
+                    Height="42"
+                    CornerRadius="10"
+                    BorderBrush="{StaticResource SoftBorderBrush}"
+                    BorderThickness="1"
+                    HorizontalAlignment="Center">
 
-                <TextBlock Text="بحث :"
-                           VerticalAlignment="Center"
-                           Foreground="#FF1F2937"
-                           FontWeight="ExtraBold"
-                           Margin="0,0,10,0"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource GlowInputFrame}"
-                        Width="200"
-                        Height="40">
-                    <Border Style="{StaticResource GlowInputInner}">
-                        <Grid>
-                            <TextBox x:Name="SearchTextBox"
-                                     Style="{StaticResource GlowTextBox}"
-                                     TextChanged="SearchTextBox_TextChanged"/>
+                    <!-- Icon -->
+                    <TextBlock Text="🔍"
+                               FontSize="18"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
 
-                            <TextBlock Text="ابحث بالاسم : "
-                                       Foreground="Gray"
-                                       Margin="5,0,0,0"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"
-                                       Visibility="{Binding Text.IsEmpty,
-                                           ElementName=SearchTextBox,
-                                           Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <!-- TextBox + Placeholder -->
+                    <Grid Grid.Column="1">
 
-                            <!-- Placeholder -->
-                            <TextBlock Text="ابحث بالاسم"
-                                       Foreground="#9A000000"
-                                       Margin="2,0,0,0"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                        <TextBox x:Name="SearchTextBox"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="4"
+                                 FontSize="14"
+                                 VerticalContentAlignment="Center"
+                                 TextChanged="SearchTextBox_TextChanged"/>
 
-                        </Grid>
-                    </Border>
-                </Border>
-            </StackPanel>
+                        <!-- Placeholder -->
+                        <TextBlock Text="ابحث باسم المنتج"
+                                   Foreground="#9CA3AF"
+                                   Margin="6,0,0,0"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
-            <!-- Buttons -->
-            <StackPanel Grid.Column="2"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center">
-                <Button Content="🔄 تحديث"
-                        Width="120"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Click="RefreshButton_Click"/>
-            </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Refresh -->
+            <Button Grid.Column="2"
+                    Content="🔄 تحديث"
+                    Width="120"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="RefreshButton_Click"/>
         </Grid>
 
-        <!-- ================= Table (Old Frame) ================= -->
+        <!-- ================= Table ================= -->
         <Border Grid.Row="2"
                 Margin="0,20,0,0"
                 Style="{StaticResource GlowingTableOuterBorder}">
 
-
-        <!-- ================= DataGrid ================= -->
-        <Border Grid.Row="2"
-                Style="{StaticResource CardStyle}">
-
-
-
             <DataGrid x:Name="ProductsDataGrid"
                       AutoGenerateColumns="False"
-                      CanUserAddRows="False"
                       IsReadOnly="True"
-                      ColumnWidth="*"
                       Style="{StaticResource NiceDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
-                      RowStyle="{StaticResource NiceDataGridRowStyle}"
                       CellStyle="{StaticResource NiceDataGridCellStyle}">
 
                 <DataGrid.Columns>
 
-
-                    <!-- productid -->
                     <DataGridTextColumn Header="ID"
                                         Binding="{Binding ProductId}"
-                                        Width="220"/>
+                                        Width="200"
+                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
 
-                    <!-- productname -->
                     <DataGridTextColumn Header="اسم المنتج"
                                         Binding="{Binding Name}"
-                                        Width="*"/>
+                                        Width="*"
+                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
 
-                    <!-- saleprice -->
                     <DataGridTextColumn Header="سعر البيع"
                                         Binding="{Binding SalePrice}"
-                                        Width="100"/>
+                                        Width="100"
+                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
 
-                    <!-- buyprice -->
                     <DataGridTextColumn Header="سعر الشراء"
                                         Binding="{Binding BuyPrice}"
-                                        Width="100"/>
+                                        Width="100"
+                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
 
-                    <!-- quantity -->
                     <DataGridTextColumn Header="الكمية"
                                         Binding="{Binding Quantity}"
-                                        Width="80"/>
+                                        Width="80"
+                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
 
-                    <!-- sku -->
                     <DataGridTextColumn Header="SKU"
                                         Binding="{Binding SKU}"
-                                        Width="120"/>
-
-                    <!-- categoryname -->
-                    <DataGridTextColumn Header="الصنف"
-                                        Binding="{Binding Category}"
-                                        Width="150"/>
-
-                    <!-- Edit -->
-                            <DataGridTemplateColumn Header="تعديل"
-                                            Width="50">
-
-                   <DataGridTextColumn Header="سعر البيع"
-                                        Binding="{Binding SalePrice}"
-                                        Width="*"
-                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+                                        Width="120"
+                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
 
                     <DataGridTextColumn Header="الصنف"
                                         Binding="{Binding Category}"
-                                        Width="*"
-                                        ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+                                        Width="150"
+                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
 
                     <!-- Edit -->
                     <DataGridTemplateColumn Header="تعديل" Width="70">
@@ -327,32 +223,17 @@
                                 <Button Content="✏"
                                         Width="30"
                                         Height="30"
-                                        Padding="0"
-                                        FontSize="12"
-                                        FontFamily="Segoe UI Emoji"
-                                        Style="{StaticResource DarkButtonStyle}"
-                                        HorizontalAlignment="Center"
                                         Click="EditProduct_Click"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
                     <!-- Delete -->
-                    <DataGridTemplateColumn Header="حذف"
-                                            Width="50">
-
-                    <!-- Delete (Hover => Red) -->
                     <DataGridTemplateColumn Header="حذف" Width="70">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="🗑"
-                                        Width="30"
-                                        Height="30"
-                                        Padding="0"
-                                        FontSize="12"
-                                        FontFamily="Segoe UI Emoji"
                                         Style="{StaticResource DeleteHoverRedButtonStyle}"
-                                        HorizontalAlignment="Center"
                                         Click="DeleteProduct_Click"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -363,51 +244,29 @@
         </Border>
 
         <!-- ================= Pagination ================= -->
-        <!-- Pagination (Styled) -->
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    Margin="0,14,0,0">
+                    Margin="0,16,0,0">
 
-            <Button Content="&lt;&lt;"
-                    Width="55"
-                    Margin="4,0"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="FirstPage_Click"/>
-
-            <Button Content="&lt;"
-                    Width="55"
-                    Margin="4,0"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="PrevPage_Click"/>
+            <Button Content="&lt;&lt;" Width="50" Click="FirstPage_Click"/>
+            <Button Content="&lt;" Width="50" Click="PrevPage_Click"/>
 
             <TextBlock x:Name="PageTextBlock"
+                       Margin="12,0"
                        VerticalAlignment="Center"
-                       Margin="10,0"
-                       FontWeight="SemiBold"
-                       Foreground="#FF1F2937"/>
+                       FontWeight="SemiBold"/>
 
-            <Button Content="&gt;"
-                    Width="55"
-                    Margin="4,0"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="NextPage_Click"/>
-
-            <Button Content="&gt;&gt;"
-                    Width="55"
-                    Margin="4,0"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="LastPage_Click"/>
+            <Button Content="&gt;" Width="50" Click="NextPage_Click"/>
+            <Button Content="&gt;&gt;" Width="50" Click="LastPage_Click"/>
         </StackPanel>
 
-        <!-- Error (same idea as reference) -->
+        <!-- ================= Error ================= -->
         <TextBlock x:Name="ErrorTextBlock"
                    Grid.Row="4"
                    Foreground="Red"
-                   FontSize="14"
                    Visibility="Collapsed"
-                   Margin="10"
-                   HorizontalAlignment="Center"/>
-
+                   HorizontalAlignment="Center"
+                   Margin="0,10,0,0"/>
     </Grid>
 </Page>

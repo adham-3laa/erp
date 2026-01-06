@@ -42,7 +42,7 @@ namespace erp.Views.Inventory
                 int updatedCount =
                     await _service.StockInProductsAsync(supplierName, items);
 
-                MessageBox.Show($"تم تحديث {updatedCount} منتج بنجاح ✅");
+                MessageBox.Show($"تم نحديث المنتجات بنجاح");
                 NavigationService?.GoBack();
             }
             catch (System.Exception ex)

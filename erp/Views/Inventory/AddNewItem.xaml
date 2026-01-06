@@ -4,338 +4,257 @@
       Background="{StaticResource PageBgBrush}"
       FlowDirection="RightToLeft">
 
+    <!-- ================= Resources ================= -->
     <Page.Resources>
 
-        <!-- ===== Glow (same design we agreed on) ===== -->
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="16"
+                          BlurRadius="18"
                           ShadowDepth="0"
-                          Opacity="0.35"/>
+                          Opacity="0.30"/>
 
-        <!-- ===== Outer Frame (same as AddExpensePage) ===== -->
-        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
-            <Setter Property="CornerRadius" Value="16"/>
+        <!-- Card -->
+        <Style x:Key="WizardCardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="18"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SoftBorderBrush}"/>
+            <Setter Property="Padding" Value="24"/>
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <!-- Field title -->
+        <Style x:Key="FieldTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="Margin" Value="0,16,0,6"/>
+        </Style>
+
+        <!-- TextBox style (WPF safe) -->
+        <Style x:Key="WizardTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
         </Style>
 
     </Page.Resources>
 
-    <Grid Margin="24" MinWidth="720">
+    <!-- ================= Layout ================= -->
+    <Grid Margin="28" MinWidth="760">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- ================= Header ================= -->
-        <Grid Grid.Row="0" Margin="0,0,0,16">
+        <Grid Grid.Row="0" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0"
-                       Text="إضافة منتجات"
-                       FontSize="26"
+            <TextBlock Text="إضافة منتجات جديدة"
+                       FontSize="28"
                        FontWeight="Bold"
                        Foreground="{StaticResource TextDarkBrush}"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Right"/>
-
-            <Border Grid.Column="1" Opacity="0"/>
+                       VerticalAlignment="Center"/>
 
             <Button Grid.Column="2"
                     Content="رجوع"
                     Width="120"
+                    Height="40"
                     Style="{StaticResource DarkButtonStyle}"
-                    HorizontalAlignment="Left"
                     Click="Back_Click"/>
         </Grid>
 
         <!-- ================= Wizard Card ================= -->
         <Border Grid.Row="1"
-                Style="{StaticResource GlowingTableOuterBorder}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
+                Style="{StaticResource WizardCardStyle}"
+                Width="780"
+                HorizontalAlignment="Center">
 
-            <Border Style="{StaticResource InnerCardContainer}"
-                    Width="720"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                <!-- ================= Steps ================= -->
+                <Grid Grid.Row="0">
 
-                    <!-- ================= Content Area (Step Panels) ================= -->
-                    <Grid Grid.Row="0">
+                    <!-- STEP 1 : Intro -->
+                    <StackPanel x:Name="IntroPanel"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Width="420">
 
-                        <!-- ================= STEP 1 : Intro ================= -->
-                        <StackPanel x:Name="IntroPanel"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Margin="0,10">
-
-                            <Button Content="إدخال عدد المنتجات"
-                                    Width="240"
-                                    Height="42"
-                                    Style="{StaticResource DarkButtonStyle}"
-                                    Click="ShowCount_Click"/>
-                        </StackPanel>
-
-                        <!-- ================= STEP 1.5 : Supplier + Count ================= -->
-                        <StackPanel x:Name="CountPanel"
-                                    Visibility="Collapsed"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Margin="0,10"
-                                    Width="620">
-
-                            <TextBlock Text="كود المورد"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,0,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox x:Name="SupplierIdTextBox"
-                                             Height="36"
-                                             Padding="8"
-                                             FontSize="14"
-                                             VerticalContentAlignment="Center"
-                                             Style="{StaticResource GlowTextBox}"/>
-                                </Border>
-                            </Border>
-
-                            <TextBlock Text="عدد المنتجات"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,20,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox x:Name="CountTextBox"
-                                             Height="36"
-                                             Padding="8"
-                                             FontSize="14"
-                                             VerticalContentAlignment="Center"
-                                             HorizontalContentAlignment="Center"
-                                             TextAlignment="Center"
-                                             FlowDirection="LeftToRight"
-                                             Style="{StaticResource GlowTextBox}"/>
-                                </Border>
-                            </Border>
-
-                        </StackPanel>
-
-                        <!-- ================= STEP 2 : Product Form ================= -->
-                        <StackPanel x:Name="FormPanel"
-                                    Visibility="Collapsed"
-                                    Margin="0,6"
-                                    Width="620"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Top">
-
-                            <TextBlock x:Name="StepTitle"
-                                       FontSize="16"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextDarkBrush}"
-                                       Margin="0,0,0,14"/>
-
-                            <!-- اسم المنتج -->
-                            <TextBlock Text="اسم المنتج"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,0,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding Name}"/>
-                                </Border>
-                            </Border>
-
-                            <!-- SKU -->
-                            <TextBlock Text="SKU"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,20,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding SKU}"/>
-                                </Border>
-                            </Border>
-
-                            <!-- سعر البيع -->
-                            <TextBlock Text="سعر البيع"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,20,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding SalePrice}"
-                                             TextAlignment="Left"
-                                             FlowDirection="LeftToRight"/>
-                                </Border>
-                            </Border>
-
-                            <!-- سعر الشراء -->
-                            <TextBlock Text="سعر الشراء"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,20,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding BuyPrice}"
-                                             TextAlignment="Left"
-                                             FlowDirection="LeftToRight"/>
-                                </Border>
-                            </Border>
-
-                            <!-- الكمية -->
-                            <TextBlock Text="الكمية"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,20,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding Quantity}"
-                                             TextAlignment="Left"
-                                             FlowDirection="LeftToRight"/>
-                                </Border>
-                            </Border>
-
-                            <!-- اسم الصنف -->
-                            <TextBlock Text="اسم الصنف"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,20,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Text="{Binding Category}"/>
-                                </Border>
-                            </Border>
-
-                            <!-- الوصف -->
-                            <TextBlock Text="الوصف"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       Margin="0,20,0,6"/>
-
-                            <Border Style="{StaticResource GlowInputFrame}">
-                                <Border Style="{StaticResource GlowInputInner}">
-                                    <TextBox Style="{StaticResource GlowTextBox}"
-                                             Height="90"
-                                             AcceptsReturn="True"
-                                             TextWrapping="Wrap"
-                                             Text="{Binding Description}"/>
-                                </Border>
-                            </Border>
-
-                        </StackPanel>
-
-                    </Grid>
-
-                    <!-- ================= ACTIONS ================= -->
-                    <StackPanel Grid.Row="1"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Left"
-                                Margin="0,18,0,0">
-
-                        <Button Content="رجوع"
-                                Width="120"
-                                Margin="0,0,12,0"
+                        <Button Content="ابدأ بإدخال عدد المنتجات"
+                                Height="46"
+                                FontSize="15"
                                 Style="{StaticResource DarkButtonStyle}"
-                                Click="Prev_Click"/>
-
-                        <!-- ✅ NextBtn مطلوب عشان الكود بيستعمله -->
-                        <Button x:Name="NextBtn"
-                                Content="التالي"
-                                Width="120"
-                                Style="{StaticResource DarkButtonStyle}"
-
                                 Click="ShowCount_Click"/>
                     </StackPanel>
 
-                    <!-- ================= STEP 1.5 : Supplier Name + Count ================= -->
+                    <!-- STEP 2 : Supplier + Count -->
                     <StackPanel x:Name="CountPanel"
-                                Grid.Row="1"
                                 Visibility="Collapsed"
-                                HorizontalAlignment="Center"
-                                Margin="0,20">
+                                Width="520"
+                                HorizontalAlignment="Center">
 
-                        <!-- ✅ التعديل هنا -->
-                        <TextBlock Text="اسم المورد" Margin="0,0,0,4"/>
+                        <TextBlock Text="الخطوة 1 من 2"
+                                   Foreground="{StaticResource PrimaryBrush}"
+                                   FontWeight="Bold"/>
 
-                        <Border BorderBrush="#CBD5E1"
+                        <TextBlock Text="بيانات المورد وعدد المنتجات"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,6,0,20"/>
+
+                        <TextBlock Text="اسم المورد" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border CornerRadius="10"
                                 BorderThickness="1"
-                                CornerRadius="6"
-                                Padding="6">
-                            <TextBox x:Name="SupplierIdTextBox"
-                                     Width="280"
-                                     Style="{StaticResource GlowTextBox}"/>
+                                BorderBrush="{StaticResource SoftBorderBrush}">
+                            <TextBox x:Name="SupplierNameTextBox"
+                                     Style="{StaticResource WizardTextBoxStyle}"/>
                         </Border>
 
-                        <TextBlock Text="عدد المنتجات" Margin="10,10,0,4"/>
-
-                        <Border BorderBrush="#CBD5E1"
+                        <TextBlock Text="عدد المنتجات" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border CornerRadius="10"
                                 BorderThickness="1"
-                                CornerRadius="6"
-                                Padding="6">
+                                BorderBrush="{StaticResource SoftBorderBrush}">
                             <TextBox x:Name="CountTextBox"
-                                     Width="180"
-                                     HorizontalContentAlignment="Center"
-                                     Style="{StaticResource GlowTextBox}"/>
+                                     Style="{StaticResource WizardTextBoxStyle}"
+                                     FlowDirection="LeftToRight"
+                                     TextAlignment="Center"/>
                         </Border>
 
-                                Visibility="Collapsed"
-                                Click="Next_Click"/>
-
-
-                        <Button Content="ابدأ"
-                                Width="120"
-                                Margin="12,0,0,0"
+                        <Button Content="ابدأ إدخال المنتجات"
+                                Margin="0,30,0,0"
+                                Height="44"
                                 Style="{StaticResource DarkButtonStyle}"
                                 Click="StartWizard_Click"/>
-
-                        <Button x:Name="SaveBtn"
-                                Content="حفظ"
-                                Width="120"
-                                Margin="12,0,0,0"
-                                Visibility="Collapsed"
-                                Style="{StaticResource DarkButtonStyle}"
-                                Click="Save_Click"/>
                     </StackPanel>
 
-                </Grid>
-            </Border>
-        </Border>
+                    <!-- STEP 3 : Product Form -->
+                    <StackPanel x:Name="FormPanel"
+                                Visibility="Collapsed"
+                                Width="620"
+                                HorizontalAlignment="Center">
 
+                        <TextBlock x:Name="StepTitle"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,16"/>
+
+                        <TextBlock Text="اسم المنتج" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border CornerRadius="10"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource SoftBorderBrush}">
+                            <TextBox Text="{Binding Name}"
+                                     Style="{StaticResource WizardTextBoxStyle}"/>
+                        </Border>
+
+                        <TextBlock Text="SKU" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border CornerRadius="10"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource SoftBorderBrush}">
+                            <TextBox Text="{Binding SKU}"
+                                     Style="{StaticResource WizardTextBoxStyle}"/>
+                        </Border>
+
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                <TextBlock Text="سعر البيع" Style="{StaticResource FieldTitleStyle}"/>
+                                <Border CornerRadius="10"
+                                        BorderThickness="1"
+                                        BorderBrush="{StaticResource SoftBorderBrush}">
+                                    <TextBox Text="{Binding SalePrice}"
+                                             Style="{StaticResource WizardTextBoxStyle}"
+                                             FlowDirection="LeftToRight"/>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="سعر الشراء" Style="{StaticResource FieldTitleStyle}"/>
+                                <Border CornerRadius="10"
+                                        BorderThickness="1"
+                                        BorderBrush="{StaticResource SoftBorderBrush}">
+                                    <TextBox Text="{Binding BuyPrice}"
+                                             Style="{StaticResource WizardTextBoxStyle}"
+                                             FlowDirection="LeftToRight"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="الكمية" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border CornerRadius="10"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource SoftBorderBrush}">
+                            <TextBox Text="{Binding Quantity}"
+                                     Style="{StaticResource WizardTextBoxStyle}"
+                                     FlowDirection="LeftToRight"/>
+                        </Border>
+
+                        <TextBlock Text="الصنف" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border CornerRadius="10"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource SoftBorderBrush}">
+                            <TextBox Text="{Binding Category}"
+                                     Style="{StaticResource WizardTextBoxStyle}"/>
+                        </Border>
+
+                        <TextBlock Text="الوصف" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border CornerRadius="10"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource SoftBorderBrush}">
+                            <TextBox Text="{Binding Description}"
+                                     Height="90"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Style="{StaticResource WizardTextBoxStyle}"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ================= Actions ================= -->
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            Margin="0,24,0,0">
+
+                    <Button Content="رجوع"
+                            Width="120"
+                            Height="40"
+                            Margin="0,0,12,0"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Click="Prev_Click"/>
+
+                    <Button x:Name="NextBtn"
+                            Content="التالي"
+                            Width="120"
+                            Height="40"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Click="Next_Click"/>
+
+                    <Button x:Name="SaveBtn"
+                            Content="حفظ"
+                            Width="120"
+                            Height="40"
+                            Margin="12,0,0,0"
+                            Visibility="Collapsed"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Click="Save_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page>
