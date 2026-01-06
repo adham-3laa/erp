@@ -40,7 +40,7 @@
 
         <!-- ================= TopBar ================= -->
         <local:OrdersTopBar x:Name="OrdersTopBarControl"
-                            Grid.Row="0"/>
+                    Grid.Row="0"/>
 
         <!-- ================= Header ================= -->
         <TextBlock Grid.Row="1"
@@ -51,31 +51,28 @@
                    HorizontalAlignment="Center"
                    Margin="0,16"/>
 
-        <!-- ================= Form (Scrollable) ================= -->
+        <!-- ================= Form ================= -->
         <Border Grid.Row="2"
                 Style="{StaticResource OrderCardStyle}"
                 Width="700"
                 HorizontalAlignment="Center">
 
-            <!-- 👇 الحل هنا -->
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
 
                 <StackPanel>
 
-                    <!-- ===== Customer Info ===== -->
+                    <!-- ===== Order Info ===== -->
                     <TextBlock Text="بيانات الطلب"
                                FontSize="18"
                                FontWeight="Bold"
                                Margin="0,0,0,10"/>
 
                     <TextBlock Text="اسم العميل" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox x:Name="CustomerNameTextBox"
-                             Height="36"/>
+                    <TextBox x:Name="CustomerNameTextBox" Height="36"/>
 
                     <TextBlock Text="اسم المندوب" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox x:Name="SalesRepNameTextBox"
-                             Height="36"/>
+                    <TextBox x:Name="SalesRepNameTextBox" Height="36"/>
 
                     <TextBlock Text="نسبة العمولة (%)" Style="{StaticResource FieldTitleStyle}"/>
                     <TextBox x:Name="CommissionTextBox"
@@ -118,20 +115,6 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <!-- زر الحفظ -->
-                    <Button Content="تأكيد الطلب"
-                            Height="40"
-                            HorizontalAlignment="Right"
-                            Width="160"
-                            Click="ConfirmOrder_Click"/>
-                </StackPanel>
-
-                    <!-- كود العميل -->
-                    <TextBlock Text="كود العميل"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               Margin="0,0,0,6"/>
                     <!-- ===== Actions ===== -->
                     <DockPanel Margin="0,10,0,0">
 
@@ -149,6 +132,7 @@
                     </DockPanel>
 
                 </StackPanel>
+
             </ScrollViewer>
         </Border>
     </Grid>
