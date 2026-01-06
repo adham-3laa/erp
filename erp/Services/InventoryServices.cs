@@ -134,10 +134,15 @@ namespace erp.Services
                 Quantity = p.Quantity > 0 ? p.Quantity : 1,
                 SKU = string.IsNullOrWhiteSpace(p.SKU) ? "N/A" : p.SKU,
 
-                Category = p.CategoryId ?? "",
+                // ✅ عرض اسم الصنف بدل الكود
+                Category = !string.IsNullOrWhiteSpace(p.CategoryName)
+        ? p.CategoryName
+        : "غير محدد",
+
                 Description = p.Description ?? "",
                 Supplier = ""
             }).ToList();
+
         }
 
 

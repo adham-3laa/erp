@@ -5,6 +5,7 @@
       Background="{StaticResource PageBgBrush}"
       FlowDirection="RightToLeft">
 
+    <!-- ================= Resources ================= -->
     <Page.Resources>
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
@@ -12,16 +13,24 @@
                           ShadowDepth="0"
                           Opacity="0.35"/>
 
-        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+        <Style x:Key="OrderCardStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Padding" Value="20"/>
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <Style x:Key="FieldTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="Margin" Value="0,14,0,6"/>
         </Style>
     </Page.Resources>
 
+    <!-- ================= Layout ================= -->
     <Grid Margin="24" MinWidth="720">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -29,11 +38,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- TopBar -->
+        <!-- ================= TopBar ================= -->
         <local:OrdersTopBar x:Name="OrdersTopBarControl"
                             Grid.Row="0"/>
 
-        <!-- Header -->
+        <!-- ================= Header ================= -->
         <TextBlock Grid.Row="1"
                    Text="إنشاء طلب جديد"
                    FontSize="26"
@@ -42,87 +51,91 @@
                    HorizontalAlignment="Center"
                    Margin="0,16"/>
 
-        <!-- Form -->
+        <!-- ================= Form (Scrollable) ================= -->
         <Border Grid.Row="2"
-                Style="{StaticResource GlowingTableOuterBorder}"
+                Style="{StaticResource OrderCardStyle}"
                 Width="700"
                 HorizontalAlignment="Center">
 
-            <StackPanel>
+            <!-- 👇 الحل هنا -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
 
-                <!-- اسم العميل -->
-                <TextBlock Text="اسم العميل"
-                           Foreground="{StaticResource TextMutedBrush}"/>
-                <TextBox x:Name="CustomerNameTextBox"
-                         Height="36"
-                         Margin="0,4,0,12"/>
+                <StackPanel>
 
-                <!-- اسم المندوب -->
-                <TextBlock Text="اسم المندوب"
-                           Foreground="{StaticResource TextMutedBrush}"/>
-                <TextBox x:Name="SalesRepNameTextBox"
-                         Height="36"
-                         Margin="0,4,0,12"/>
+                    <!-- ===== Customer Info ===== -->
+                    <TextBlock Text="بيانات الطلب"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
 
-                <!-- العمولة -->
-                <TextBlock Text="نسبة العمولة (%)"
-                           Foreground="{StaticResource TextMutedBrush}"/>
-                <TextBox x:Name="CommissionTextBox"
-                         Height="36"
-                         Margin="0,4,0,16"
-                         PreviewTextInput="NumberOnly"/>
+                    <TextBlock Text="اسم العميل" Style="{StaticResource FieldTitleStyle}"/>
+                    <TextBox x:Name="CustomerNameTextBox"
+                             Height="36"/>
 
-                <!-- المنتجات -->
-                <TextBlock Text="المنتجات"
-                           FontWeight="SemiBold"
-                           Margin="0,0,0,6"/>
+                    <TextBlock Text="اسم المندوب" Style="{StaticResource FieldTitleStyle}"/>
+                    <TextBox x:Name="SalesRepNameTextBox"
+                             Height="36"/>
 
-                <DataGrid x:Name="ItemsGrid"
-                          AutoGenerateColumns="False"
-                          CanUserAddRows="False"
-                          Height="220"
-                          Margin="0,0,0,16">
+                    <TextBlock Text="نسبة العمولة (%)" Style="{StaticResource FieldTitleStyle}"/>
+                    <TextBox x:Name="CommissionTextBox"
+                             Height="36"
+                             FlowDirection="LeftToRight"
+                             PreviewTextInput="NumberOnly"/>
 
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="اسم المنتج"
-                                            Binding="{Binding productname}"
-                                            Width="*"/>
+                    <!-- ===== Products ===== -->
+                    <TextBlock Text="المنتجات"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,24,0,10"/>
 
-                        <DataGridTextColumn Header="الكمية"
-                                            Binding="{Binding quantity}"
-                                            Width="120"/>
+                    <DataGrid x:Name="ItemsGrid"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              Height="220"
+                              Margin="0,0,0,16">
 
-                        <DataGridTemplateColumn Width="60">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="✕"
-                                            Foreground="Red"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Click="RemoveItem_Click"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="اسم المنتج"
+                                                Binding="{Binding productname}"
+                                                Width="*"/>
 
-                <!-- Actions -->
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left">
+                            <DataGridTextColumn Header="الكمية"
+                                                Binding="{Binding quantity}"
+                                                Width="120"/>
 
-                    <Button Content="+ إضافة منتج"
-                            Width="120"
-                            Margin="0,0,12,0"
-                            Click="AddItem_Click"/>
+                            <DataGridTemplateColumn Width="60">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="✕"
+                                                Foreground="Red"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Click="RemoveItem_Click"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
-                    <Button Content="تأكيد الطلب"
-                            Width="160"
-                            Height="40"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Click="ConfirmOrder_Click"/>
+                    <!-- ===== Actions ===== -->
+                    <DockPanel Margin="0,10,0,0">
+
+                        <Button Content="+ إضافة منتج"
+                                Width="140"
+                                DockPanel.Dock="Left"
+                                Click="AddItem_Click"/>
+
+                        <Button Content="تأكيد الطلب"
+                                Width="180"
+                                Height="40"
+                                DockPanel.Dock="Right"
+                                Style="{StaticResource DarkButtonStyle}"
+                                Click="ConfirmOrder_Click"/>
+                    </DockPanel>
+
                 </StackPanel>
-
-            </StackPanel>
+            </ScrollViewer>
         </Border>
     </Grid>
 </Page>
