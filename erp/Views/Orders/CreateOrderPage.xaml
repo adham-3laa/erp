@@ -51,7 +51,7 @@
                    HorizontalAlignment="Center"
                    Margin="0,16"/>
 
-        <!-- ================= Form (Scrollable) ================= -->
+        <!-- ================= Form ================= -->
         <Border Grid.Row="2"
                 Style="{StaticResource OrderCardStyle}"
                 Width="700"
@@ -62,19 +62,17 @@
 
                 <StackPanel>
 
-                    <!-- ===== Customer Info ===== -->
+                    <!-- ===== Order Info ===== -->
                     <TextBlock Text="بيانات الطلب"
                                FontSize="18"
                                FontWeight="Bold"
                                Margin="0,0,0,10"/>
 
                     <TextBlock Text="اسم العميل" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox x:Name="CustomerNameTextBox"
-                             Height="36"/>
+                    <TextBox x:Name="CustomerNameTextBox" Height="36"/>
 
                     <TextBlock Text="اسم المندوب" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox x:Name="SalesRepNameTextBox"
-                             Height="36"/>
+                    <TextBox x:Name="SalesRepNameTextBox" Height="36"/>
 
                     <TextBlock Text="نسبة العمولة (%)" Style="{StaticResource FieldTitleStyle}"/>
                     <TextBox x:Name="CommissionTextBox"
@@ -137,6 +135,7 @@
                     </DockPanel>
 
                 </StackPanel>
+
             </ScrollViewer>
         </Border>
     </Grid>
