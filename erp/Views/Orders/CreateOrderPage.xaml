@@ -129,7 +129,7 @@
                             Width="160"
                             Click="ConfirmOrder_Click"/>
                 </StackPanel>
-=======
+
                     <!-- كود العميل -->
                     <TextBlock Text="كود العميل"
                                FontSize="14"
