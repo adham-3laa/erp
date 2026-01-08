@@ -1,20 +1,16 @@
-using erp.Views.Inventory;
 using erp.Services;
 using erp.ViewModels.Returns;
 using erp.Views.Category;
 using erp.Views.Dashboard;
 using erp.Views.Expenses;
 using erp.Views.Invoices;
-using erp.Views.Payments;
 using erp.Views.Returns;
 using erp.Views.Users;
+using System;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-
-// ✅ Win32 Interop (بدون WindowsForms)
-using System;
-using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
 namespace erp
@@ -23,48 +19,55 @@ namespace erp
     {
         private readonly ApiClient _apiClient;
 
-        private void Logo_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
-        {
-            MessageBox.Show(e.ErrorException?.Message ?? "Image failed");
-        }
+        // ====== ✅ Manual Maximize (Borderless + Transparency safe) ======
+        private bool _isMaximized;
+        private Rect _restoreBounds;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            // ✅ يفتح Full Screen تلقائيًا على مقاس الشاشة الحالية
-            SourceInitialized += (_, __) => MoveToMouseMonitorWorkArea();
-            Loaded += (_, __) => MaximizeToCurrentMonitorWorkArea();
+            // ✅ افتح على أكبر حجم يناسب الشاشة اللي اتفتح عليها البرنامج
+            SourceInitialized += (_, __) =>
+            {
+                MoveToMouseMonitorWorkArea();
 
+                // خزن مقاس الريستور قبل التكبير
+                _restoreBounds = new Rect(Left, Top, Width, Height);
+
+                ApplyWorkAreaToCurrentMonitor();
+                _isMaximized = true;
+            };
+
+            // ====== باقي كودك ======
             var httpClient = ApiClient.CreateHttpClient();
             _apiClient = new ApiClient(httpClient, null);
 
-            erp.Services.NavigationService.Initialize(MainFrame);
+            Services.NavigationService.Initialize(MainFrame);
             NavigateToDashboard();
         }
 
-        // ====== Navigation Methods ======
+        // ================== Handlers المطلوبين من XAML ==================
 
-        public void NavigateToDashboard()
+        private void Logo_ImageFailed(object sender, ExceptionRoutedEventArgs e)
         {
-            MainFrame.Navigate(new DashboardPage());
-            SelectNavItem("Dashboard");
+            MessageBox.Show(e.ErrorException?.Message ?? "Image failed");
         }
 
-        public void NavigateToUsersPage()
+        private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            MainFrame.Navigate(new AllUsersPage());
-            SelectNavItem("Users");
-        }
+            // Double click toggles maximize
+            if (e.ClickCount == 2)
+            {
+                ToggleMaximizeRestore();
+                return;
+            }
 
-        public void NavigateToCurrentUser()
-        {
-            MainFrame.Navigate(new CurrentUserPage());
-            SelectNavItem(null);
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                try { DragMove(); } catch { }
+            }
         }
-
-        private void CurrentUserButton_Click(object sender, RoutedEventArgs e)
-            => NavigateToCurrentUser();
 
         private void NavListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -86,7 +89,7 @@ namespace erp
                     break;
 
                 case "Inventory":
-                    MainFrame.Navigate(new InventoryPage());
+                    MainFrame.Navigate(new erp.Views.Inventory.InventoryPage());
                     break;
 
                 case "Invoices":
@@ -108,9 +111,7 @@ namespace erp
                         var returnsVm = new ReturnsOrderItemsViewModel(returnsService);
                         var createReturnVm = new CreateReturnViewModel(returnsService);
 
-                        MainFrame.Navigate(
-                            new ReturnsOrderItemsView(returnsVm, createReturnVm)
-                        );
+                        MainFrame.Navigate(new ReturnsOrderItemsView(returnsVm, createReturnVm));
                         break;
                     }
 
@@ -123,12 +124,32 @@ namespace erp
                     SelectNavItem("Orders");
                     break;
 
-                case "Suppliers":
-                case "Auth":
                 default:
                     ShowUnderDevelopment(tag);
                     break;
             }
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+        private void Min_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private void Max_Click(object sender, RoutedEventArgs e)
+            => ToggleMaximizeRestore();
+
+        // ================== Navigation Methods ==================
+
+        public void NavigateToDashboard()
+        {
+            MainFrame.Navigate(new DashboardPage());
+            SelectNavItem("Dashboard");
+        }
+
+        public void NavigateToUsersPage()
+        {
+            MainFrame.Navigate(new AllUsersPage());
+            SelectNavItem("Users");
         }
 
         private static void ShowUnderDevelopment(string tag)
@@ -163,40 +184,38 @@ namespace erp
             }
         }
 
-        // ====== Window Controls ======
+        // ================== ✅ Manual Maximize / Restore ==================
 
-        private void Sidebar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ToggleMaximizeRestore()
         {
-            // Double click toggles maximize
-            if (e.ClickCount == 2)
+            if (!_isMaximized)
             {
-                Max_Click(sender, e);
-                return;
+                _restoreBounds = new Rect(Left, Top, Width, Height);
+                ApplyWorkAreaToCurrentMonitor();
+                _isMaximized = true;
             }
-
-            if (e.ChangedButton == MouseButton.Left)
+            else
             {
-                try { DragMove(); } catch { }
+                RestoreFromManualMaximize();
+                _isMaximized = false;
             }
         }
 
-        private void Close_Click(object sender, RoutedEventArgs e) => Close();
-
-        private void Max_Click(object sender, RoutedEventArgs e)
+        private void RestoreFromManualMaximize()
         {
-            WindowState = WindowState == WindowState.Maximized
-                ? WindowState.Normal
-                : WindowState.Maximized;
+            WindowState = WindowState.Normal;
+
+            MaxWidth = double.PositiveInfinity;
+            MaxHeight = double.PositiveInfinity;
+
+            Left = _restoreBounds.Left;
+            Top = _restoreBounds.Top;
+            Width = _restoreBounds.Width;
+            Height = _restoreBounds.Height;
         }
-
-        private void Min_Click(object sender, RoutedEventArgs e)
-            => WindowState = WindowState.Minimized;
-
-        // ====== ✅ Auto Full Screen on current monitor (Win32, no WinForms) ======
 
         private void MoveToMouseMonitorWorkArea()
         {
-            // اختار الشاشة اللي عليها الماوس وقت تشغيل البرنامج
             if (!GetCursorPos(out POINT pt))
                 return;
 
@@ -207,24 +226,29 @@ namespace erp
             RECT work = GetMonitorWorkArea(hMon);
             Rect dip = PixelRectToDip(work);
 
-            // لازم Normal قبل تحديد Left/Top/Width/Height
             WindowState = WindowState.Normal;
 
             Left = dip.Left;
             Top = dip.Top;
-            Width = dip.Width;
-            Height = dip.Height;
+
+            Width = Math.Min(1200, dip.Width);
+            Height = Math.Min(700, dip.Height);
         }
 
-        private void MaximizeToCurrentMonitorWorkArea()
+        private void ApplyWorkAreaToCurrentMonitor()
         {
             var hwnd = new WindowInteropHelper(this).Handle;
-            if (hwnd == IntPtr.Zero)
-                return;
 
-            IntPtr hMon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+            IntPtr hMon = hwnd != IntPtr.Zero
+                ? MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)
+                : IntPtr.Zero;
+
             if (hMon == IntPtr.Zero)
-                return;
+            {
+                if (!GetCursorPos(out POINT pt)) return;
+                hMon = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
+                if (hMon == IntPtr.Zero) return;
+            }
 
             RECT work = GetMonitorWorkArea(hMon);
             Rect dip = PixelRectToDip(work);
@@ -233,25 +257,20 @@ namespace erp
 
             Left = dip.Left;
             Top = dip.Top;
+            Width = dip.Width;
+            Height = dip.Height;
 
-            // مهم جدًا مع WindowStyle=None + AllowsTransparency=True
             MaxWidth = dip.Width;
             MaxHeight = dip.Height;
-
-            WindowState = WindowState.Maximized;
         }
 
         private Rect PixelRectToDip(RECT px)
         {
             var source = PresentationSource.FromVisual(this);
             if (source?.CompositionTarget == null)
-            {
-                // fallback
                 return new Rect(px.Left, px.Top, px.Right - px.Left, px.Bottom - px.Top);
-            }
 
             var m = source.CompositionTarget.TransformFromDevice;
-
             var tl = m.Transform(new Point(px.Left, px.Top));
             var br = m.Transform(new Point(px.Right, px.Bottom));
 
@@ -264,34 +283,20 @@ namespace erp
             mi.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
 
             if (!GetMonitorInfo(hMon, ref mi))
-            {
-                // fallback: empty rect
                 return new RECT();
-            }
 
-            // rcWork = WorkArea بدون Taskbar
-            return mi.rcWork;
+            return mi.rcWork; // WorkArea بدون Taskbar
         }
 
-        // ====== Win32 ======
+        // ================== Win32 ==================
 
         private const uint MONITOR_DEFAULTTONEAREST = 2;
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct POINT
-        {
-            public int X;
-            public int Y;
-        }
+        private struct POINT { public int X; public int Y; }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
+        private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct MONITORINFO
