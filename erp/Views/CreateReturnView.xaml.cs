@@ -16,6 +16,13 @@ namespace erp.Views.Returns
             DataContext = _viewModel;
         }
 
+        // زر الرجوع
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
         // إضافة منتج جديد
         private void AddItem_Click(object sender, RoutedEventArgs e)
         {
@@ -28,6 +35,5 @@ namespace erp.Views.Returns
             _viewModel.AddProduct();
             _viewModel.CurrentProduct = new CreateReturnItemDto();
         }
-
     }
 }

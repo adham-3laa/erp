@@ -9,7 +9,7 @@
     <!-- ===== Resources ===== -->
     <Page.Resources>
 
-        <!-- Base Button (زي التقارير) -->
+        <!-- Base Button -->
         <Style x:Key="SimpleButton" TargetType="Button">
             <Setter Property="Background" Value="#6B7280"/>
             <Setter Property="Foreground" Value="White"/>
@@ -21,13 +21,12 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="12">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
-            <!-- Disabled opacity -->
             <Setter Property="Opacity" Value="1"/>
             <Style.Triggers>
                 <Trigger Property="IsEnabled" Value="False">
@@ -54,7 +53,6 @@
             <Setter Property="Padding" Value="18,10"/>
         </Style>
 
-        <!-- Small TextBox -->
         <Style x:Key="SmallTextBox" TargetType="TextBox">
             <Setter Property="Height" Value="36"/>
             <Setter Property="Padding" Value="10,6"/>
@@ -64,7 +62,6 @@
             <Setter Property="Background" Value="White"/>
         </Style>
 
-        <!-- Label -->
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="#6B7280"/>
@@ -82,16 +79,31 @@
         </Grid.RowDefinitions>
 
         <!-- ===== Header ===== -->
-        <StackPanel Margin="0,0,0,14">
-            <TextBlock Text="📦 إنشاء طلب إرجاع"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       Foreground="#111827"/>
-            <TextBlock Text="أدخل رقم الطلب ثم بيانات المنتج وأضف أكثر من منتج لو لزم"
-                       FontSize="13"
-                       Foreground="#6B7280"
-                       Margin="0,4,0,0"/>
-        </StackPanel>
+        <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- زر الرجوع (أعلى الشمال) -->
+            <Button Content="⬅ رجوع"
+                    Width="110"
+                    Height="36"
+                    Style="{StaticResource PrimaryButton}"
+                    Click="Back_Click"/>
+
+            <!-- العنوان -->
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="📦 إنشاء طلب إرجاع"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           Foreground="#111827"/>
+                <TextBlock Text="أدخل رقم الطلب ثم بيانات المنتج وأضف أكثر من منتج لو لزم"
+                           FontSize="13"
+                           Foreground="#6B7280"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+        </Grid>
 
         <!-- ===== Form Card ===== -->
         <Border Grid.Row="1"
@@ -113,7 +125,6 @@
                          materialDesign:HintAssist.Hint="أدخل رقم الطلب"
                          materialDesign:HintAssist.Foreground="#9CA3AF"/>
 
-                <!-- Divider -->
                 <Border Height="1" Background="#E5E7EB" Margin="0,14,0,14"/>
 
                 <!-- Product Fields -->
@@ -124,7 +135,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="اسم المنتج  " Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Text="اسم المنتج" Style="{StaticResource FieldLabel}"/>
                         <TextBox Style="{StaticResource SmallTextBox}"
                                  Text="{Binding CurrentProduct.ProductId, UpdateSourceTrigger=PropertyChanged}"
                                  materialDesign:HintAssist.Hint="مثال: Rolex"
@@ -140,7 +151,9 @@
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="سبب الإرجاع" Style="{StaticResource FieldLabel}" Margin="0,12,0,6"/>
+                <TextBlock Text="سبب الإرجاع"
+                           Style="{StaticResource FieldLabel}"
+                           Margin="0,12,0,6"/>
                 <TextBox Style="{StaticResource SmallTextBox}"
                          Text="{Binding CurrentProduct.Reason, UpdateSourceTrigger=PropertyChanged}"
                          materialDesign:HintAssist.Hint="اكتب سبب الإرجاع"
