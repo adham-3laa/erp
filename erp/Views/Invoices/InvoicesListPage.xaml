@@ -168,16 +168,89 @@
                     </Border>
                 </StackPanel>
 
-                <!-- 👤 المستلم -->
+                <!-- 👤 اسم المستلم -->
                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,0">
-                    <TextBlock Text=" اسم المستلم" Foreground="{StaticResource TextMutedBrush}"/>
-                    <Border Style="{StaticResource GlowInputFrame}">
-                        <Border Style="{StaticResource GlowInputInner}">
-                            <TextBox Style="{StaticResource GlowTextBox}"
-                                     Text="{Binding RecipientQuery}"/>
+                    <TextBlock Text="اسم المستلم" Foreground="{StaticResource TextMutedBrush}"/>
+
+                    <Grid>
+                        <Border Style="{StaticResource GlowInputFrame}">
+                            <Border Style="{StaticResource GlowInputInner}">
+                                <TextBox Style="{StaticResource GlowTextBox}"
+                         Text="{Binding RecipientQuery, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Border>
                         </Border>
-                    </Border>
+
+                        <!-- Suggestions -->
+                        <Border Background="White"
+                Margin="0,42,0,0"
+                CornerRadius="8"
+                BorderBrush="#DDD"
+                BorderThickness="1">
+
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasRecipientSuggestions}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasNoRecipientResults}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <StackPanel>
+
+                                <!-- List -->
+                                <ListBox ItemsSource="{Binding RecipientSuggestions}"
+                         BorderThickness="0"
+                         MaxHeight="200">
+
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Padding="10"
+                                                 Cursor="Hand"
+                                                 MouseLeftButtonUp="RecipientSuggestion_Click">
+
+                                                <Run Text="{Binding BeforeMatch}"/>
+                                                <Run Text="{Binding Match}"
+                                                    FontWeight="Bold"
+                                                    Foreground="DodgerBlue"/>
+                                                <Run Text="{Binding AfterMatch}"/>
+
+                                            </TextBlock>
+
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <!-- No Results -->
+                                <TextBlock Text="لا يوجد أسماء"
+                           Foreground="Gray"
+                           FontStyle="Italic"
+                           HorizontalAlignment="Center"
+                           Margin="8">
+
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasNoRecipientResults}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+
+                                </TextBlock>
+
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </StackPanel>
+
 
                 <!-- 📅 من تاريخ -->
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,12,0">

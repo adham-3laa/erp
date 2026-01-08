@@ -4,6 +4,7 @@ using erp.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -16,7 +17,15 @@ namespace erp.ViewModels.Invoices
         public InvoicesListViewModel()
         {
             _invoiceService = new InvoiceService();
+
             Invoices = new ObservableCollection<InvoiceResponseDto>();
+
+            RecipientSuggestions = new ObservableCollection<RecipientSuggestion>();
+            RecipientSuggestions.CollectionChanged += (_, __) =>
+            {
+                OnPropertyChanged(nameof(HasRecipientSuggestions));
+                OnPropertyChanged(nameof(HasNoRecipientResults));
+            };
 
             InvoiceType = "الكل";
             IsLastInvoice = "الكل";
@@ -26,14 +35,19 @@ namespace erp.ViewModels.Invoices
             PreviousPageCommand = new RelayCommand(async () => await PreviousPage(), () => Page > 1);
         }
 
-
         // ================= Data =================
 
         public ObservableCollection<InvoiceResponseDto> Invoices { get; }
 
+        public ObservableCollection<RecipientSuggestion> RecipientSuggestions { get; }
+
+        public bool HasRecipientSuggestions => RecipientSuggestions.Any();
+
+        public bool HasNoRecipientResults =>
+            !string.IsNullOrWhiteSpace(RecipientQuery) && !RecipientSuggestions.Any();
+
         // ================= Filters =================
 
-        // 🔍 بحث عام
         private string _search;
         public string Search
         {
@@ -41,7 +55,6 @@ namespace erp.ViewModels.Invoices
             set { _search = value; OnPropertyChanged(); }
         }
 
-        // 🧾 نوع الفاتورة (القيمة العربية من الـ UI)
         private string _invoiceType;
         public string InvoiceType
         {
@@ -49,7 +62,6 @@ namespace erp.ViewModels.Invoices
             set { _invoiceType = value; OnPropertyChanged(); }
         }
 
-        // ✅ تحويل القيمة العربية للقيمة اللي Swagger مستنيها
         private string InvoiceTypeApiValue =>
             string.IsNullOrWhiteSpace(InvoiceType) || InvoiceType == "الكل"
                 ? null
@@ -62,8 +74,6 @@ namespace erp.ViewModels.Invoices
                     _ => null
                 };
 
-
-        // 🆔 رقم الطلب
         private string _orderId;
         public string OrderId
         {
@@ -71,15 +81,102 @@ namespace erp.ViewModels.Invoices
             set { _orderId = value; OnPropertyChanged(); }
         }
 
-        // 👤 رقم أو اسم المستلم
+        // ================= Recipient Autocomplete =================
+
         private string _recipientQuery;
         public string RecipientQuery
         {
             get => _recipientQuery;
-            set { _recipientQuery = value; OnPropertyChanged(); }
+            set
+            {
+                _recipientQuery = value;
+                OnPropertyChanged();
+                StartRecipientDebounce();
+                OnPropertyChanged(nameof(HasNoRecipientResults));
+            }
         }
 
-        // 📅 من تاريخ
+        private System.Timers.Timer _recipientDebounceTimer;
+
+        private void StartRecipientDebounce()
+        {
+            _recipientDebounceTimer?.Stop();
+            _recipientDebounceTimer = new System.Timers.Timer(350);
+            _recipientDebounceTimer.Elapsed += async (_, __) =>
+            {
+                _recipientDebounceTimer.Stop();
+                await LoadRecipientSuggestions();
+            };
+            _recipientDebounceTimer.Start();
+        }
+
+        private async Task LoadRecipientSuggestions()
+        {
+            if (string.IsNullOrWhiteSpace(RecipientQuery))
+            {
+                App.Current.Dispatcher.Invoke(() => RecipientSuggestions.Clear());
+                return;
+            }
+
+            try
+            {
+                var response = await _invoiceService.GetInvoices(
+                    search: null,
+                    invoiceType: null,
+                    query: RecipientQuery,
+                    orderId: null,
+                    lastInvoice: null,
+                    fromDate: null,
+                    toDate: null,
+                    page: 1,
+                    pageSize: 10
+                );
+
+                var search = RecipientQuery.ToLower();
+
+                var names = response.Items
+                    .Where(x => !string.IsNullOrWhiteSpace(x.RecipientName))
+                    .Select(x => x.RecipientName)
+                    .Distinct()
+                    .ToList();
+
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    RecipientSuggestions.Clear();
+
+                    foreach (var name in names)
+                    {
+                        var lower = name.ToLower();
+                        var index = lower.IndexOf(search);
+                        if (index < 0) continue;
+
+                        RecipientSuggestions.Add(new RecipientSuggestion
+                        {
+                            FullName = name,
+                            BeforeMatch = name.Substring(0, index),
+                            Match = name.Substring(index, search.Length),
+                            AfterMatch = name.Substring(index + search.Length)
+                        });
+
+                    }
+
+                    OnPropertyChanged(nameof(HasNoRecipientResults));
+                });
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        public void SelectRecipient(RecipientSuggestion item)
+        {
+            RecipientQuery = item.FullName;
+            RecipientSuggestions.Clear();
+        }
+
+        // ================= Dates =================
+
         private DateTime? _fromDate;
         public DateTime? FromDate
         {
@@ -87,7 +184,6 @@ namespace erp.ViewModels.Invoices
             set { _fromDate = value; OnPropertyChanged(); }
         }
 
-        // 📅 إلى تاريخ
         private DateTime? _toDate;
         public DateTime? ToDate
         {
@@ -95,7 +191,6 @@ namespace erp.ViewModels.Invoices
             set { _toDate = value; OnPropertyChanged(); }
         }
 
-        // 🧾 آخر فاتورة (نعم / لا)
         private string _isLastInvoice;
         public string IsLastInvoice
         {
@@ -103,14 +198,13 @@ namespace erp.ViewModels.Invoices
             set { _isLastInvoice = value; OnPropertyChanged(); }
         }
 
-        // تحويل القيمة العربية إلى bool? علشان الـ API
         private bool? IsLastInvoiceBool =>
             IsLastInvoice == "نعم" ? true :
             IsLastInvoice == "لا" ? false :
             null;
 
-
         // ================= Paging =================
+
         private int _page = 1;
         public int Page
         {
@@ -137,16 +231,6 @@ namespace erp.ViewModels.Invoices
             }
         }
 
-
-        // ================= UI State =================
-
-        private bool _isLoading;
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set { _isLoading = value; OnPropertyChanged(); }
-        }
-
         // ================= Commands =================
 
         public RelayCommand LoadInvoicesCommand { get; }
@@ -154,6 +238,7 @@ namespace erp.ViewModels.Invoices
         public RelayCommand PreviousPageCommand { get; }
 
         // ================= Logic =================
+
         private async Task LoadInvoices(bool resetPage)
         {
             try
@@ -192,7 +277,6 @@ namespace erp.ViewModels.Invoices
         private async Task NextPage()
         {
             if (!HasNextPage) return;
-
             Page++;
             await LoadInvoices(false);
         }
@@ -200,7 +284,6 @@ namespace erp.ViewModels.Invoices
         private async Task PreviousPage()
         {
             if (Page <= 1) return;
-
             Page--;
             await LoadInvoices(false);
         }
@@ -214,7 +297,6 @@ namespace erp.ViewModels.Invoices
         // ================= INotify =================
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
