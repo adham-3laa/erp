@@ -85,12 +85,48 @@
                 <TextBlock Text="اسم المورد"
                            Style="{StaticResource FieldTitleStyle}"/>
 
-                <Border CornerRadius="10"
-                        BorderThickness="1"
-                        BorderBrush="{StaticResource SoftBorderBrush}">
-                    <TextBox x:Name="SupplierNameTextBox"
-                             Style="{StaticResource StockTextBoxStyle}"/>
-                </Border>
+                <Grid>
+                    <Border CornerRadius="10"
+                            BorderThickness="1"
+                            BorderBrush="{StaticResource SoftBorderBrush}">
+                        <TextBox x:Name="SupplierNameTextBox"
+                                 Style="{StaticResource StockTextBoxStyle}"
+                                 TextChanged="SupplierNameTextBox_TextChanged"
+                                 GotFocus="SupplierNameTextBox_GotFocus"
+                                 LostFocus="SupplierNameTextBox_LostFocus"
+                                 KeyDown="SupplierNameTextBox_KeyDown"/>
+                    </Border>
+
+                    <!-- Suggestions Popup for Supplier -->
+                    <Border x:Name="SupplierSuggestionsBorder"
+                            Background="White"
+                            CornerRadius="8"
+                            BorderBrush="#DDD"
+                            BorderThickness="1"
+                            Margin="0,42,0,0"
+                            Visibility="Collapsed"
+                            MaxHeight="200">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#40000000"
+                                              BlurRadius="8"
+                                              ShadowDepth="2"
+                                              Opacity="0.3"/>
+                        </Border.Effect>
+                        <ListBox x:Name="SupplierSuggestionsListBox"
+                                 BorderThickness="0"
+                                 SelectionChanged="SupplierSuggestionsListBox_SelectionChanged"
+                                 MouseLeftButtonUp="SupplierSuggestionsListBox_MouseLeftButtonUp"
+                                 PreviewMouseDown="SupplierSuggestionsListBox_PreviewMouseDown">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Padding="10"
+                                               Cursor="Hand"
+                                               Text="{Binding}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
 
                 <!-- ================= Products ================= -->
                 <TextBlock Text="المنتجات"
@@ -98,19 +134,37 @@
                            FontWeight="Bold"
                            Margin="0,28,0,10"/>
 
-                <Border CornerRadius="12"
-                        BorderThickness="1"
-                        BorderBrush="{StaticResource SoftBorderBrush}">
+                <Grid>
+                    <Border CornerRadius="12"
+                            BorderThickness="1"
+                            BorderBrush="{StaticResource SoftBorderBrush}">
 
-                    <DataGrid x:Name="ProductsGrid"
-                              Style="{StaticResource StockDataGridStyle}"
-                              AutoGenerateColumns="False"
-                              Height="260">
+                        <DataGrid x:Name="ProductsGrid"
+                                  Style="{StaticResource StockDataGridStyle}"
+                                  AutoGenerateColumns="False"
+                                  Height="260">
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="اسم المنتج"
-                                                Binding="{Binding productname}"
-                                                Width="*"/>
+                            <DataGridTemplateColumn Header="اسم المنتج" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="6"
+                                                BorderThickness="1"
+                                                BorderBrush="#E5E7EB"
+                                                Margin="2">
+                                            <TextBox Text="{Binding productname, UpdateSourceTrigger=PropertyChanged}"
+                                                     BorderThickness="0"
+                                                     Background="Transparent"
+                                                     Padding="8"
+                                                     FontSize="14"
+                                                     TextChanged="ProductNameCell_TextChanged"
+                                                     GotFocus="ProductNameCell_GotFocus"
+                                                     LostFocus="ProductNameCell_LostFocus"
+                                                     KeyDown="ProductNameCell_KeyDown"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
 
                             <DataGridTextColumn Header="الكمية"
                                                 Binding="{Binding quantity}"
@@ -118,6 +172,41 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>
+
+                    <!-- Global Popup for Product Suggestions in DataGrid -->
+                    <Popup x:Name="ProductSuggestionsPopup"
+                           Placement="Bottom"
+                           PlacementTarget="{Binding ElementName=ProductsGrid}"
+                           StaysOpen="False"
+                           AllowsTransparency="True"
+                           PopupAnimation="Fade">
+                        <Border Background="White"
+                                CornerRadius="8"
+                                BorderBrush="#DDD"
+                                BorderThickness="1"
+                                MaxHeight="200"
+                                MinWidth="200">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#40000000"
+                                                  BlurRadius="8"
+                                                  ShadowDepth="2"
+                                                  Opacity="0.3"/>
+                            </Border.Effect>
+                            <ListBox x:Name="ProductSuggestionsPopupListBox"
+                                     BorderThickness="0"
+                                     MouseLeftButtonUp="ProductSuggestionsPopupListBox_MouseLeftButtonUp"
+                                     PreviewMouseDown="ProductSuggestionsPopupListBox_PreviewMouseDown">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Padding="10"
+                                                   Cursor="Hand"
+                                                   Text="{Binding}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Popup>
+                </Grid>
 
                 <!-- ================= Action ================= -->
                 <StackPanel Orientation="Horizontal"

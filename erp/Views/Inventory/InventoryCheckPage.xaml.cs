@@ -1,7 +1,11 @@
 ﻿using erp.Services;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace erp.Views.Inventory
@@ -10,9 +14,35 @@ namespace erp.Views.Inventory
     {
         private readonly InventoryService _service = new();
 
+        // ✅ قائمة أسماء المنتجات
+        private List<string> _allProducts = new List<string>();
+
         public InventoryCheckPage()
         {
             InitializeComponent();
+            Loaded += InventoryCheckPage_Loaded;
+        }
+
+        private async void InventoryCheckPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadAllProductsAsync();
+        }
+
+        private async Task LoadAllProductsAsync()
+        {
+            try
+            {
+                var products = await _service.GetAllProductsLookupAsync();
+                _allProducts = products
+                    .Where(p => !string.IsNullOrWhiteSpace(p.ProductName))
+                    .Select(p => p.ProductName.Trim())
+                    .Distinct()
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في تحميل قائمة المنتجات: {ex.Message}", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private async void Adjust_Click(object sender, RoutedEventArgs e)
@@ -122,6 +152,133 @@ namespace erp.Views.Inventory
         {
             if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
+        }
+
+        // ================== Product AutoComplete Logic ==================
+        private void ProductNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (ProductNameTextBox == null || string.IsNullOrEmpty(ProductNameTextBox.Text))
+            {
+                ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var searchText = ProductNameTextBox.Text.Trim();
+            var filtered = _allProducts
+                .Where(p => p.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(p =>
+                {
+                    if (p.Equals(searchText, StringComparison.OrdinalIgnoreCase))
+                        return 0;
+                    if (p.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                        return 1;
+                    return 2;
+                })
+                .ThenBy(p => p.Length)
+                .Take(10)
+                .ToList();
+
+            if (filtered.Count > 0)
+            {
+                ProductSuggestionsListBox.ItemsSource = filtered;
+                ProductSuggestionsBorder.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void ProductNameTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(ProductNameTextBox.Text))
+            {
+                ProductNameTextBox_TextChanged(sender, null);
+            }
+        }
+
+        private void ProductNameTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var focusedElement = FocusManager.GetFocusedElement(this);
+            if (focusedElement != ProductSuggestionsListBox && focusedElement != ProductNameTextBox)
+            {
+                Task.Delay(150).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (!ProductSuggestionsListBox.IsMouseOver && !ProductNameTextBox.IsFocused)
+                        {
+                            ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
+                        }
+                    });
+                });
+            }
+        }
+
+        private void ProductNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (ProductSuggestionsBorder.Visibility != Visibility.Visible)
+                return;
+
+            if (e.Key == Key.Down)
+            {
+                if (ProductSuggestionsListBox.Items.Count > 0)
+                {
+                    ProductSuggestionsListBox.Focus();
+                    if (ProductSuggestionsListBox.SelectedIndex < ProductSuggestionsListBox.Items.Count - 1)
+                        ProductSuggestionsListBox.SelectedIndex++;
+                    else
+                        ProductSuggestionsListBox.SelectedIndex = 0;
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (ProductSuggestionsListBox.Items.Count > 0)
+                {
+                    ProductSuggestionsListBox.Focus();
+                    if (ProductSuggestionsListBox.SelectedIndex > 0)
+                        ProductSuggestionsListBox.SelectedIndex--;
+                    else
+                        ProductSuggestionsListBox.SelectedIndex = ProductSuggestionsListBox.Items.Count - 1;
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (ProductSuggestionsListBox.SelectedItem != null)
+                {
+                    SelectProductSuggestion(ProductSuggestionsListBox.SelectedItem.ToString());
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Escape)
+            {
+                ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
+                e.Handled = true;
+            }
+        }
+
+        private void ProductSuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
+
+        private void ProductSuggestionsListBox_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (ProductSuggestionsListBox.SelectedItem != null)
+            {
+                SelectProductSuggestion(ProductSuggestionsListBox.SelectedItem.ToString());
+            }
+        }
+
+        private void ProductSuggestionsListBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = false;
+        }
+
+        private void SelectProductSuggestion(string selectedProduct)
+        {
+            ProductNameTextBox.Text = selectedProduct;
+            ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
+            ProductNameTextBox.Focus();
         }
     }
 }

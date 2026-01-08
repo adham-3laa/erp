@@ -28,6 +28,22 @@
             <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
             <Setter Property="Margin" Value="0,14,0,6"/>
         </Style>
+
+        <!-- TextBox Style -->
+        <Style x:Key="OrderTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <!-- Border Style for TextBox -->
+        <Style x:Key="TextBoxBorderStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SoftBorderBrush}"/>
+        </Style>
     </Page.Resources>
 
     <!-- ================= Layout ================= -->
@@ -69,20 +85,103 @@
                                Margin="0,0,0,10"/>
 
                     <TextBlock Text="اسم العميل" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox x:Name="CustomerNameTextBox" Height="36"/>
+                    <Grid>
+                        <Border Style="{StaticResource TextBoxBorderStyle}">
+                            <TextBox x:Name="CustomerNameTextBox"
+                                     Style="{StaticResource OrderTextBoxStyle}"
+                                     TextChanged="CustomerNameTextBox_TextChanged"
+                                     GotFocus="CustomerNameTextBox_GotFocus"
+                                     LostFocus="CustomerNameTextBox_LostFocus"
+                                     KeyDown="CustomerNameTextBox_KeyDown"/>
+                        </Border>
+
+                        <!-- Suggestions Popup for Customer -->
+                        <Border x:Name="CustomerSuggestionsBorder"
+                                Background="White"
+                                CornerRadius="8"
+                                BorderBrush="#DDD"
+                                BorderThickness="1"
+                                Margin="0,42,0,0"
+                                Visibility="Collapsed"
+                                MaxHeight="200">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#40000000"
+                                                  BlurRadius="8"
+                                                  ShadowDepth="2"
+                                                  Opacity="0.3"/>
+                            </Border.Effect>
+                            <ListBox x:Name="CustomerSuggestionsListBox"
+                                     BorderThickness="0"
+                                     SelectionChanged="CustomerSuggestionsListBox_SelectionChanged"
+                                     MouseLeftButtonUp="CustomerSuggestionsListBox_MouseLeftButtonUp"
+                                     PreviewMouseDown="CustomerSuggestionsListBox_PreviewMouseDown">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Padding="10"
+                                                   Cursor="Hand"
+                                                   Text="{Binding}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Grid>
 
                     <TextBlock Text="اسم المندوب" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox x:Name="SalesRepNameTextBox" Height="36"/>
+                    <Grid>
+                        <Border Style="{StaticResource TextBoxBorderStyle}">
+                            <TextBox x:Name="SalesRepNameTextBox"
+                                     Style="{StaticResource OrderTextBoxStyle}"
+                                     TextChanged="SalesRepNameTextBox_TextChanged"
+                                     GotFocus="SalesRepNameTextBox_GotFocus"
+                                     LostFocus="SalesRepNameTextBox_LostFocus"
+                                     KeyDown="SalesRepNameTextBox_KeyDown"/>
+                        </Border>
+
+                        <!-- Suggestions Popup for Sales Rep -->
+                        <Border x:Name="SalesRepSuggestionsBorder"
+                                Background="White"
+                                CornerRadius="8"
+                                BorderBrush="#DDD"
+                                BorderThickness="1"
+                                Margin="0,42,0,0"
+                                Visibility="Collapsed"
+                                MaxHeight="200">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#40000000"
+                                                  BlurRadius="8"
+                                                  ShadowDepth="2"
+                                                  Opacity="0.3"/>
+                            </Border.Effect>
+                            <ListBox x:Name="SalesRepSuggestionsListBox"
+                                     BorderThickness="0"
+                                     SelectionChanged="SalesRepSuggestionsListBox_SelectionChanged"
+                                     MouseLeftButtonUp="SalesRepSuggestionsListBox_MouseLeftButtonUp"
+                                     PreviewMouseDown="SalesRepSuggestionsListBox_PreviewMouseDown">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Padding="10"
+                                                   Cursor="Hand"
+                                                   Text="{Binding}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Grid>
 
                     <TextBlock Text="نسبة العمولة (%)" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox x:Name="CommissionTextBox"
-                             Height="36"
-                             FlowDirection="LeftToRight"
-                             PreviewTextInput="NumberOnly"/>
+                    <Border Style="{StaticResource TextBoxBorderStyle}">
+                        <TextBox x:Name="CommissionTextBox"
+                                 Style="{StaticResource OrderTextBoxStyle}"
+                                 FlowDirection="LeftToRight"
+                                 PreviewTextInput="CommissionTextBox_PreviewTextInput"/>
+                    </Border>
 
-                    <!-- ===== Customer Code ===== -->
-                    <TextBlock Text="كود العميل" Style="{StaticResource FieldTitleStyle}"/>
-                    <TextBox Height="36"/>
+                    <!-- ===== Customer Number ===== -->
+                    <TextBlock Text="رقم العميل" Style="{StaticResource FieldTitleStyle}"/>
+                    <Border Style="{StaticResource TextBoxBorderStyle}">
+                        <TextBox x:Name="CustomerNumberTextBox"
+                                 Style="{StaticResource OrderTextBoxStyle}"/>
+                    </Border>
 
                     <!-- ===== Products ===== -->
                     <TextBlock Text="المنتجات"

@@ -106,7 +106,7 @@ namespace erp.Services
 
         public async Task<bool> CreateOrderAsync(
     CreateOrderRequestDto request,
-    decimal commissionPercentage)
+    double commissionPercentage)
         {
             await _api.PostAsync<object>(
                 $"api/Orders/Create_Order_By_Store_Manager_By_Customer_Id_And_SalesRepId?CommissionPercentage={commissionPercentage}",
@@ -115,6 +115,7 @@ namespace erp.Services
 
             return true;
         }
+
 
     }
 }

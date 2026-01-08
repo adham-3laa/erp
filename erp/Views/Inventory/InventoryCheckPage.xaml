@@ -96,15 +96,48 @@
                            Margin="0,0,0,12"/>
 
                 <TextBlock Text="اسم المنتج" Style="{StaticResource FieldTitleStyle}"/>
-                <Border CornerRadius="10"
-                        BorderThickness="1"
-                        BorderBrush="{StaticResource SoftBorderBrush}">
-                    <TextBox x:Name="ProductNameTextBox"
-                             Style="{StaticResource AuditTextBoxStyle}"/>
-                </Border>
-                <Border CornerRadius="10"
-                        BorderThickness="1"
-                        BorderBrush="{StaticResource SoftBorderBrush}"/>
+                <Grid>
+                    <Border CornerRadius="10"
+                            BorderThickness="1"
+                            BorderBrush="{StaticResource SoftBorderBrush}">
+                        <TextBox x:Name="ProductNameTextBox"
+                                 Style="{StaticResource AuditTextBoxStyle}"
+                                 TextChanged="ProductNameTextBox_TextChanged"
+                                 GotFocus="ProductNameTextBox_GotFocus"
+                                 LostFocus="ProductNameTextBox_LostFocus"
+                                 KeyDown="ProductNameTextBox_KeyDown"/>
+                    </Border>
+
+                    <!-- Suggestions Popup for Product -->
+                    <Border x:Name="ProductSuggestionsBorder"
+                            Background="White"
+                            CornerRadius="8"
+                            BorderBrush="#DDD"
+                            BorderThickness="1"
+                            Margin="0,42,0,0"
+                            Visibility="Collapsed"
+                            MaxHeight="200">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#40000000"
+                                              BlurRadius="8"
+                                              ShadowDepth="2"
+                                              Opacity="0.3"/>
+                        </Border.Effect>
+                        <ListBox x:Name="ProductSuggestionsListBox"
+                                 BorderThickness="0"
+                                 SelectionChanged="ProductSuggestionsListBox_SelectionChanged"
+                                 MouseLeftButtonUp="ProductSuggestionsListBox_MouseLeftButtonUp"
+                                 PreviewMouseDown="ProductSuggestionsListBox_PreviewMouseDown">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Padding="10"
+                                               Cursor="Hand"
+                                               Text="{Binding}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
 
                 <TextBlock Text="الكمية الفعلية" Style="{StaticResource FieldTitleStyle}"/>
                 <Border CornerRadius="10"
