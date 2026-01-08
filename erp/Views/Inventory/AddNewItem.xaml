@@ -208,8 +208,16 @@
                         <Border CornerRadius="10"
                                 BorderThickness="1"
                                 BorderBrush="{StaticResource SoftBorderBrush}">
-                            <TextBox Text="{Binding Category}"
-                                     Style="{StaticResource WizardTextBoxStyle}"/>
+                            <ComboBox
+                                x:Name="CategoryComboBox"
+                                IsEditable="True"
+                                IsTextSearchEnabled="True"
+                                StaysOpenOnEdit="True"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                Margin="5"
+                                Text="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />      
+
                         </Border>
 
                         <TextBlock Text="الوصف" Style="{StaticResource FieldTitleStyle}"/>

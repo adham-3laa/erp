@@ -1,6 +1,8 @@
 ﻿using EduGate.Models;
 using erp.Services;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,6 +19,9 @@ namespace erp.Views.Inventory
         // اسم المورد (بيتبعت للـ API كـ supplierName)
         private string _supplierName = "";
 
+        // ✅ كل الأصناف الموجودة في السيستم
+        private List<string> _allCategories = new();
+
         public AddNewItem()
         {
             InitializeComponent();
@@ -30,9 +35,8 @@ namespace erp.Views.Inventory
         }
 
         // زرار "ابدأ"
-        private void StartWizard_Click(object sender, RoutedEventArgs e)
+        private async void StartWizard_Click(object sender, RoutedEventArgs e)
         {
-            // ✅ FIX: الاسم الصحيح من XAML
             if (string.IsNullOrWhiteSpace(SupplierNameTextBox.Text))
             {
                 MessageBox.Show("من فضلك أدخل اسم المورد");
@@ -51,12 +55,29 @@ namespace erp.Views.Inventory
             for (int i = 0; i < _count; i++)
                 _products.Add(new Product());
 
+            // ✅ تحميل كل الأصناف من السيستم
+            await LoadAllCategoriesAsync();
+
             CountPanel.Visibility = Visibility.Collapsed;
             FormPanel.Visibility = Visibility.Visible;
 
             _index = 0;
             LoadCurrent();
         }
+
+        private async Task LoadAllCategoriesAsync()
+        {
+            var products = await _service.GetAllProductsLookupAsync();
+            _allCategories = products
+                .Select(p => p.CategoryName)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct()
+                .ToList();
+
+            // ✅ ربط ComboBox بالأصناف
+            CategoryComboBox.ItemsSource = _allCategories;
+        }
+
 
         private void LoadCurrent()
         {
@@ -65,10 +86,6 @@ namespace erp.Views.Inventory
 
             DataContext = _products[_index];
             StepTitle.Text = $"المنتج {_index + 1} من {_count}";
-
-            //NextBtn.Visibility = _index == _count - 1
-            //    ? Visibility.Collapsed
-            //    : Visibility.Visible;
 
             SaveBtn.Visibility = _index == _count - 1
                 ? Visibility.Visible
@@ -116,7 +133,6 @@ namespace erp.Views.Inventory
 
             try
             {
-                // ✅ FIX: استخدام اسم المورد
                 await _service.AddProductsWithCategoryNameAsync(_products, _supplierName);
 
                 MessageBox.Show("تم إضافة المنتجات بنجاح ✅");
@@ -161,9 +177,24 @@ namespace erp.Views.Inventory
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(product.Category))
+            // ✅ التحقق من الصنف
+            if (!IsCategoryValid(product.Category))
+                return false;
+
+            return true;
+        }
+
+        private bool IsCategoryValid(string category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
             {
                 MessageBox.Show("اسم الصنف مطلوب");
+                return false;
+            }
+
+            if (!_allCategories.Contains(category))
+            {
+                MessageBox.Show($"اسم الصنف '{category}' غير موجود في النظام");
                 return false;
             }
 

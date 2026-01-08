@@ -1,7 +1,6 @@
 ﻿using EduGate.Models;
 using erp.Services;
 using System;
-using erp.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -9,13 +8,24 @@ using System.Windows.Controls;
 
 namespace erp.Views.Inventory
 {
+    public class EmptyGridMessage
+    {
+        public string Message { get; set; } = "";
+    }
+
     public partial class InventoryPage : Page
     {
         private readonly InventoryService _inventoryService;
-        private List<Product> _products;
 
+        // كل المنتجات
+        private List<Product> _products = new List<Product>();
+
+        // المصدر الحالي (بحث / كل المنتجات)
+        private List<Product> _currentSource = new List<Product>();
+
+        // Pagination
         private int _currentPage = 1;
-        private int _itemsPerPage = 20;
+        private int _itemsPerPage = 10;
         private int _totalPages = 1;
 
         public InventoryPage()
@@ -25,15 +35,13 @@ namespace erp.Views.Inventory
             _inventoryService = new InventoryService();
             LoadProducts();
 
-            // ===== ربط أزرار الـ TopBar =====
+            // TopBar events
             InventoryTopBarControl.AddProductClicked += InventoryTopBar_AddProductClicked;
             InventoryTopBarControl.InventoryCheckClicked += InventoryTopBar_InventoryCheckClicked;
-
-            // 🔴 ده كان ناقص
             InventoryTopBarControl.StockInClicked += InventoryTopBar_StockInClicked;
         }
 
-        // ================== TopBar Handlers ==================
+        // ================== TopBar ==================
         private void InventoryTopBar_AddProductClicked(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new AddNewItem());
@@ -46,17 +54,19 @@ namespace erp.Views.Inventory
 
         private void InventoryTopBar_StockInClicked(object sender, RoutedEventArgs e)
         {
-            // صفحة تحديث كمية منتجات
             NavigationService?.Navigate(new StockInProductsPage());
         }
 
-        // ================== تحميل المنتجات ==================
+        // ================== Load Products ==================
         private async void LoadProducts()
         {
             try
             {
                 _products = await _inventoryService.GetAllProductsAsync();
+
+                _currentSource = _products;
                 _currentPage = 1;
+
                 LoadProductsPage();
                 ErrorTextBlock.Visibility = Visibility.Collapsed;
             }
@@ -67,91 +77,37 @@ namespace erp.Views.Inventory
             }
         }
 
-        // ================== Pagination ==================
+        // ================== Pagination Core ==================
         private void LoadProductsPage()
         {
-            if (_products == null) return;
+            if (_currentSource == null)
+                return;
 
-            _totalPages = (_products.Count + _itemsPerPage - 1) / _itemsPerPage;
+            if (_currentSource == null || !_currentSource.Any())
+            {
+                ProductsDataGrid.ItemsSource = null;
+                PageTextBlock.Text = "لا توجد بيانات";
+                return;
+            }
 
-            var itemsToShow = _products
+            _totalPages = (int)Math.Ceiling((double)_currentSource.Count / _itemsPerPage);
+
+            if (_currentPage < 1)
+                _currentPage = 1;
+
+            if (_currentPage > _totalPages)
+                _currentPage = _totalPages;
+
+            var pageItems = _currentSource
                 .Skip((_currentPage - 1) * _itemsPerPage)
                 .Take(_itemsPerPage)
                 .ToList();
 
-            ProductsDataGrid.ItemsSource = itemsToShow;
-            PageTextBlock.Text = $"الصفحة {_currentPage} من {_totalPages}";
-        }
-
-        private void RefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            LoadProducts();
-        }
-
-        // ================== Delete ==================
-        private async void DeleteProduct_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.DataContext is Product product)
-            {
-                var result = MessageBox.Show(
-                    $"هل تريد حذف المنتج {product.Name}؟",
-                    "تأكيد الحذف",
-                    MessageBoxButton.YesNo
-                );
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    bool success = await _inventoryService.DeleteProductAsync(product.ProductId);
-                    if (success)
-                        LoadProducts();
-                    else
-                        MessageBox.Show("حدث خطأ أثناء حذف المنتج.");
-                }
-            }
-        }
-
-        // ================== Edit ==================
-        private void EditProduct_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.DataContext is Product product)
-            {
-                NavigationService?.Navigate(new EditProductPage(product));
-            }
-        }
-
-        // ================== Search ==================
-        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string searchText = SearchTextBox.Text.Trim();
-
-            if (string.IsNullOrEmpty(searchText))
-            {
-                LoadProducts();
-                return;
-            }
-
-            try
-            {
-                var result =
-                    await _inventoryService.SearchProductsByNameAsync(searchText);
-
-                ProductsDataGrid.ItemsSource = result;
-                PageTextBlock.Text = $"نتائج البحث: {result.Count}";
-            }
-            catch (Exception ex)
-            {
-                ErrorTextBlock.Text = ex.Message;
-                ErrorTextBlock.Visibility = Visibility.Visible;
-            }
+            ProductsDataGrid.ItemsSource = pageItems;
+            PageTextBlock.Text = $"صفحة {_currentPage} من {_totalPages}";
         }
 
         // ================== Pagination Buttons ==================
-        private void FirstPage_Click(object sender, RoutedEventArgs e)
-        {
-            _currentPage = 1;
-            LoadProductsPage();
-        }
-
         private void PrevPage_Click(object sender, RoutedEventArgs e)
         {
             if (_currentPage > 1)
@@ -170,10 +126,89 @@ namespace erp.Views.Inventory
             }
         }
 
-        private void LastPage_Click(object sender, RoutedEventArgs e)
+        // ================== Refresh ==================
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            _currentPage = _totalPages;
-            LoadProductsPage();
+            SearchTextBox.Text = string.Empty;
+            LoadProducts();
         }
+
+        // ================== Delete ==================
+        private async void DeleteProduct_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is Product product)
+            {
+                var result = MessageBox.Show(
+                    $"هل تريد حذف المنتج {product.Name}؟",
+                    "تأكيد الحذف",
+                    MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    bool success = await _inventoryService.DeleteProductAsync(product.ProductId);
+
+                    if (success)
+                        LoadProducts();
+                    else
+                        MessageBox.Show("حدث خطأ أثناء حذف المنتج");
+                }
+            }
+        }
+
+        // ================== Edit ==================
+        private void EditProduct_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is Product product)
+            {
+                NavigationService?.Navigate(new EditProductPage(product));
+            }
+        }
+
+        // ================== Search ==================
+        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string searchText = SearchTextBox.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                _currentSource = _products;
+                _currentPage = 1;
+                LoadProductsPage();
+                return;
+            }
+
+            try
+            {
+                var result = await _inventoryService.SearchProductsByNameAsync(searchText);
+
+                if (result == null || result.Count == 0)
+                {
+                    ShowEmptyMessage("عذرًا، هذا المنتج غير موجود");
+                    return;
+                }
+
+                _currentSource = result;
+                _currentPage = 1;
+                LoadProductsPage();
+            }
+            catch
+            {
+                ShowEmptyMessage("حدث خطأ أثناء البحث");
+            }
+        }
+
+
+        private void ShowEmptyMessage(string message)
+        {
+            ProductsDataGrid.ItemsSource = new List<EmptyGridMessage>
+        {
+            new EmptyGridMessage { Message = message }
+        };
+
+            PageTextBlock.Text = "";
+        }
+
+
+
     }
 }
