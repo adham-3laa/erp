@@ -409,7 +409,9 @@
                 </Border>
 
                 <!-- TraceId -->
+
                 <Border Grid.Column="3" Margin="8" Padding="18" CornerRadius="16" Background="#F3F4F6"/>
+
             </Grid>
 
             <!-- Spacer -->
