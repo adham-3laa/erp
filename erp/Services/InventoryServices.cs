@@ -1,4 +1,4 @@
-﻿using EduGate.Models;
+﻿using erp.ViewModels;
 using erp;
 using erp.DTOS.Inventory.Requests;
 using erp.DTOS.Inventory.Responses;
@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EduGate.Models;
 
 namespace erp.Services
 {
@@ -22,7 +23,7 @@ namespace erp.Services
         {
             _client = new HttpClient
             {
-                BaseAddress = new Uri("http://be-positive.runasp.net/")
+                BaseAddress = new Uri("http://localhost:5000/")
             };
         }
 
@@ -52,6 +53,14 @@ namespace erp.Services
             response.EnsureSuccessStatusCode();
 
             var jsonString = await response.Content.ReadAsStringAsync();
+
+            var apiResponse =
+                JsonSerializer.Deserialize<ApiResponse<List<InventoryItemResponse>>>(
+                    jsonString,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
             if (string.IsNullOrWhiteSpace(jsonString))
                 return new List<InventoryProductInfo>();
 
@@ -111,24 +120,32 @@ namespace erp.Services
         {
             var infos = await GetAllProductsInfoAsync(skip: 0, take: 1000);
 
+            if (infos == null)
+                return new List<Product>();
+
             return infos.Select(p => new Product
             {
                 ProductId = p.ProductId,
-                Name = p.ProductName,
+                Name = p.ProductName ?? "",
 
-                // ✅ تحويل آمن من decimal لـ int
                 SalePrice = Convert.ToInt32(p.SalePrice),
-
-                // كان زمان بيرجع categoryid (guid) — هنخليه زي ما هو علشان باقي السيستم
-                Category = p.CategoryId ?? "",
-
                 BuyPrice = Convert.ToInt32(p.BuyPrice),
+
                 Quantity = p.Quantity > 0 ? p.Quantity : 1,
                 SKU = string.IsNullOrWhiteSpace(p.SKU) ? "N/A" : p.SKU,
+
+                // ✅ عرض اسم الصنف بدل الكود
+                Category = !string.IsNullOrWhiteSpace(p.CategoryName)
+        ? p.CategoryName
+        : "غير محدد",
+
                 Description = p.Description ?? "",
                 Supplier = ""
             }).ToList();
+
         }
+
+
 
         // ================== Delete ==================
         public async Task<bool> DeleteProductAsync(string id)
@@ -142,7 +159,7 @@ namespace erp.Services
             return response.IsSuccessStatusCode;
         }
 
-        // ================== Add Single Product (قديم) ==================
+        // ================== Add Single Product ==================
         public async Task AddProductAsync(object body)
         {
             _client.DefaultRequestHeaders.Authorization =
@@ -154,10 +171,10 @@ namespace erp.Services
             response.EnsureSuccessStatusCode();
         }
 
-        // ================== Add List Of Products (NEW API) ==================
+        // ================== Add List Of Products ==================
         public async Task AddProductsWithCategoryNameAsync(
-             List<Product> products,
-             string supplierId)
+            List<Product> products,
+            string supplierId)
         {
             if (string.IsNullOrWhiteSpace(supplierId))
                 throw new Exception("SupplierId مطلوب");
@@ -198,7 +215,8 @@ namespace erp.Services
             }).ToList();
 
             var url =
-                $"/api/Inventory/ListOfProductsWithCategoryName?SupplierId={supplierId}";
+     $"/api/Inventory/ListOfProductsWithCategoryName?supplierName={Uri.EscapeDataString(supplierId)}";
+
 
             var response = await _client.PostAsJsonAsync(url, body);
 
@@ -215,7 +233,6 @@ namespace erp.Services
             _client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
 
-            // ===== Validation =====
             if (string.IsNullOrWhiteSpace(product.ProductId))
                 throw new Exception("ProductId مفقود");
 
@@ -223,57 +240,60 @@ namespace erp.Services
                 throw new Exception("اسم المنتج مطلوب");
 
             if (string.IsNullOrWhiteSpace(product.Category))
-                product.Category = "default";
+                throw new Exception("اسم الصنف مطلوب");
 
             if (product.SalePrice <= 0)
                 throw new Exception("سعر البيع غير صالح");
 
-            if (product.BuyPrice <= 0)
-                product.BuyPrice = product.SalePrice;
-
             if (product.Quantity <= 0)
-                product.Quantity = 1;
+                throw new Exception("الكمية غير صالحة");
 
             if (string.IsNullOrWhiteSpace(product.SKU))
                 product.SKU = "N/A";
 
-            var request = new UpdateProductRequest
+            var request = new UpdateProductWithCategoryNameRequest
             {
                 productid = product.ProductId,
-                productname = product.Name,
+                productname = product.Name.Trim(),
                 sellprice = product.SalePrice,
-                buyprice = product.BuyPrice,
                 quantity = product.Quantity,
-                sku = product.SKU,
+                sku = product.SKU.Trim(),
                 description = product.Description ?? "",
-                categoryid = product.Category
+                categoryname = product.Category.Trim()
             };
 
-            var response =
-                await _client.PutAsJsonAsync("/api/Inventory/products", request);
+            var response = await _client.PutAsJsonAsync(
+                "/api/Inventory/productsWithCategoryName",
+                request);
 
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"API Error: {error}");
+                throw new Exception(error);
             }
         }
 
-        public async Task<InventoryAdjustmentResponse> AdjustInventoryAsync(
-            string productId,
-            int actualQuantity)
+
+
+
+        // ================== Inventory Check ==================
+        public async Task<InventoryAdjustmentResponse> AdjustInventoryByNameAsync(
+      string productName,
+      int actualQuantity,
+      bool updateStock)
         {
             _client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+                new System.Net.Http.Headers.AuthenticationHeaderValue(
+                    "Bearer", TokenStore.Token);
 
             var body = new
             {
-                productid = productId,
+                productname = productName,
                 actualquantity = actualQuantity
             };
 
             var response = await _client.PostAsJsonAsync(
-                "/api/InventoryCheck/Adjust",
+                $"/api/InventoryCheck/Adjust?UpdateStock={updateStock.ToString().ToLower()}",
                 body);
 
             if (!response.IsSuccessStatusCode)
@@ -284,11 +304,79 @@ namespace erp.Services
 
             var json = await response.Content.ReadAsStringAsync();
 
-            var result = JsonSerializer.Deserialize<InventoryAdjustmentResponse>(
+            return JsonSerializer.Deserialize<InventoryAdjustmentResponse>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        }
+
+
+
+        // ================== Search Product By Name ==================
+        public async Task<List<Product>> SearchProductsByNameAsync(string productName)
+        {
+            if (string.IsNullOrWhiteSpace(productName))
+                return new List<Product>();
+
+            _client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+
+            var response = await _client.GetAsync(
+                $"/api/Inventory/products?ProductName={Uri.EscapeDataString(productName)}");
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+
+            var apiResponse =
+                JsonSerializer.Deserialize<ApiResponse<List<InventoryItemResponse>>>(
+                    jsonString,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+            return apiResponse?.value.Select(p => new Product
+            {
+                ProductId = p.productid,
+                Name = p.productname,
+                SalePrice = (int)p.saleprice,
+                BuyPrice = (int)p.buyprice,
+                Quantity = p.quantity,
+                SKU = p.sku,
+                Category = p.categoryname
+            }).ToList() ?? new List<Product>();
+        }
+
+        public async Task<int> StockInProductsAsync(
+        string supplierName,
+        List<StockInItemRequest> items)
+        {
+            if (string.IsNullOrWhiteSpace(supplierName))
+                throw new Exception("اسم المورد مطلوب");
+
+            if (items == null || items.Count == 0)
+                throw new Exception("قائمة المنتجات فارغة");
+
+            _client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+
+            var response = await _client.PostAsJsonAsync(
+                $"/api/Inventory/Listproducts/stock/in?supplierName={Uri.EscapeDataString(supplierName)}",
+                items);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<ApiResponse<int>>(
                 json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            return result!;
+            return result?.value ?? 0;
         }
 
         public class ProductLookupDto

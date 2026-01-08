@@ -4,7 +4,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace EduGate.Views.Orders
+namespace erp.Views.Orders
 {
     public partial class ApprovedOrdersPage : Page
     {
@@ -22,8 +22,7 @@ namespace EduGate.Views.Orders
             OrdersTopBarControl.CreateOrderClicked += (_, __) =>
                 NavigationService.Navigate(new CreateOrderPage());
 
-            OrdersTopBarControl.SalesRepOrdersClicked += (_, __) =>
-                NavigationService.Navigate(new SalesRepOrdersPage());
+           
         }
 
         private async void LoadApprovedOrders(object sender, RoutedEventArgs e)

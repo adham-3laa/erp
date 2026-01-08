@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="EduGate.Views.Orders.OrdersTopBar"
+﻿<UserControl x:Class="erp.Views.Orders.OrdersTopBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Height="60">
@@ -16,13 +16,6 @@
                 Width="140"
                 Style="{StaticResource DarkButtonStyle}"
                 Click="CreateOrder_Click"/>
-
-        <Button Grid.Column="1"
-                Content="📋 طلبات المندوبين"
-                Width="160"
-                Style="{StaticResource DarkButtonStyle}"
-                Margin="8,0"
-                Click="SalesRepOrders_Click"/>
 
         <Button Grid.Column="2"
                 Content="✅ الطلبات المعتمدة"

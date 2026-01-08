@@ -6,10 +6,9 @@
         Width="1200"
         FlowDirection="RightToLeft"
         Background="Transparent"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="Manual"
         AllowsTransparency="True"
-        WindowStyle="None"
-        WindowState="Maximized">
+        WindowStyle="None">
 
     <Window.Resources>
         <!-- إضافة Style بسيط للأزرار -->
@@ -59,13 +58,8 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <!-- Logo Card -->
-                            <RowDefinition Height="Auto"/>
-                            <!-- The First -->
                             <RowDefinition Height="*"/>
-                            <!-- Nav -->
                             <RowDefinition Height="Auto"/>
-                            <!-- Window Controls -->
                         </Grid.RowDefinitions>
 
                         <!-- ✅ Logo Card (Logo + BIT TECH) -->
@@ -89,7 +83,8 @@
                                        Width="80"
                                        Height="80"
                                        Stretch="Uniform"
-                                       VerticalAlignment="Center"/>
+                                       VerticalAlignment="Center"
+                                       ImageFailed="Logo_ImageFailed"/>
 
                                 <!-- Text -->
                                 <StackPanel Grid.Column="2"
@@ -129,7 +124,7 @@
 
                         <!-- Navigation List -->
                         <ListBox x:Name="NavListBox"
-                                 Grid.Row="2"
+                                 Grid.Row="1"
                                  SelectionChanged="NavListBox_SelectionChanged"
                                  Style="{StaticResource NavListStyle}"
                                  ItemContainerStyle="{StaticResource NavItemStyle}"
@@ -147,7 +142,7 @@
                         </ListBox>
 
                         <!-- Window Controls -->
-                        <StackPanel Grid.Row="3"
+                        <StackPanel Grid.Row="2"
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     Margin="0,12,0,14">
