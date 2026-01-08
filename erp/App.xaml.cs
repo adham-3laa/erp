@@ -32,7 +32,7 @@ namespace erp
 
             Session = new AuthSession();
 
-            Http = ApiClient.CreateHttpClient("http://localhost:5000/");
+            Http = ApiClient.CreateHttpClient("http://be-positive.runasp.net/");
             Api = new ApiClient(Http, Session);
 
             Categories = new CategoryService(Api);
