@@ -182,7 +182,7 @@
               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
               VerticalAlignment="Top"
               RowDetailsVisibilityMode="Collapsed" 
-              EnableRowVirtualization="False">    
+               EnableRowVirtualization="False">    
 
 
                 <DataGrid.Columns>
