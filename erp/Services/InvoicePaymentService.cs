@@ -22,7 +22,7 @@ namespace erp.Services
 
             _client = new HttpClient(handler)
             {
-                BaseAddress = new Uri("http://localhost:5002/")
+                BaseAddress = new Uri("http://localhost:5000/")
             };
 
             if (!string.IsNullOrEmpty(TokenStore.Token))

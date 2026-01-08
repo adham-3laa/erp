@@ -30,7 +30,7 @@ namespace erp.Services
 
             _categoriesClient = new HttpClient
             {
-                BaseAddress = new Uri("http://localhost:5002/")
+                BaseAddress = new Uri("http://localhost:5000/")
             };
         }
 

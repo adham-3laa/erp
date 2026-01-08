@@ -12,6 +12,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
+// ✅ Win32 Interop (بدون WindowsForms)
+using System;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
+
 namespace erp
 {
     public partial class MainWindow : Window
@@ -27,14 +32,9 @@ namespace erp
         {
             InitializeComponent();
 
-            // ✅ مهم جدًا مع WindowStyle=None + AllowsTransparency=True
-            // علشان الـ Maximized يظبط على WorkArea (بدون مشاكل Taskbar)
-            Loaded += (_, __) =>
-            {
-                MaxHeight = SystemParameters.WorkArea.Height;
-                MaxWidth = SystemParameters.WorkArea.Width;
-                WindowState = WindowState.Maximized;
-            };
+            // ✅ يفتح Full Screen تلقائيًا على مقاس الشاشة الحالية
+            SourceInitialized += (_, __) => MoveToMouseMonitorWorkArea();
+            Loaded += (_, __) => MaximizeToCurrentMonitorWorkArea();
 
             var httpClient = ApiClient.CreateHttpClient();
             _apiClient = new ApiClient(httpClient, null);
@@ -191,5 +191,127 @@ namespace erp
 
         private void Min_Click(object sender, RoutedEventArgs e)
             => WindowState = WindowState.Minimized;
+
+        // ====== ✅ Auto Full Screen on current monitor (Win32, no WinForms) ======
+
+        private void MoveToMouseMonitorWorkArea()
+        {
+            // اختار الشاشة اللي عليها الماوس وقت تشغيل البرنامج
+            if (!GetCursorPos(out POINT pt))
+                return;
+
+            IntPtr hMon = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
+            if (hMon == IntPtr.Zero)
+                return;
+
+            RECT work = GetMonitorWorkArea(hMon);
+            Rect dip = PixelRectToDip(work);
+
+            // لازم Normal قبل تحديد Left/Top/Width/Height
+            WindowState = WindowState.Normal;
+
+            Left = dip.Left;
+            Top = dip.Top;
+            Width = dip.Width;
+            Height = dip.Height;
+        }
+
+        private void MaximizeToCurrentMonitorWorkArea()
+        {
+            var hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd == IntPtr.Zero)
+                return;
+
+            IntPtr hMon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+            if (hMon == IntPtr.Zero)
+                return;
+
+            RECT work = GetMonitorWorkArea(hMon);
+            Rect dip = PixelRectToDip(work);
+
+            WindowState = WindowState.Normal;
+
+            Left = dip.Left;
+            Top = dip.Top;
+
+            // مهم جدًا مع WindowStyle=None + AllowsTransparency=True
+            MaxWidth = dip.Width;
+            MaxHeight = dip.Height;
+
+            WindowState = WindowState.Maximized;
+        }
+
+        private Rect PixelRectToDip(RECT px)
+        {
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget == null)
+            {
+                // fallback
+                return new Rect(px.Left, px.Top, px.Right - px.Left, px.Bottom - px.Top);
+            }
+
+            var m = source.CompositionTarget.TransformFromDevice;
+
+            var tl = m.Transform(new Point(px.Left, px.Top));
+            var br = m.Transform(new Point(px.Right, px.Bottom));
+
+            return new Rect(tl.X, tl.Y, br.X - tl.X, br.Y - tl.Y);
+        }
+
+        private static RECT GetMonitorWorkArea(IntPtr hMon)
+        {
+            MONITORINFO mi = new MONITORINFO();
+            mi.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
+
+            if (!GetMonitorInfo(hMon, ref mi))
+            {
+                // fallback: empty rect
+                return new RECT();
+            }
+
+            // rcWork = WorkArea بدون Taskbar
+            return mi.rcWork;
+        }
+
+        // ====== Win32 ======
+
+        private const uint MONITOR_DEFAULTTONEAREST = 2;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MONITORINFO
+        {
+            public int cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public uint dwFlags;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out POINT lpPoint);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromPoint(POINT pt, uint dwFlags);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
     }
 }

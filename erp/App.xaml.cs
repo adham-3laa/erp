@@ -32,7 +32,7 @@ namespace erp
 
             Session = new AuthSession();
 
-            Http = ApiClient.CreateHttpClient("http://localhost:5002/");
+            Http = ApiClient.CreateHttpClient("http://localhost:5000/");
             Api = new ApiClient(Http, Session);
 
             Categories = new CategoryService(Api);
