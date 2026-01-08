@@ -23,7 +23,7 @@ namespace erp.Services
 
             _client = new HttpClient(handler)
             {
-                BaseAddress = new Uri("http://localhost:5000/")
+                BaseAddress = new Uri("http://be-positive.runasp.net/")
             };
 
             AttachToken();
