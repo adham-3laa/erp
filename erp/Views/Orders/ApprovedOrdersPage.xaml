@@ -103,7 +103,7 @@
                 <DataGrid.Columns>
 
                     <DataGridTextColumn Header="رقم الطلب"
-                                        Binding="{Binding OrderId}"
+                                        Binding="{Binding code}"
                                         Width="2*"
                                         ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 

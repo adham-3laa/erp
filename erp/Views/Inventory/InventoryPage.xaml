@@ -181,8 +181,8 @@
 
                 <DataGrid.Columns>
 
-                    <DataGridTextColumn Header="ID"
-                                        Binding="{Binding ProductId}"
+                    <DataGridTextColumn Header="رقم المنتج"
+                                        Binding="{Binding code}"
                                         Width="200"
                                         ElementStyle="{StaticResource CenteredTextStyle}"/>
 

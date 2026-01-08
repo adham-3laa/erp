@@ -166,8 +166,8 @@
                                                            FontWeight="SemiBold"
                                                            Foreground="{StaticResource TextDarkBrush}"/>
 
-                                                <!-- User ID -->
-                                                <TextBox Text="{Binding Id}"
+                                                <!-- User Number -->
+                                                <TextBox Text="{Binding usernumber}"
                                                          FontSize="11"
                                                          Foreground="{StaticResource TextMutedBrush}"
                                                          Background="Transparent"
@@ -177,7 +177,7 @@
                                                          Padding="0"
                                                          Margin="0,2,0,4"
                                                          Cursor="IBeam"
-                                                         ToolTip="اضغط واسحب لنسخ الـ ID"/>
+                                                         ToolTip="اضغط واسحب لنسخ رقم المستخدم"/>
 
                                                 <!-- Details -->
                                                 <WrapPanel Margin="0,4,0,0">

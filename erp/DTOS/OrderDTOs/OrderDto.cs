@@ -7,6 +7,7 @@ namespace erp.DTOS.Orders
     {
         // === API fields ===
         public string id { get; set; } = "";
+        public int code { get; set; }
         public decimal totalamount { get; set; }
         public decimal commissionamount { get; set; }
         public string status { get; set; } = "";

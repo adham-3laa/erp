@@ -60,5 +60,7 @@ namespace erp.DTOS
 
         [JsonPropertyName("farmscount")]
         public int FarmsCount { get; set; }
+        [JsonPropertyName("usernumber")]
+        public int usernumber { get; set; }
     }
 }

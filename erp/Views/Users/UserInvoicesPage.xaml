@@ -117,7 +117,7 @@
                 <DataGrid.Columns>
 
                     <DataGridTextColumn Header="رقم الفاتورة"
-                                        Binding="{Binding Id}"
+                                        Binding="{Binding code}"
                                         Width="2*"/>
 
                     <DataGridTextColumn Header="التاريخ"

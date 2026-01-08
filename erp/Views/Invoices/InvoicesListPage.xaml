@@ -309,6 +309,11 @@
                           CellStyle="{StaticResource NiceDataGridCellStyle}">
 
                     <DataGrid.Columns>
+                        <DataGridTextColumn Header="رقم الفاتورة"
+                                            Binding="{Binding code}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
                         <DataGridTextColumn Header="المستلم"
                                             Binding="{Binding RecipientName}"
                                             Width="*"

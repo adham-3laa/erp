@@ -149,7 +149,7 @@
                           Width="*"
                           ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
                     <DataGridTextColumn Header="رقم الطلب"
-                          Binding="{Binding id}"
+                          Binding="{Binding code}"
                           Width="2*"
                           ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
