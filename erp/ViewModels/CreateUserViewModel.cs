@@ -101,32 +101,23 @@ namespace erp.ViewModels
 
         private bool Validate()
         {
-            if (string.IsNullOrWhiteSpace(Fullname))
-                return Fail("الاسم الكامل مطلوب");
-
-            if (string.IsNullOrWhiteSpace(Email))
-                return Fail("البريد الإلكتروني مطلوب");
-          
             if (SelectedUserType == null)
                 return Fail("من فضلك اختر نوع المستخدم");
 
+            if (string.IsNullOrWhiteSpace(Fullname))
+                return Fail("الاسم الكامل مطلوب");
 
-
-            if (string.IsNullOrWhiteSpace(Password))
-                return Fail("كلمة المرور مطلوبة");
-
-            // تحقق من طول كلمة المرور
-            if (Password.Length < 6)
-                return Fail("كلمة المرور يجب أن تكون أكبر من 6 حروف");
-
-            if (Password != ConfirmPassword)
-                return Fail("كلمتا المرور غير متطابقتين");
+            // التحقق من أن الاسم ثلاثي (3 أجزاء على الأقل)
+            var nameParts = Fullname.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (nameParts.Length < 3)
+                return Fail("الاسم يجب أن يكون ثلاثي (ثلاثة أجزاء على الأقل)");
 
             return true;
         }
         private async Task CreateUserAsync()
         {
             HasError = false;
+            ErrorMessage = null;
 
             if (!Validate())
                 return;
@@ -146,6 +137,7 @@ namespace erp.ViewModels
 
                 var result = await _userService.CreateUserAsync(dto);
 
+                // ✅ نجاح العملية
                 if (result != null && result.StatusCode == 200)
                 {
                     MessageBox.Show(
@@ -155,36 +147,56 @@ namespace erp.ViewModels
                         MessageBoxImage.Information);
 
                     ClearForm();
+                    return;
                 }
-                else
-                {
-                    // إذا كانت الرسالة تحتوي على "البريد الإلكتروني مكرر"
-                    if (result?.Message.Contains("البريد الإلكتروني") == true || result?.Message.Contains("اسم المستخدم") == true)
-                    {
-                        HasError = true;
-                        ErrorMessage = "البريد الإلكتروني أو اسم المستخدم مكرر. يرجى التحقق وإعادة المحاولة.";
-                    }
-                    else if (result?.Message.Contains("An error occurred while saving the entity changes") == true)
-                    {
-                        HasError = true;
-                        ErrorMessage = "لبريد الإلكتروني أو اسم المستخدم مكرر. يرجى التحقق وإعادة المحاولة.";
-                    }
-                    else
-                    {
-                        HasError = true;
-                        ErrorMessage = result?.Message ?? "حدث خطأ أثناء إنشاء المستخدم.";
-                    }
-                }
+
+                // ❌ فشل العملية - معالجة الأخطاء
+                var errorMsg = SanitizeErrorMessage(result?.Message);
+                HasError = true;
+                ErrorMessage = errorMsg;
             }
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = "لبريد الإلكتروني أو اسم المستخدم مكرر. يرجى التحقق وإعادة المحاولة ";
+                ErrorMessage = SanitizeErrorMessage(ex.Message);
             }
             finally
             {
                 IsLoading = false;
             }
+        }
+
+        // ✅ تنظيف رسائل الأخطاء من السيرفر
+        private static string SanitizeErrorMessage(string? message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+                return "حدث خطأ أثناء إنشاء المستخدم. يرجى المحاولة مرة أخرى.";
+
+            var msg = message.Trim();
+
+            // إزالة معلومات التتبع الفنية
+            if (msg.Contains("traceId", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("errors", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("{", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("validation", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("An error occurred while saving the entity changes", StringComparison.OrdinalIgnoreCase))
+            {
+                // التحقق من نوع الخطأ المحدد
+                if (msg.Contains("email", StringComparison.OrdinalIgnoreCase) ||
+                    msg.Contains("البريد الإلكتروني", StringComparison.OrdinalIgnoreCase) ||
+                    msg.Contains("username", StringComparison.OrdinalIgnoreCase) ||
+                    msg.Contains("اسم المستخدم", StringComparison.OrdinalIgnoreCase) ||
+                    msg.Contains("duplicate", StringComparison.OrdinalIgnoreCase) ||
+                    msg.Contains("مكرر", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "البريد الإلكتروني أو اسم المستخدم مكرر. يرجى التحقق وإعادة المحاولة.";
+                }
+
+                return "حدث خطأ أثناء إنشاء المستخدم. يرجى التحقق من البيانات والمحاولة مرة أخرى.";
+            }
+
+            // إرجاع الرسالة الأصلية بعد التنظيف
+            return msg;
         }
 
 
