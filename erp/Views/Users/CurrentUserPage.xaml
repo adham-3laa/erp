@@ -221,6 +221,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -259,8 +260,32 @@
                                 </Border>
                             </StackPanel>
 
-                            <!-- Phone -->
+                            <!-- User Number -->
                             <StackPanel Grid.Row="1" Grid.Column="0"
+                                        Grid.ColumnSpan="2"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="رقم المستخدم"
+                                           FontSize="12"
+                                           Foreground="#6B7280"/>
+                                <Border Background="#F9FAFB"
+                                        CornerRadius="8"
+                                        Padding="12,8"
+                                        Margin="0,4,0,0">
+                                    <TextBox Text="{Binding CurrentUser.usernumber}"
+                                             FontSize="14"
+                                             Foreground="#111827"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             IsReadOnly="True"
+                                             IsReadOnlyCaretVisible="False"
+                                             Padding="0"
+                                             Cursor="IBeam"
+                                             ToolTip="اضغط واسحب لنسخ رقم المستخدم"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Phone -->
+                            <StackPanel Grid.Row="2" Grid.Column="0"
                                         Margin="0,0,12,12">
                                 <TextBlock Text="رقم الهاتف"
                                            FontSize="12"
@@ -276,7 +301,7 @@
                             </StackPanel>
 
                             <!-- Registration Date -->
-                            <StackPanel Grid.Row="1" Grid.Column="1"
+                            <StackPanel Grid.Row="2" Grid.Column="1"
                                         Margin="0,0,0,12">
                                 <TextBlock Text="تاريخ التسجيل"
                                            FontSize="12"
@@ -292,7 +317,7 @@
                             </StackPanel>
 
                             <!-- Account Creation Info -->
-                            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
                                 <TextBlock Text="معلومات الحساب"
                                            FontSize="12"
                                            Foreground="#6B7280"/>

@@ -3,6 +3,7 @@
     public class InventoryItemResponse
     {
         public string productid { get; set; } = "";
+        public int code { get; set; }
         public string productname { get; set; } = "";
 
         public decimal saleprice { get; set; }

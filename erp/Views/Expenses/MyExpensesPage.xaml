@@ -142,6 +142,11 @@
 
                     <DataGrid.Columns>
 
+                        <DataGridTextColumn Header="رقم المصروف"
+                                            Binding="{Binding code}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
                         <DataGridTextColumn Header="المبلغ"
                                             Binding="{Binding Amount, StringFormat=N2}"
                                             Width="*"

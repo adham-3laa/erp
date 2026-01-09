@@ -4,6 +4,7 @@
     {
         // ===== ID =====
         public string ProductId { get; set; } = "";
+        public int code { get; set; }
 
         // ===== Basic Info =====
         public string Name { get; set; } = "";

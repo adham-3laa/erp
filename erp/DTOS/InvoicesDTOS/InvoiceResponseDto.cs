@@ -8,6 +8,7 @@ namespace erp.DTOS.InvoicesDTOS
     public class InvoiceResponseDto : INotifyPropertyChanged
     {
         public Guid Id { get; set; }
+        public int code { get; set; }
 
         // CustomerInvoice | SupplierInvoice
         public string? Type { get; set; }
