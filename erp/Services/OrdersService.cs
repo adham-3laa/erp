@@ -11,6 +11,7 @@ namespace erp.Services
     public class OrdersService
     {
         private readonly ApiClient _api;
+        private const string BaseUrl = "http://warhouse.runasp.net"; // لو swagger موجود هنا
 
         public OrdersService(ApiClient api)
         {
@@ -24,7 +25,7 @@ namespace erp.Services
         {
             var res = await _api.GetAsync<
                 ApiResponse<List<OrderDto>>
-            >("api/Orders/GetAllConfirmedOrders");
+            >($"{BaseUrl}/api/Orders/GetAllConfirmedOrders");
 
             return res.value ?? new();
         }
@@ -34,7 +35,7 @@ namespace erp.Services
         {
             var res = await _api.GetAsync<
                 ApiResponse<List<OrderDto>>
-            >("api/Orders/GetAllApprovedOrders");
+            >($"{BaseUrl}/api/Orders/GetAllApprovedOrders");
 
             return res.value ?? new();
         }
@@ -44,7 +45,6 @@ namespace erp.Services
         // 🔹 جلب طلب واحد بالـ OrderId
         public async Task<OrderDto?> GetOrderByIdAsync(string orderId)
         {
-            // بما إن مفيش endpoint مباشر، بنجيب من المعتمدة
             var orders = await GetApprovedOrdersAsync();
 
             return orders.FirstOrDefault(o => o.id == orderId);
@@ -52,21 +52,18 @@ namespace erp.Services
 
         // ===================== Order Items =====================
 
-        // 🔹 جلب بنود الطلب
-        // ✅ تعديل: لو Endpoint بتاع Orders مش موجود/بيفشل -> يعمل fallback على Returns
         public async Task<List<OrderItemDto>> GetOrderItemsAsync(string orderId)
         {
             try
             {
                 var res = await _api.GetAsync<
                     ApiResponse<List<OrderItemDto>>
-                >($"api/Orders/GetOrderItemsByOrderId?orderId={orderId}");
+                >($"{BaseUrl}/api/Orders/GetOrderItemsByOrderId?orderId={orderId}");
 
                 return res.value ?? new();
             }
             catch
             {
-                // fallback على endpoint اللي انت متأكد إنه شغال
                 return await GetOrderItemsByOrderIdAsync(orderId);
             }
         }
@@ -75,7 +72,7 @@ namespace erp.Services
         {
             var res = await _api.GetAsync<
                 ApiResponse<List<OrderItemDto>>
-            >($"api/Returns/OrderItemsByOrderId?orderId={orderId}");
+            >($"{BaseUrl}/api/Returns/OrderItemsByOrderId?orderId={orderId}");
 
             return res.value ?? new();
         }
@@ -86,8 +83,8 @@ namespace erp.Services
         public async Task<bool> ApproveOrderAsync(string orderId)
         {
             await _api.PutAsync<object>(
-                $"api/Orders/ApproveOrderByStoreManager?orderId={orderId}",
-                new { }   // body فاضي
+                $"{BaseUrl}/api/Orders/ApproveOrderByStoreManager?orderId={orderId}",
+                new { }
             );
 
             return true;
@@ -97,25 +94,21 @@ namespace erp.Services
         public async Task<bool> CreateOrderAsync(CreateOrderRequestDto request)
         {
             await _api.PostAsync<object>(
-                "api/Orders/Create_Order_By_Store_Manager_By_Customer_Id_And_SalesRepId",
+                $"{BaseUrl}/api/Orders/Create_Order_By_Store_Manager_By_Customer_Id_And_SalesRepId",
                 request
             );
-
             return true;
         }
 
         public async Task<bool> CreateOrderAsync(
-    CreateOrderRequestDto request,
-    double commissionPercentage)
+            CreateOrderRequestDto request,
+            double commissionPercentage)
         {
             await _api.PostAsync<object>(
-                $"api/Orders/Create_Order_By_Store_Manager_By_Customer_Id_And_SalesRepId?CommissionPercentage={commissionPercentage}",
+                $"{BaseUrl}/api/Orders/Create_Order_By_Store_Manager_By_Customer_Id_And_SalesRepId?CommissionPercentage={commissionPercentage}",
                 request
             );
-
             return true;
         }
-
-
     }
 }
