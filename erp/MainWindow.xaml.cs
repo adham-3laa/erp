@@ -5,7 +5,7 @@ using erp.Views.Category;
 using erp.Views.Dashboard;
 using erp.Views.Expenses;
 using erp.Views.Invoices;
-using erp.Views.Returns;
+// using erp.Views.Returns;
 using erp.Views.Users;
 using System;
 using System.Runtime.InteropServices;
@@ -106,16 +106,8 @@ namespace erp
                     break;
 
                 case "Returns":
-                    {
-                        var returnsService = new ReturnsService(_apiClient);
-
-                        var returnsVm = new ReturnsOrderItemsViewModel(returnsService);
-                        var inventoryService = new InventoryService();
-                        var createReturnVm = new CreateReturnViewModel(returnsService, inventoryService);
-
-                        MainFrame.Navigate(new ReturnsOrderItemsPage(returnsVm, createReturnVm));
-                        break;
-                    }
+                    MainFrame.Navigate(new erp.Views.EnhancedCreateReturnView());
+                    break;
 
                 case "Reports":
                     MainFrame.Navigate(new erp.Views.Reports.SalesReportPage());

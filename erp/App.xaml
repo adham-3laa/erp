@@ -8,12 +8,13 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:BundledTheme BaseTheme="Light"
-                                             PrimaryColor="Blue"
-                                             SecondaryColor="Teal"/>
+                                             PrimaryColor="Indigo"
+                                             SecondaryColor="DeepPurple"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DataGrid.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.CheckBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
                 <ResourceDictionary Source="Themes/ModernTheme.xaml"/>
-                <materialDesign:BundledTheme BaseTheme="Light"
-                                 PrimaryColor="Indigo"
-                                 SecondaryColor="DeepPurple"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
@@ -22,6 +23,8 @@
 
             <!-- Optional: register the rest globally if you use them -->
             <conv:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            <conv:BoolToTextConverter x:Key="BoolToTextConverter"/>
             <conv:InitialsConverter x:Key="InitialsConverter"/>
             <conv:StatusTooltipConverter x:Key="StatusTooltipConverter"/>
             <conv:CollectionCountToVisibilityConverter x:Key="CollectionCountToVisibilityConverter"/>

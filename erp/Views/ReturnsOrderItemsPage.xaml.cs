@@ -1,5 +1,5 @@
 ﻿using erp.ViewModels.Returns;
-using erp.Views.Returns;
+// using erp.Views.Returns;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -54,7 +54,7 @@ namespace erp.Views
 
         private void CreateReturn_Click(object sender, RoutedEventArgs e)
         {
-            var view = new CreateReturnView(_createReturnVm);
+            var view = new CreateReturnView();
             NavigationService?.Navigate(view);
         }
     }

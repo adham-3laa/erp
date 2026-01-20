@@ -1,0 +1,1156 @@
+<Page x:Class="erp.Views.EnhancedCreateReturnView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:converters="clr-namespace:erp.Converters"
+      mc:Ignorable="d"
+      FlowDirection="RightToLeft"
+      Background="#F8FAFC"
+      Title="إدارة المرتجعات">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+        <!-- Re-use InverseBoolToVisibility from ReturnsConverters for local scope -->
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+        
+        <!-- Status Type to Color Converter -->
+        <Style x:Key="StatusBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CurrentStatusType}" Value="Success">
+                    <Setter Property="Background" Value="#DCFCE7"/>
+                    <Setter Property="BorderBrush" Value="#22C55E"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusType}" Value="Warning">
+                    <Setter Property="Background" Value="#FEF3C7"/>
+                    <Setter Property="BorderBrush" Value="#F59E0B"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusType}" Value="Error">
+                    <Setter Property="Background" Value="#FEE2E2"/>
+                    <Setter Property="BorderBrush" Value="#EF4444"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentStatusType}" Value="Info">
+                    <Setter Property="Background" Value="#DBEAFE"/>
+                    <Setter Property="BorderBrush" Value="#3B82F6"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Modern Card Style -->
+        <Style x:Key="ModernCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.08" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern TextBox -->
+        <!-- Modern TextBox (Based on Material Design) -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="materialDesign:TextFieldAssist.TextFieldCornerRadius" Value="8"/>
+            <Setter Property="materialDesign:TextFieldAssist.HasClearButton" Value="True"/>
+            <Setter Property="materialDesign:HintAssist.IsFloating" Value="False"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#4F46E5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Primary Action Button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#4F46E5"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="24,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#4338CA"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#312E81"/>
+                                <Setter TargetName="Bd" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Secondary (Outline) Button -->
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#4F46E5"/>
+            <Setter Property="Padding" Value="24,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderBrush" Value="#4F46E5"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EEF2FF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Success Button -->
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#10B981"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#059669"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Danger Button -->
+        <Style x:Key="DangerButton" TargetType="Button">
+            <Setter Property="Background" Value="#FEE2E2"/>
+            <Setter Property="Foreground" Value="#DC2626"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#DC2626"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Segmented Control -->
+        <Style x:Key="SegmentRadio" TargetType="RadioButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Border" 
+                                Background="Transparent" 
+                                BorderBrush="#E2E8F0" 
+                                BorderThickness="1" 
+                                CornerRadius="0"
+                                Padding="28,14"
+                                Cursor="Hand">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock x:Name="Icon" Text="{TemplateBinding Tag}" FontSize="16" Margin="0,0,8,0"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#4F46E5"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#4F46E5"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="Border" Property="Background" Value="White"/>
+                                <Setter Property="Foreground" Value="#475569"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Border" Property="Background" Value="#F8FAFC"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Step Indicator Style -->
+        <Style x:Key="StepCircle" TargetType="Border">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Background" Value="#E2E8F0"/>
+        </Style>
+
+    </Page.Resources>
+
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Header -->
+            <RowDefinition Height="Auto"/>  <!-- Return Type Toggle -->
+            <RowDefinition Height="Auto"/>  <!-- Step Indicator -->
+            <RowDefinition Height="*"/>     <!-- Content -->
+            <RowDefinition Height="Auto"/>  <!-- Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- ==================== HEADER ==================== -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <Button Content="⬅ رجوع للقائمة" 
+                    Click="Back_Click" 
+                    HorizontalAlignment="Left" 
+                    Background="Transparent" 
+                    Foreground="#64748B" 
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    FontSize="13"
+                    Margin="0,0,0,8"/>
+            <TextBlock Text="إدارة المرتجعات" FontSize="32" FontWeight="Bold" Foreground="#0F172A"/>
+            <TextBlock Text="قم بتسجيل عملية إرجاع للعميل أو للمورد بخطوات بسيطة وواضحة" 
+                       FontSize="15" Foreground="#64748B" Margin="0,6,0,0"/>
+        </StackPanel>
+
+        <!-- ==================== RETURN TYPE TOGGLE ==================== -->
+        <Border Grid.Row="1" HorizontalAlignment="Left" CornerRadius="10" 
+                BorderBrush="#E2E8F0" BorderThickness="1" Background="White" 
+                Margin="0,0,0,24"
+                Effect="{x:Null}">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton Content="إرجاع من عميل" 
+                             Tag="👤"
+                             IsChecked="{Binding IsCustomerReturn}" 
+                             Style="{StaticResource SegmentRadio}" 
+                             GroupName="ReturnType"
+                             IsEnabled="{Binding IsInputEnabled}"/>
+                <RadioButton Content="إرجاع لمورد" 
+                             Tag="🏭"
+                             IsChecked="{Binding IsSupplierReturn}" 
+                             Style="{StaticResource SegmentRadio}" 
+                             GroupName="ReturnType"
+                             IsEnabled="{Binding IsInputEnabled}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ==================== STEP INDICATOR ==================== -->
+        <Border Grid.Row="2" Style="{StaticResource ModernCard}" Margin="0,0,0,24" Padding="20,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Step 1 -->
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <Border Width="40" Height="40" CornerRadius="20" Margin="0,0,0,8">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#E2E8F0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="1">
+                                        <Setter Property="Background" Value="#4F46E5"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="١" FontSize="16" FontWeight="Bold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#94A3B8"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="1">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                    <TextBlock FontSize="12" HorizontalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                                <Setter Property="Text" Value="البيانات الأساسية"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="1">
+                                        <Setter Property="Foreground" Value="#4F46E5"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Connector Line 1-2 -->
+                <Border Grid.Column="0" Height="3" VerticalAlignment="Top" Margin="60,18,-60,0" CornerRadius="1.5">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#E2E8F0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                    <Setter Property="Background" Value="#10B981"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                    <Setter Property="Background" Value="#10B981"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                    <Setter Property="Background" Value="#10B981"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <!-- Step 2 -->
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <Border Width="40" Height="40" CornerRadius="20" Margin="0,0,0,8">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#E2E8F0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                        <Setter Property="Background" Value="#4F46E5"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="٢" FontSize="16" FontWeight="Bold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#94A3B8"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                    <TextBlock FontSize="12" HorizontalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                                <Setter Property="Text" Value="اختيار المنتجات"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                        <Setter Property="Foreground" Value="#4F46E5"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Connector Line 2-3 -->
+                <Border Grid.Column="1" Height="3" VerticalAlignment="Top" Margin="60,18,-60,0" CornerRadius="1.5">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#E2E8F0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                    <Setter Property="Background" Value="#10B981"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                    <Setter Property="Background" Value="#10B981"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <!-- Step 3 -->
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <Border Width="40" Height="40" CornerRadius="20" Margin="0,0,0,8">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#E2E8F0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="Background" Value="#4F46E5"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="٣" FontSize="16" FontWeight="Bold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#94A3B8"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                    <TextBlock FontSize="12" HorizontalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                                <Setter Property="Text" Value="الكمية والسبب"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                        <Setter Property="Foreground" Value="#4F46E5"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Connector Line 3-4 -->
+                <Border Grid.Column="2" Height="3" VerticalAlignment="Top" Margin="60,18,-60,0" CornerRadius="1.5">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#E2E8F0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                    <Setter Property="Background" Value="#10B981"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <!-- Step 4 -->
+                <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                    <Border Width="40" Height="40" CornerRadius="20" Margin="0,0,0,8">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#E2E8F0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="Background" Value="#4F46E5"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="٤" FontSize="16" FontWeight="Bold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#94A3B8"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                    <TextBlock FontSize="12" HorizontalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                                <Setter Property="Text" Value="مراجعة وتأكيد"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="Foreground" Value="#4F46E5"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== MAIN CONTENT AREA ==================== -->
+        <Border Grid.Row="3" Style="{StaticResource ModernCard}">
+            <Grid>
+                <!-- Step Title & Description -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,8">
+                    <TextBlock Text="{Binding CurrentStepTitle}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                    <TextBlock Text="{Binding CurrentStepDescription}" FontSize="13" Foreground="#64748B" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Status Message -->
+                <Border Grid.Row="1" Style="{StaticResource StatusBorder}" 
+                        BorderThickness="1" 
+                        Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="13" TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#475569"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStatusType}" Value="Success">
+                                        <Setter Property="Foreground" Value="#166534"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStatusType}" Value="Warning">
+                                        <Setter Property="Foreground" Value="#92400E"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStatusType}" Value="Error">
+                                        <Setter Property="Foreground" Value="#DC2626"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+
+                <!-- Step Content -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        
+                        <!-- ===== STEP 1: CUSTOMER - ORDER CODE ===== -->
+                        <StackPanel Visibility="{Binding IsCustomerReturn, Converter={StaticResource BoolToVis}}">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding CurrentStep}" Value="1"/>
+                                                <Condition Binding="{Binding IsCustomerReturn}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            
+                            <TextBlock Text="رقم الطلب" FontSize="13" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" MaxWidth="400"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" 
+                                         Text="{Binding OrderCode, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource ModernTextBox}"
+                                         IsEnabled="{Binding IsInputEnabled}"
+                                         materialDesign:HintAssist.Hint="أدخل رقم الطلب...">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding FetchOrderCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                <Button Grid.Column="1" 
+                                        Content="🔍 بحث" 
+                                        Command="{Binding FetchOrderCommand}" 
+                                        Style="{StaticResource PrimaryButton}" 
+                                        Margin="12,0,0,0"/>
+                            </Grid>
+                            
+                            <TextBlock Text="💡 أدخل رقم الطلب واضغط بحث لعرض المنتجات المتاحة للإرجاع" 
+                                       FontSize="12" Foreground="#94A3B8" Margin="0,12,0,0"/>
+                        </StackPanel>
+
+                        <!-- ===== STEP 1: SUPPLIER - SUPPLIER NAME ===== -->
+                        <StackPanel>
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding CurrentStep}" Value="1"/>
+                                                <Condition Binding="{Binding IsSupplierReturn}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            
+                            <TextBlock Text="اسم المورد" FontSize="13" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,8"/>
+                            <Grid MaxWidth="500" HorizontalAlignment="Right">
+                                <TextBox x:Name="SupplierNameBox" 
+                                         Text="{Binding SupplierName, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource ModernTextBox}"
+                                         IsEnabled="{Binding IsInputEnabled}"
+                                         materialDesign:HintAssist.Hint="ابحث عن اسم المورد..."
+                                         PreviewKeyDown="SupplierNameBox_PreviewKeyDown"/>
+                                
+                                <Popup IsOpen="{Binding IsSupplierSuggestionOpen, Mode=TwoWay}" 
+                                       PlacementTarget="{Binding ElementName=SupplierNameBox}"
+                                       StaysOpen="False"
+                                       AllowsTransparency="True"
+                                       Width="{Binding ActualWidth, ElementName=SupplierNameBox}">
+                                    <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="12" ShadowDepth="4" Opacity="0.15"/>
+                                        </Border.Effect>
+                                        <ListBox x:Name="SupplierList"
+                                                 ItemsSource="{Binding FilteredSupplierSuggestions}"
+                                                 SelectedItem="{Binding SelectedSupplierSuggestion, UpdateSourceTrigger=PropertyChanged}"
+                                                 MaxHeight="200"
+                                                 BorderThickness="0"/>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                            
+                            <TextBlock Text="💡 ابدأ بكتابة اسم المورد للحصول على اقتراحات" 
+                                       FontSize="12" Foreground="#94A3B8" Margin="0,12,0,0"/>
+                        </StackPanel>
+
+                        <!-- ===== STEP 2 & 3: CUSTOMER - ORDER ITEMS ===== -->
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsCustomerReturn}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Only show in step 2 or 3 -->
+                            <Grid Grid.Row="0">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+
+                                <!-- Quick Actions -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <Button Content="تحديد الكل" Command="{Binding SelectAllItemsCommand}" 
+                                            Style="{StaticResource SecondaryButton}" 
+                                            Padding="16,8" FontSize="12" Margin="0,0,8,0"/>
+                                    <Button Content="إلغاء التحديد" Command="{Binding DeselectAllItemsCommand}" 
+                                            Style="{StaticResource SecondaryButton}" 
+                                            Padding="16,8" FontSize="12"/>
+                                    <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" FontSize="13" Foreground="#64748B">
+                                        <Run Text="تم تحديد"/>
+                                        <Run Text="{Binding SelectedItemsCount, Mode=OneWay}" FontWeight="Bold" Foreground="#4F46E5"/>
+                                        <Run Text="من"/>
+                                        <Run Text="{Binding TotalItemsCount, Mode=OneWay}"/>
+                                        <Run Text="منتج"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+
+                            <DataGrid Grid.Row="1" 
+                                      ItemsSource="{Binding OrderItems}" 
+                                      AutoGenerateColumns="False" 
+                                      CanUserAddRows="False"
+                                      Background="White"
+                                      BorderThickness="1"
+                                      BorderBrush="#E2E8F0"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#F1F5F9"
+                                      RowHeight="56"
+                                      HeadersVisibility="Column">
+                                <DataGrid.Style>
+                                    <Style TargetType="DataGrid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.Style>
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Padding" Value="12"/>
+                                        <Setter Property="Background" Value="#F8FAFC"/>
+                                        <Setter Property="Foreground" Value="#475569"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="FontSize" Value="13"/>
+                                    </Style>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="12"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="DataGridCell">
+                                                    <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                                        <ContentPresenter VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="60">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" 
+                                                          HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Binding="{Binding Dto.Productname}" Header="المنتج" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Binding="{Binding Dto.Quantity}" Header="الكمية المشتراة" IsReadOnly="True" Width="120"/>
+                                    <DataGridTemplateColumn Header="كمية الإرجاع" Width="130">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}" 
+                                                         Style="{StaticResource ModernTextBox}" 
+                                                         Height="36" 
+                                                         TextAlignment="Center"
+                                                         IsEnabled="{Binding IsSelected}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="سبب الإرجاع" Width="2*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}" 
+                                                         Style="{StaticResource ModernTextBox}" 
+                                                         Height="36"
+                                                         IsEnabled="{Binding IsSelected}"
+                                                         materialDesign:HintAssist.Hint="اكتب السبب..."/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+
+                        <!-- ===== STEP 2 & 3: SUPPLIER - ADD ITEMS ===== -->
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsSupplierReturn}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Add Item Form - visible in step 2 -->
+                            <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="10" Padding="16" Margin="0,0,0,16">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="اسم المنتج" FontSize="12" Foreground="#64748B" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Column="1" Text="الكمية" FontSize="12" Foreground="#64748B" Margin="12,0,0,6"/>
+                                    <TextBlock Grid.Column="2" Text="السبب" FontSize="12" Foreground="#64748B" Margin="12,0,0,6"/>
+
+                                    <Grid Grid.Row="1" Grid.Column="0">
+                                        <TextBox x:Name="ProductSearchBox"
+                                                 Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 IsEnabled="{Binding IsInputEnabled}"
+                                                 materialDesign:HintAssist.Hint="ابحث عن منتج..."/>
+                                        
+                                        <Popup IsOpen="{Binding IsProductSuggestionOpen, Mode=TwoWay}" 
+                                               PlacementTarget="{Binding ElementName=ProductSearchBox}"
+                                               StaysOpen="False"
+                                               AllowsTransparency="True"
+                                               Width="{Binding ActualWidth, ElementName=ProductSearchBox}">
+                                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="12" ShadowDepth="4" Opacity="0.15"/>
+                                                </Border.Effect>
+                                                <ListBox ItemsSource="{Binding ProductSuggestions}"
+                                                         SelectedItem="{Binding SelectedProductSuggestion, UpdateSourceTrigger=PropertyChanged}"
+                                                         MaxHeight="200"
+                                                         BorderThickness="0"
+                                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
+
+                                    <TextBox Grid.Row="1" Grid.Column="1" 
+                                             Text="{Binding CurrentSupplierItem.Quantity, UpdateSourceTrigger=PropertyChanged}" 
+                                             Style="{StaticResource ModernTextBox}"
+                                             Margin="12,0,0,0"
+                                             IsEnabled="{Binding IsInputEnabled}"/>
+
+                                    <TextBox Grid.Row="1" Grid.Column="2" 
+                                             Text="{Binding CurrentSupplierItem.Reason, UpdateSourceTrigger=PropertyChanged}" 
+                                             Style="{StaticResource ModernTextBox}"
+                                             Margin="12,0,0,0"
+                                             IsEnabled="{Binding IsInputEnabled}"
+                                             materialDesign:HintAssist.Hint="سبب الإرجاع..."/>
+
+                                    <Button Grid.Row="1" Grid.Column="3" 
+                                            Content="➕ إضافة"
+                                            Command="{Binding AddSupplierItemCommand}"
+                                            Style="{StaticResource SuccessButton}"
+                                            Margin="12,0,0,0"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Items List -->
+                            <DataGrid Grid.Row="1" 
+                                      ItemsSource="{Binding SupplierReturnItems}" 
+                                      AutoGenerateColumns="False" 
+                                      CanUserAddRows="False"
+                                      Background="White"
+                                      BorderThickness="1"
+                                      BorderBrush="#E2E8F0"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#F1F5F9"
+                                      RowHeight="52"
+                                      HeadersVisibility="Column">
+                                <DataGrid.Style>
+                                    <Style TargetType="DataGrid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.Style>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding ProductName}" Header="المنتج" Width="*"/>
+                                    <DataGridTextColumn Binding="{Binding Quantity}" Header="الكمية" Width="100"/>
+                                    <DataGridTextColumn Binding="{Binding Reason}" Header="السبب" Width="2*"/>
+                                    <DataGridTemplateColumn Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="🗑" 
+                                                        Command="{Binding DataContext.RemoveSupplierItemCommand, RelativeSource={RelativeSource AncestorType=Page}}" 
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource DangerButton}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+
+                        <!-- ===== STEP 4: REVIEW & CONFIRM ===== -->
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <!-- Success View -->
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Visibility="{Binding IsSuccess, Converter={StaticResource BoolToVis}}">
+                                <Border Width="100" Height="100" CornerRadius="50" Background="#DCFCE7" 
+                                        HorizontalAlignment="Center" Margin="0,0,0,24">
+                                    <TextBlock Text="✓" FontSize="48" Foreground="#22C55E" 
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="تمت العملية بنجاح!" FontSize="24" FontWeight="Bold" 
+                                           Foreground="#166534" HorizontalAlignment="Center"/>
+                                <TextBlock Text="تم تسجيل عملية الإرجاع في النظام" FontSize="14" 
+                                           Foreground="#64748B" HorizontalAlignment="Center" Margin="0,8,0,32"/>
+                                <Button Content="إنشاء عملية إرجاع جديدة" 
+                                        Command="{Binding StartNewReturnCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Review View -->
+                            <StackPanel Visibility="{Binding IsSuccess, Converter={StaticResource InverseBoolToVis}}">
+                                <Border Background="#FEF3C7" CornerRadius="8" Padding="16" Margin="0,0,0,20">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⚠️" FontSize="18" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <TextBlock Text="راجع البيانات التالية بعناية قبل التأكيد. لا يمكن التراجع عن هذه العملية بعد التأكيد." 
+                                                   FontSize="13" Foreground="#92400E" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Summary Card -->
+                                <Border Background="#F8FAFC" CornerRadius="10" Padding="20">
+                                    <StackPanel>
+                                        <TextBlock Text="ملخص عملية الإرجاع" FontSize="16" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,16"/>
+                                        
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="نوع العملية:" FontWeight="SemiBold" Foreground="#64748B"/>
+                                            <TextBlock Grid.Column="1" Foreground="#0F172A">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="إرجاع من عميل"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSupplierReturn}" Value="True">
+                                                                <Setter Property="Text" Value="إرجاع لمورد"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
+
+                                        <!-- Customer Return Info -->
+                                        <StackPanel Visibility="{Binding IsCustomerReturn, Converter={StaticResource BoolToVis}}">
+                                            <Grid Margin="0,0,0,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="رقم الطلب:" FontWeight="SemiBold" Foreground="#64748B"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding OrderCode}" Foreground="#0F172A" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="عدد المنتجات:" FontWeight="SemiBold" Foreground="#64748B"/>
+                                                <TextBlock Grid.Column="1" Foreground="#0F172A">
+                                                    <Run Text="{Binding SelectedItemsCount, Mode=OneWay}"/>
+                                                    <Run Text="منتج"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <!-- Supplier Return Info -->
+                                        <StackPanel Visibility="{Binding IsSupplierReturn, Converter={StaticResource BoolToVis}}">
+                                            <Grid Margin="0,0,0,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="اسم المورد:" FontWeight="SemiBold" Foreground="#64748B"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding SupplierName}" Foreground="#0F172A" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="عدد المنتجات:" FontWeight="SemiBold" Foreground="#64748B"/>
+                                                <TextBlock Grid.Column="1" Foreground="#0F172A">
+                                                    <Run Text="{Binding SupplierReturnItems.Count, Mode=OneWay}"/>
+                                                    <Run Text="منتج"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                    </Grid>
+                </ScrollViewer>
+
+            </Grid>
+        </Border>
+
+        <!-- ==================== FOOTER / NAVIGATION ==================== -->
+        <Border Grid.Row="4" Margin="0,24,0,0" Padding="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Previous Button -->
+                <Button Grid.Column="0" 
+                        Content="⬅ الخطوة السابقة" 
+                        Command="{Binding PreviousStepCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        HorizontalAlignment="Right"
+                        Visibility="{Binding CanGoBack, Converter={StaticResource BoolToVis}}"/>
+
+                <!-- Next / Submit Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <!-- Next Button (Steps 1-3) -->
+                    <Button Content="الخطوة التالية ➡"
+                            Command="{Binding NextStepCommand}"
+                            Margin="16,0,0,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+
+                    <!-- Submit Button (Step 4) -->
+                    <Button Content="✓ تأكيد عملية الإرجاع"
+                            Command="{Binding SubmitReturnCommand}"
+                            Margin="16,0,0,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SuccessButton}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding CurrentStep}" Value="4"/>
+                                            <Condition Binding="{Binding IsSuccess}" Value="False"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== LOADING OVERLAY ==================== -->
+        <Grid Grid.RowSpan="5" 
+              Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" 
+              Background="#E0FFFFFF">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" 
+                             Value="0" IsIndeterminate="True" 
+                             Width="56" Height="56" 
+                             Foreground="#4F46E5"/>
+                <TextBlock Text="{Binding LoadingMessage}" 
+                           FontSize="14" Foreground="#475569" 
+                           HorizontalAlignment="Center" 
+                           Margin="0,16,0,0"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>
