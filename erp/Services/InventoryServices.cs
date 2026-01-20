@@ -32,6 +32,7 @@ namespace erp.Services
         public class InventoryProductInfo
         {
             public string ProductId { get; set; } = "";
+            public int Code { get; set; }
             public string ProductName { get; set; } = "";
             public decimal SalePrice { get; set; }
             public decimal BuyPrice { get; set; }
@@ -98,6 +99,7 @@ namespace erp.Services
                 list.Add(new InventoryProductInfo
                 {
                     ProductId = GetString("productid"),
+                    Code = GetInt("code"),
                     ProductName = GetString("productname"),
                     // ✅ API بيرجع saleprice / buyprice
                     SalePrice = GetDecimal("saleprice"),
@@ -126,6 +128,7 @@ namespace erp.Services
             return infos.Select(p => new Product
             {
                 ProductId = p.ProductId,
+                code = p.Code,
                 Name = p.ProductName ?? "",
 
                 SalePrice = Convert.ToInt32(p.SalePrice),
@@ -390,6 +393,32 @@ namespace erp.Services
 
         // ✅✅ FIX: ما بقيناش نعتمد على InventoryItemResponse (عشان categoryname مش موجودة)
         // هنستخدم GetAllProductsInfoAsync اللي بتقرأ JSON مباشرة (وفيه categoryname)
+        public class AutocompleteProductDto
+        {
+            public int Code { get; set; }
+            public string Name { get; set; } = "";
+        }
+
+        public async Task<List<AutocompleteProductDto>> GetAutocompleteProductsAsync(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return new List<AutocompleteProductDto>();
+
+            _client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.Token);
+
+            var response = await _client.GetAsync($"/api/Inventory/autocomplete?term={Uri.EscapeDataString(term)}");
+            response.EnsureSuccessStatusCode();
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<AutocompleteProductDto>>>(
+                jsonString,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return apiResponse?.value ?? new List<AutocompleteProductDto>();
+        }
+
         public async Task<List<ProductLookupDto>> GetAllProductsLookupAsync()
         {
             var infos = await GetAllProductsInfoAsync(skip: 0, take: 1000);

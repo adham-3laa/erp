@@ -136,10 +136,26 @@
 
                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
                         <TextBlock Text="اسم المنتج" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Style="{StaticResource SmallTextBox}"
-                                 Text="{Binding CurrentProduct.ProductId, UpdateSourceTrigger=PropertyChanged}"
-                                 materialDesign:HintAssist.Hint="مثال: Rolex"
-                                 materialDesign:HintAssist.Foreground="#9CA3AF"/>
+                        <ComboBox IsEditable="True"
+                                  StaysOpenOnEdit="True"
+                                  IsTextSearchEnabled="False"
+                                  ItemsSource="{Binding FilteredProducts}"
+                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                  DisplayMemberPath="."
+                                  Height="36"
+                                  Padding="10,6"
+                                  FontSize="13"
+                                  Background="White"
+                                  BorderBrush="#E5E7EB"
+                                  BorderThickness="1"
+                                  materialDesign:HintAssist.Hint="ابحث باسم المنتج"
+                                  materialDesign:HintAssist.Foreground="#9CA3AF">
+                             <ComboBox.Resources>
+                                 <Style TargetType="Border">
+                                     <Setter Property="CornerRadius" Value="0"/>
+                                 </Style>
+                             </ComboBox.Resources>
+                        </ComboBox>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1">

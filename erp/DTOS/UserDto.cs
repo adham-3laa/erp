@@ -25,13 +25,28 @@ namespace erp.DTOS
 
     public class UserDto : INotifyPropertyChanged
     {
+        [JsonPropertyName("id")]
         public string Id { get; set; }
+        
+        [JsonPropertyName("code")]
+        public int code { get; set; }
+        
+        [JsonPropertyName("fullname")]
         public string Fullname { get; set; }
+        
+        [JsonPropertyName("username")]
         public string Username { get; set; }
+        
+        [JsonPropertyName("email")]
         public string Email { get; set; }
+        
+        [JsonPropertyName("salesrepid")]
         public string? SalesRepId { get; set; }
+        
+        [JsonPropertyName("phonenumber")]
         public string Phonenumber { get; set; }
 
+        [JsonPropertyName("usernumber")]
         public int usernumber { get; set; }
 
         [JsonPropertyName("usertype")]
@@ -67,10 +82,13 @@ namespace erp.DTOS
             }
         }
 
+        [JsonPropertyName("imagepath")]
         public string ImagePath { get; set; }
 
         [JsonPropertyName("dateofcreation")]
         public DateTime DateOfCreation { get; set; }
+        
+        [JsonPropertyName("farmscount")]
         public int FarmsCount { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;

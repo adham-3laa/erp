@@ -1,8 +1,22 @@
-﻿public class OrderItemForReturnDto
+﻿using System.Text.Json.Serialization;
+
+namespace erp.DTOS
 {
-    public string Productid { get; set; }
-    public int Quantity { get; set; }
-    public decimal Unitprice { get; set; }
-    public string Customerid { get; set; }
-    public string Productname { get; set; }
+    public class OrderItemForReturnDto
+    {
+        [JsonPropertyName("productid")]
+        public string Productid { get; set; }
+        
+        [JsonPropertyName("quantity")]
+        public int Quantity { get; set; }
+        
+        [JsonPropertyName("unitprice")]
+        public decimal Unitprice { get; set; }
+        
+        [JsonPropertyName("customerid")]
+        public string Customerid { get; set; }
+        
+        [JsonPropertyName("productname")]
+        public string Productname { get; set; }
+    }
 }

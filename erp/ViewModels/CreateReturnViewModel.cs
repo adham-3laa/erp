@@ -19,9 +19,18 @@ namespace erp.ViewModels.Returns
         private bool _isBusy;
         private CreateReturnItemDto _currentProduct;
 
-        public CreateReturnViewModel(ReturnsService returnsService)
+
+
+        public ObservableCollection<CreateReturnItemDto> Items { get; }
+        public ObservableCollection<string> FilteredProducts { get; } = new ObservableCollection<string>();
+
+        private readonly InventoryService _inventoryService;
+
+        public CreateReturnViewModel(ReturnsService returnsService, InventoryService inventoryService)
         {
             _returnsService = returnsService;
+            _inventoryService = inventoryService;
+
             Items = new ObservableCollection<CreateReturnItemDto>();
             CurrentProduct = new CreateReturnItemDto();
 
@@ -30,7 +39,50 @@ namespace erp.ViewModels.Returns
             );
         }
 
-        public ObservableCollection<CreateReturnItemDto> Items { get; }
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged();
+                
+                // Sync with the DTO
+                if (CurrentProduct != null)
+                {
+                    CurrentProduct.ProductName = value;
+                }
+
+                _ = SearchProductsAsync(value);
+            }
+        }
+
+        private async Task SearchProductsAsync(string query)
+        {
+           // FilteredProducts.Clear();
+            
+            if (string.IsNullOrWhiteSpace(query))
+            {
+               FilteredProducts.Clear();
+               return;
+            }
+
+            try
+            {
+                var result = await _inventoryService.GetAutocompleteProductsAsync(query);
+                
+                FilteredProducts.Clear();
+                foreach (var item in result)
+                {
+                    FilteredProducts.Add(item.Name);
+                }
+            }
+            catch
+            {
+                // handle error or ignore
+            }
+        }
 
         public CreateReturnItemDto CurrentProduct
         {
@@ -38,7 +90,10 @@ namespace erp.ViewModels.Returns
             set
             {
                 _currentProduct = value;
+                // When we reset the product (e.g. after adding), clear the search text too
+                _searchText = _currentProduct?.ProductName ?? ""; 
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SearchText));
             }
         }
 
@@ -80,7 +135,7 @@ namespace erp.ViewModels.Returns
 
         public bool IsCurrentProductValid()
         {
-            return !string.IsNullOrWhiteSpace(CurrentProduct.ProductId)
+            return !string.IsNullOrWhiteSpace(CurrentProduct.ProductName)
                 && CurrentProduct.Quantity > 0
                 && !string.IsNullOrWhiteSpace(CurrentProduct.Reason);
         }
@@ -92,6 +147,13 @@ namespace erp.ViewModels.Returns
             if (string.IsNullOrWhiteSpace(OrderId))
             {
                 ErrorMessage = "رقم الطلب مطلوب";
+                return;
+            }
+
+            // تحويل OrderId إلى int (ordercode)
+            if (!int.TryParse(OrderId.Trim(), out int orderCode))
+            {
+                ErrorMessage = "رقم الطلب يجب أن يكون رقماً صحيحاً";
                 return;
             }
 
@@ -112,7 +174,7 @@ namespace erp.ViewModels.Returns
 
             var request = new CreateReturnRequestDto
             {
-                OrderId = OrderId,
+                OrderCode = orderCode,
                 Items = new List<CreateReturnItemDto>(Items)
             };
 
@@ -161,5 +223,4 @@ namespace erp.ViewModels.Returns
 
         public event EventHandler CanExecuteChanged;
     }
-
 }

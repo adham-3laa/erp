@@ -17,6 +17,9 @@ namespace erp.DTOS
         // بيانات المستخدم الراجعة
         [JsonPropertyName("id")]
         public string Id { get; set; }
+        
+        [JsonPropertyName("code")]
+        public int code { get; set; }
 
         [JsonPropertyName("fullname")]
         public string Fullname { get; set; }
