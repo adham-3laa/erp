@@ -115,20 +115,20 @@ namespace erp.ViewModels
             }
         }
 
-        private string _errorMessage;
-        public string ErrorMessage
+        private Helpers.ReportErrorState _errorState;
+        public Helpers.ReportErrorState ErrorState
         {
-            get => _errorMessage;
+            get => _errorState;
             set
             {
-                SetProperty(ref _errorMessage, value);
+                SetProperty(ref _errorState, value);
                 OnPropertyChanged(nameof(HasError));
             }
         }
 
         public bool HasData => Report != null;
-        public bool NoData => HasSearched && !IsLoading && Report == null;
-        public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+        public bool NoData => HasSearched && !IsLoading && Report == null && !HasError;
+        public bool HasError => ErrorState != null && ErrorState.IsVisible;
         public bool ShowInitialState => !HasSearched && !IsLoading;
 
         public IAsyncRelayCommand LoadReportCommand { get; }
@@ -160,7 +160,7 @@ namespace erp.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SupplierName))
             {
-                ErrorMessage = "⚠️ من فضلك أدخل اسم المورد";
+                ErrorState = Helpers.ReportErrorHandler.CreateValidation("من فضلك أدخل اسم المورد");
                 return;
             }
 
@@ -169,22 +169,28 @@ namespace erp.ViewModels
                 IsLoading = true;
                 HasSearched = true;
                 Report = null;
-                ErrorMessage = null; // Clear previous errors
+                ErrorState = Helpers.ReportErrorState.Empty; // Clear errors
 
                 var result = await _reportService.GetSupplierReportAsync(SupplierName);
-                if (result != null && result.StatusCode == 200)
+                if (result != null)
                 {
-                    Report = result;
-                    ErrorMessage = null;
+                    if (result.StatusCode == 200)
+                    {
+                        Report = result;
+                    }
+                    else
+                    {
+                        ErrorState = Helpers.ReportErrorHandler.HandleApiError(result.StatusCode, result.Message);
+                    }
                 }
                 else
                 {
-                    ErrorMessage = $"❌ {result?.Message ?? "تعذر جلب البيانات"}";
+                    ErrorState = Helpers.ReportErrorHandler.HandleException(new Exception("لم يتم استلام أي رد من الخادم"));
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"❌ خطأ: {ex.Message}";
+                ErrorState = Helpers.ReportErrorHandler.HandleException(ex);
             }
             finally
             {

@@ -549,7 +549,7 @@
                                        FontSize="12" Foreground="#94A3B8" Margin="0,12,0,0"/>
                         </StackPanel>
 
-                        <!-- ===== STEP 1: SUPPLIER - SUPPLIER NAME ===== -->
+                        <!-- ===== STEP 1: SUPPLIER - SUPPLIER NAME & INVOICE ===== -->
                         <StackPanel>
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -566,8 +566,9 @@
                                 </Style>
                             </StackPanel.Style>
                             
+                            <!-- Supplier Name -->
                             <TextBlock Text="اسم المورد" FontSize="13" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,8"/>
-                            <Grid MaxWidth="500" HorizontalAlignment="Left">
+                            <Grid MaxWidth="500" HorizontalAlignment="Left" Margin="0,0,0,16">
                                 <TextBox x:Name="SupplierNameBox" 
                                          Text="{Binding SupplierName, UpdateSourceTrigger=PropertyChanged}" 
                                          Style="{StaticResource ModernTextBox}"
@@ -593,7 +594,30 @@
                                 </Popup>
                             </Grid>
                             
-                            <TextBlock Text="💡 ابدأ بكتابة اسم المورد للحصول على اقتراحات" 
+                            <!-- Invoice Code -->
+                            <TextBlock Text="رقم الفاتورة" FontSize="13" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" MaxWidth="400"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" 
+                                         Text="{Binding SupplierInvoiceCode, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource ModernTextBox}"
+                                         IsEnabled="{Binding IsInputEnabled}"
+                                         materialDesign:HintAssist.Hint="أدخل رقم الفاتورة...">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding FetchSupplierInvoiceCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                <Button Grid.Column="1" 
+                                        Content="🔍 تحميل المنتجات" 
+                                        Command="{Binding FetchSupplierInvoiceCommand}" 
+                                        Style="{StaticResource PrimaryButton}" 
+                                        Margin="12,0,0,0"/>
+                            </Grid>
+                            
+                            <TextBlock Text="💡 أدخل اسم المورد ورقم الفاتورة واضغط تحميل لعرض المنتجات المتاحة للإرجاع" 
                                        FontSize="12" Foreground="#94A3B8" Margin="0,12,0,0"/>
                         </StackPanel>
 
@@ -744,7 +768,7 @@
                             </DataGrid>
                         </Grid>
 
-                        <!-- ===== STEP 2 & 3: SUPPLIER - ADD ITEMS ===== -->
+                        <!-- ===== STEP 2: SUPPLIER - SELECT INVOICE PRODUCTS ===== -->
                         <Grid>
                              <Grid.Style>
                                 <Style TargetType="Grid">
@@ -765,10 +789,10 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Add Item Form - visible in step 2 -->
-                            <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="10" Padding="16" Margin="0,0,0,16">
-                                <Border.Style>
-                                    <Style TargetType="Border">
+                            <!-- Quick Actions -->
+                            <Grid Grid.Row="0">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentStep}" Value="2">
@@ -776,72 +800,28 @@
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Border.Style>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="2*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+                                </Grid.Style>
 
-                                    <TextBlock Grid.Column="0" Text="اسم المنتج" FontSize="12" Foreground="#64748B" Margin="0,0,0,6"/>
-                                    <TextBlock Grid.Column="1" Text="الكمية" FontSize="12" Foreground="#64748B" Margin="12,0,0,6"/>
-                                    <TextBlock Grid.Column="2" Text="السبب" FontSize="12" Foreground="#64748B" Margin="12,0,0,6"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <Button Content="تحديد الكل" Command="{Binding SelectAllSupplierInvoiceItemsCommand}" 
+                                            Style="{StaticResource SecondaryButton}" 
+                                            Padding="16,8" FontSize="12" Margin="0,0,8,0"/>
+                                    <Button Content="إلغاء التحديد" Command="{Binding DeselectAllSupplierInvoiceItemsCommand}" 
+                                            Style="{StaticResource SecondaryButton}" 
+                                            Padding="16,8" FontSize="12"/>
+                                    <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" FontSize="13" Foreground="#64748B">
+                                        <Run Text="تم تحديد"/>
+                                        <Run Text="{Binding SelectedSupplierInvoiceItemsCount, Mode=OneWay}" FontWeight="Bold" Foreground="#4F46E5"/>
+                                        <Run Text="من"/>
+                                        <Run Text="{Binding TotalSupplierInvoiceItemsCount, Mode=OneWay}"/>
+                                        <Run Text="منتج من الفاتورة"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
 
-                                    <Grid Grid.Row="1" Grid.Column="0">
-                                        <TextBox x:Name="ProductSearchBox"
-                                                 Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}" 
-                                                 Style="{StaticResource ModernTextBox}"
-                                                 IsEnabled="{Binding IsInputEnabled}"
-                                                 materialDesign:HintAssist.Hint="ابحث عن منتج..."/>
-                                        
-                                        <Popup IsOpen="{Binding IsProductSuggestionOpen, Mode=TwoWay}" 
-                                               PlacementTarget="{Binding ElementName=ProductSearchBox}"
-                                               StaysOpen="False"
-                                               AllowsTransparency="True"
-                                               Width="{Binding ActualWidth, ElementName=ProductSearchBox}">
-                                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
-                                                <Border.Effect>
-                                                    <DropShadowEffect BlurRadius="12" ShadowDepth="4" Opacity="0.15"/>
-                                                </Border.Effect>
-                                                <ListBox ItemsSource="{Binding ProductSuggestions}"
-                                                         SelectedItem="{Binding SelectedProductSuggestion, UpdateSourceTrigger=PropertyChanged}"
-                                                         MaxHeight="200"
-                                                         BorderThickness="0"
-                                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
-                                            </Border>
-                                        </Popup>
-                                    </Grid>
-
-                                    <TextBox Grid.Row="1" Grid.Column="1" 
-                                             Text="{Binding CurrentSupplierItem.Quantity, UpdateSourceTrigger=PropertyChanged}" 
-                                             Style="{StaticResource ModernTextBox}"
-                                             Margin="12,0,0,0"
-                                             IsEnabled="{Binding IsInputEnabled}"/>
-
-                                    <TextBox Grid.Row="1" Grid.Column="2" 
-                                             Text="{Binding CurrentSupplierItem.Reason, UpdateSourceTrigger=PropertyChanged}" 
-                                             Style="{StaticResource ModernTextBox}"
-                                             Margin="12,0,0,0"
-                                             IsEnabled="{Binding IsInputEnabled}"
-                                             materialDesign:HintAssist.Hint="سبب الإرجاع..."/>
-
-                                    <Button Grid.Row="1" Grid.Column="3" 
-                                            Content="➕ إضافة"
-                                            Command="{Binding AddSupplierItemCommand}"
-                                            Style="{StaticResource SuccessButton}"
-                                            Margin="12,0,0,0"/>
-                                </Grid>
-                            </Border>
-
-                            <!-- Items List -->
+                            <!-- Invoice Products DataGrid -->
                             <DataGrid Grid.Row="1" 
-                                      ItemsSource="{Binding SupplierReturnItems}" 
+                                      ItemsSource="{Binding SupplierInvoiceProducts}" 
                                       AutoGenerateColumns="False" 
                                       CanUserAddRows="False"
                                       Background="White"
@@ -849,7 +829,7 @@
                                       BorderBrush="#E2E8F0"
                                       GridLinesVisibility="Horizontal"
                                       HorizontalGridLinesBrush="#F1F5F9"
-                                      RowHeight="52"
+                                      RowHeight="60"
                                       HeadersVisibility="Column">
                                 <DataGrid.Style>
                                     <Style TargetType="DataGrid">
@@ -862,17 +842,96 @@
                                         </Style.Triggers>
                                     </Style>
                                 </DataGrid.Style>
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Padding" Value="12"/>
+                                        <Setter Property="Background" Value="#F8FAFC"/>
+                                        <Setter Property="Foreground" Value="#475569"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="FontSize" Value="13"/>
+                                    </Style>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="8"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="DataGridCell">
+                                                    <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                                        <ContentPresenter VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                    <Style x:Key="DataGridTextElement" TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Margin" Value="4,0"/>
+                                    </Style>
+                                </DataGrid.Resources>
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding ProductName}" Header="المنتج" Width="*"/>
-                                    <DataGridTextColumn Binding="{Binding Quantity}" Header="الكمية" Width="100"/>
-                                    <DataGridTextColumn Binding="{Binding Reason}" Header="السبب" Width="2*"/>
-                                    <DataGridTemplateColumn Width="80">
+                                    <!-- Checkbox Column -->
+                                    <DataGridTemplateColumn Width="60">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Content="🗑" 
-                                                        Command="{Binding DataContext.RemoveSupplierItemCommand, RelativeSource={RelativeSource AncestorType=Page}}" 
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource DangerButton}"/>
+                                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" 
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    
+                                    <!-- Product Name -->
+                                    <DataGridTextColumn Binding="{Binding Dto.ProductName}" Header="اسم المنتج" IsReadOnly="True" Width="2*" ElementStyle="{StaticResource DataGridTextElement}"/>
+                                    
+                                    <!-- Product Code -->
+                                    <DataGridTextColumn Binding="{Binding Dto.ProductCode}" Header="كود المنتج" IsReadOnly="True" Width="100" ElementStyle="{StaticResource DataGridTextElement}"/>
+                                    
+                                    <!-- Invoice Quantity (Max) -->
+                                    <DataGridTextColumn Binding="{Binding Dto.Quantity}" Header="الكمية بالفاتورة" IsReadOnly="True" Width="120" ElementStyle="{StaticResource DataGridTextElement}"/>
+                                    
+                                    <!-- Buy Price -->
+                                    <DataGridTemplateColumn Header="سعر الشراء" Width="120">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock VerticalAlignment="Center" Margin="4,0">
+                                                    <Run Text="{Binding Dto.BuyPrice, StringFormat=N2}"/>
+                                                    <Run Text="جنيه" FontSize="11" Foreground="#94A3B8"/>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    
+                                    <!-- Return Quantity -->
+                                    <DataGridTemplateColumn Header="كمية الإرجاع" Width="140">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}" 
+                                                         Style="{StaticResource ModernTextBox}" 
+                                                         Height="40" 
+                                                         Padding="0"
+                                                         VerticalContentAlignment="Center"
+                                                         TextAlignment="Center"
+                                                         IsEnabled="{Binding IsSelected}"
+                                                         Background="White"
+                                                         Foreground="Black"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    
+                                    <!-- Return Reason -->
+                                    <DataGridTemplateColumn Header="سبب الإرجاع" Width="3*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}" 
+                                                         Style="{StaticResource ModernTextBox}" 
+                                                         Height="40"
+                                                         Padding="8,0"
+                                                         VerticalContentAlignment="Center"
+                                                         IsEnabled="{Binding IsSelected}"
+                                                         Background="White"
+                                                         Foreground="Black"
+                                                         materialDesign:HintAssist.Hint="اكتب السبب..."/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>

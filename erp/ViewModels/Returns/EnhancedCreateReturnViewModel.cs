@@ -185,6 +185,22 @@ namespace erp.ViewModels.Returns
             }
         }
 
+        private string _supplierInvoiceCode = "";
+        public string SupplierInvoiceCode
+        {
+            get => _supplierInvoiceCode;
+            set
+            {
+                _supplierInvoiceCode = value?.Trim() ?? "";
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanGoNext));
+                ClearStatus();
+            }
+        }
+
+        // Collection for products loaded from invoice (selectable)
+        public ObservableCollection<SelectableSupplierInvoiceProduct> SupplierInvoiceProducts { get; } = new();
+
         private List<string> _allSuppliersCache = new();
         public ObservableCollection<string> FilteredSupplierSuggestions { get; } = new();
 
@@ -269,10 +285,14 @@ namespace erp.ViewModels.Returns
                 }
             }
         }
+
+        public int SelectedSupplierInvoiceItemsCount => SupplierInvoiceProducts.Count(i => i.IsSelected);
+        public int TotalSupplierInvoiceItemsCount => SupplierInvoiceProducts.Count;
         #endregion
 
         #region Commands
         public ICommand FetchOrderCommand { get; }
+        public ICommand FetchSupplierInvoiceCommand { get; }
         public ICommand NextStepCommand { get; }
         public ICommand PreviousStepCommand { get; }
         public ICommand SubmitReturnCommand { get; }
@@ -280,6 +300,8 @@ namespace erp.ViewModels.Returns
         public ICommand RemoveSupplierItemCommand { get; }
         public ICommand SelectAllItemsCommand { get; }
         public ICommand DeselectAllItemsCommand { get; }
+        public ICommand SelectAllSupplierInvoiceItemsCommand { get; }
+        public ICommand DeselectAllSupplierInvoiceItemsCommand { get; }
         public ICommand StartNewReturnCommand { get; }
         #endregion
 
@@ -292,6 +314,7 @@ namespace erp.ViewModels.Returns
 
             // Initialize commands
             FetchOrderCommand = new AsyncRelayCommand(FetchOrderItemsAsync, () => !IsBusy && !string.IsNullOrWhiteSpace(OrderCode));
+            FetchSupplierInvoiceCommand = new AsyncRelayCommand(FetchSupplierInvoiceProductsAsync, () => !IsBusy && !string.IsNullOrWhiteSpace(SupplierInvoiceCode));
             NextStepCommand = new AsyncRelayCommand(GoToNextStepAsync, () => CanGoNext);
             PreviousStepCommand = new RelayCommand(GoToPreviousStep, () => CanGoBack);
             SubmitReturnCommand = new AsyncRelayCommand(SubmitReturnAsync, () => CanSubmit);
@@ -299,6 +322,8 @@ namespace erp.ViewModels.Returns
             RemoveSupplierItemCommand = new RelayCommand<SupplierReturnItem>(RemoveSupplierItem);
             SelectAllItemsCommand = new RelayCommand(SelectAllItems);
             DeselectAllItemsCommand = new RelayCommand(DeselectAllItems);
+            SelectAllSupplierInvoiceItemsCommand = new RelayCommand(SelectAllSupplierInvoiceItems);
+            DeselectAllSupplierInvoiceItemsCommand = new RelayCommand(DeselectAllSupplierInvoiceItems);
             StartNewReturnCommand = new RelayCommand(StartNewReturn);
 
             // Load suppliers for autocomplete
@@ -326,7 +351,10 @@ namespace erp.ViewModels.Returns
             }
             else
             {
-                return !string.IsNullOrWhiteSpace(SupplierName);
+                // For supplier return, validate we have supplier name AND invoice code with loaded products
+                return !string.IsNullOrWhiteSpace(SupplierName) && 
+                       !string.IsNullOrWhiteSpace(SupplierInvoiceCode) &&
+                       SupplierInvoiceProducts.Count > 0;
             }
         }
 
@@ -344,11 +372,13 @@ namespace erp.ViewModels.Returns
             }
             else
             {
-                if (SupplierReturnItems.Count == 0) return false;
+                // Validate selected products from invoice
+                var selectedInvoiceProducts = SupplierInvoiceProducts.Where(p => p.IsSelected).ToList();
+                if (selectedInvoiceProducts.Count == 0) return false;
 
-                return SupplierReturnItems.All(i => 
-                    i.Quantity > 0 && 
-                    !string.IsNullOrWhiteSpace(i.ProductName) &&
+                return selectedInvoiceProducts.All(i => 
+                    i.ReturnQuantity > 0 && 
+                    i.ReturnQuantity <= i.Dto.Quantity && 
                     !string.IsNullOrWhiteSpace(i.Reason));
             }
         }
@@ -395,9 +425,9 @@ namespace erp.ViewModels.Returns
             var message = CurrentStep switch
             {
                 1 when IsCustomerReturn => "يرجى إدخال رقم الطلب وجلب المنتجات أولاً",
-                1 when IsSupplierReturn => "يرجى إدخال اسم المورد",
+                1 when IsSupplierReturn => "يرجى إدخال اسم المورد ورقم الفاتورة وتحميل المنتجات",
                 2 when IsCustomerReturn => "يرجى اختيار منتج واحد على الأقل وتحديد الكمية والسبب",
-                2 when IsSupplierReturn => "يرجى إضافة منتج واحد على الأقل مع الكمية والسبب",
+                2 when IsSupplierReturn => "يرجى اختيار منتج واحد على الأقل من الفاتورة وتحديد الكمية والسبب",
                 _ => "يرجى إكمال جميع البيانات المطلوبة"
             };
             SetStatus(message, StatusType.Warning);
@@ -476,6 +506,20 @@ namespace erp.ViewModels.Returns
                 item.IsSelected = false;
             OnPropertyChanged(nameof(SelectedItemsCount));
         }
+
+        private void SelectAllSupplierInvoiceItems()
+        {
+            foreach (var item in SupplierInvoiceProducts)
+                item.IsSelected = true;
+            OnPropertyChanged(nameof(SelectedSupplierInvoiceItemsCount));
+        }
+
+        private void DeselectAllSupplierInvoiceItems()
+        {
+            foreach (var item in SupplierInvoiceProducts)
+                item.IsSelected = false;
+            OnPropertyChanged(nameof(SelectedSupplierInvoiceItemsCount));
+        }
         #endregion
 
         #region Supplier Return Logic
@@ -498,6 +542,70 @@ namespace erp.ViewModels.Returns
             {
                 ErrorHandlingService.LogError(ex, "LoadSuppliersAsync");
                 // Silent fail - autocomplete is non-critical
+            }
+        }
+
+        private async Task FetchSupplierInvoiceProductsAsync()
+        {
+            if (string.IsNullOrWhiteSpace(SupplierInvoiceCode))
+            {
+                SetStatus("يرجى إدخال رقم الفاتورة أولاً", StatusType.Warning);
+                return;
+            }
+
+            if (!int.TryParse(SupplierInvoiceCode, out int invoiceCode))
+            {
+                SetStatus("رقم الفاتورة غير صالح", StatusType.Error);
+                return;
+            }
+
+            IsBusy = true;
+            LoadingMessage = "جاري البحث عن منتجات الفاتورة...";
+            ClearStatus();
+
+            try
+            {
+                var products = await _returnsService.GetSupplierInvoiceProductsAsync(invoiceCode);
+                
+                SupplierInvoiceProducts.Clear();
+                foreach (var product in products)
+                {
+                    var selectable = new SelectableSupplierInvoiceProduct(product);
+                    selectable.PropertyChanged += (s, e) => 
+                    {
+                        OnPropertyChanged(nameof(SelectedSupplierInvoiceItemsCount));
+                        OnPropertyChanged(nameof(CanGoNext));
+                        OnPropertyChanged(nameof(CanSubmit));
+                    };
+                    SupplierInvoiceProducts.Add(selectable);
+                }
+
+                OnPropertyChanged(nameof(TotalSupplierInvoiceItemsCount));
+                OnPropertyChanged(nameof(SelectedSupplierInvoiceItemsCount));
+
+                if (products.Count == 0)
+                {
+                    SetStatus("لا توجد منتجات في هذه الفاتورة", StatusType.Warning);
+                }
+                else
+                {
+                    SetStatus($"تم العثور على {products.Count} منتج(ات)", StatusType.Success);
+                }
+            }
+            catch (ServiceException ex)
+            {
+                ErrorHandlingService.LogError(ex, "FetchSupplierInvoiceProductsAsync");
+                SetStatus(ex.Message, StatusType.Error);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandlingService.LogError(ex, "FetchSupplierInvoiceProductsAsync");
+                SetStatus(HandleException(ex, "فشل في تحميل منتجات الفاتورة"), StatusType.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+                LoadingMessage = "";
             }
         }
 
@@ -628,7 +736,7 @@ namespace erp.ViewModels.Returns
             // Show confirmation dialog
             var confirmMessage = IsCustomerReturn
                 ? $"هل أنت متأكد من إرجاع {SelectedItemsCount} منتج(ات) للطلب رقم {OrderCode}؟"
-                : $"هل أنت متأكد من إرجاع {SupplierReturnItems.Count} منتج(ات) للمورد {SupplierName}؟";
+                : $"هل أنت متأكد من إرجاع {SelectedSupplierInvoiceItemsCount} منتج(ات) من الفاتورة رقم {SupplierInvoiceCode} للمورد {SupplierName}؟";
 
             if (!ErrorHandlingService.Confirm(confirmMessage, "تأكيد عملية الإرجاع"))
             {
@@ -715,29 +823,32 @@ namespace erp.ViewModels.Returns
             if (string.IsNullOrWhiteSpace(SupplierName))
                 return (false, "اسم المورد مطلوب");
 
-            if (SupplierReturnItems.Count == 0)
-                return (false, "يجب إضافة منتج واحد على الأقل");
+            // Get selected products from invoice
+            var selectedInvoiceProducts = SupplierInvoiceProducts.Where(p => p.IsSelected).ToList();
+            
+            if (selectedInvoiceProducts.Count == 0)
+                return (false, "يجب اختيار منتج واحد على الأقل من الفاتورة");
 
-            // Validate all items
-            foreach (var item in SupplierReturnItems)
+            // Validate all selected items
+            foreach (var item in selectedInvoiceProducts)
             {
-                if (string.IsNullOrWhiteSpace(item.ProductName))
-                    return (false, "يوجد منتج بدون اسم في القائمة");
+                if (item.ReturnQuantity <= 0)
+                    return (false, $"الكمية غير صالحة للمنتج: {item.Dto.ProductName}");
                 
-                if (item.Quantity <= 0)
-                    return (false, $"الكمية غير صالحة للمنتج: {item.ProductName}");
+                if (item.ReturnQuantity > item.Dto.Quantity)
+                    return (false, $"لا يمكن إرجاع كمية أكبر من الموجودة في الفاتورة للمنتج: {item.Dto.ProductName}");
                 
                 if (string.IsNullOrWhiteSpace(item.Reason))
-                    return (false, $"يجب إدخال سبب الإرجاع للمنتج: {item.ProductName}");
+                    return (false, $"يجب إدخال سبب الإرجاع للمنتج: {item.Dto.ProductName}");
             }
 
             var request = new ReturnToSupplierRequestDto
             {
                 SupplierName = SupplierName,
-                Items = SupplierReturnItems.Select(i => new CreateReturnItemDto
+                Items = selectedInvoiceProducts.Select(i => new CreateReturnItemDto
                 {
-                    ProductName = i.ProductName,
-                    Quantity = i.Quantity,
+                    ProductName = i.Dto.ProductName,
+                    Quantity = i.ReturnQuantity,
                     Reason = i.Reason
                 }).ToList()
             };
@@ -752,7 +863,9 @@ namespace erp.ViewModels.Returns
             CurrentStep = 1;
             OrderCode = "";
             SupplierName = "";
+            SupplierInvoiceCode = "";
             OrderItems.Clear();
+            SupplierInvoiceProducts.Clear();
             SupplierReturnItems.Clear();
             CurrentSupplierItem = new SupplierReturnItem();
             ProductSearchText = "";
@@ -763,6 +876,8 @@ namespace erp.ViewModels.Returns
 
             OnPropertyChanged(nameof(TotalItemsCount));
             OnPropertyChanged(nameof(SelectedItemsCount));
+            OnPropertyChanged(nameof(TotalSupplierInvoiceItemsCount));
+            OnPropertyChanged(nameof(SelectedSupplierInvoiceItemsCount));
         }
 
         private void StartNewReturn()
@@ -908,6 +1023,74 @@ namespace erp.ViewModels.Returns
         {
             get => _quantity;
             set { _quantity = Math.Max(0, value); OnPropertyChanged(); }
+        }
+
+        private string _reason = "";
+        public string Reason
+        {
+            get => _reason;
+            set { _reason = value ?? ""; OnPropertyChanged(); }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    /// <summary>
+    /// Selectable wrapper for supplier invoice products
+    /// </summary>
+    /// <summary>
+    /// Selectable wrapper for supplier invoice products
+    /// </summary>
+    public class SelectableSupplierInvoiceProduct : INotifyPropertyChanged
+    {
+        public SupplierInvoiceProductDto Dto { get; }
+
+        public SelectableSupplierInvoiceProduct(SupplierInvoiceProductDto dto)
+        {
+            Dto = dto ?? throw new ArgumentNullException(nameof(dto));
+            _returnQuantity = dto.Quantity; // Initialize field directly
+        }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set { _isSelected = value; OnPropertyChanged(); }
+        }
+
+        private int _returnQuantity;
+        public int ReturnQuantity
+        {
+            get => _returnQuantity;
+            set
+            {
+                // Strict validation: cannot be less than 0
+                // We enforce the max quantity check here.
+                int correctedValue = value;
+                
+                if (correctedValue > Dto.Quantity)
+                {
+                    correctedValue = Dto.Quantity;
+                }
+                else if (correctedValue < 0)
+                {
+                    correctedValue = 0;
+                }
+
+                if (_returnQuantity != correctedValue)
+                {
+                    _returnQuantity = correctedValue;
+                    OnPropertyChanged();
+                }
+                else if (value != _returnQuantity)
+                {
+                    // If the user typed a wrong value but the corrected value is the same as current,
+                    // we still notify to force the UI to revert to the valid value
+                    OnPropertyChanged();
+                }
+            }
         }
 
         private string _reason = "";

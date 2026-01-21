@@ -91,5 +91,40 @@ namespace erp.Services
             return await _api.GetAsync<SuppliersListResponseDto>("api/Supplier/suppliers");
         }
 
+        public async Task<System.Collections.Generic.List<erp.DTOS.Inventory.ProductSuggestionDto>> GetProductSuggestionsAsync(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return new System.Collections.Generic.List<erp.DTOS.Inventory.ProductSuggestionDto>();
+
+            var response = await _api.GetAsync<erp.DTOS.ApiResponseForReturn<System.Collections.Generic.List<erp.DTOS.Inventory.ProductSuggestionDto>>>(
+                $"api/Inventory/autocomplete?term={Uri.EscapeDataString(term)}"
+            );
+
+            return response?.Value ?? new System.Collections.Generic.List<erp.DTOS.Inventory.ProductSuggestionDto>();
+        }
+
+        public async Task<System.Collections.Generic.List<erp.DTOS.Orders.SalesRepSuggestionDto>> GetSalesRepSuggestionsAsync(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return new System.Collections.Generic.List<erp.DTOS.Orders.SalesRepSuggestionDto>();
+
+            var response = await _api.GetAsync<erp.DTOS.ApiResponseForReturn<System.Collections.Generic.List<erp.DTOS.Orders.SalesRepSuggestionDto>>>(
+                $"api/Orders/SalesRep/autocomplete?term={Uri.EscapeDataString(term)}"
+            );
+
+            return response?.Value ?? new System.Collections.Generic.List<erp.DTOS.Orders.SalesRepSuggestionDto>();
+        }
+
+        public async Task<System.Collections.Generic.List<erp.DTOS.Reports.CustomerSuggestionDto>> GetCustomerSuggestionsAsync(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return new System.Collections.Generic.List<erp.DTOS.Reports.CustomerSuggestionDto>();
+
+            var response = await _api.GetAsync<erp.DTOS.ApiResponseForReturn<System.Collections.Generic.List<erp.DTOS.Reports.CustomerSuggestionDto>>>(
+                $"api/Orders/customers/autocomplete?term={Uri.EscapeDataString(term)}"
+            );
+
+            return response?.Value ?? new System.Collections.Generic.List<erp.DTOS.Reports.CustomerSuggestionDto>();
+        }
     }
 }

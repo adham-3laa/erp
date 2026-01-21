@@ -53,8 +53,13 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Header -->
                 <RowDefinition Height="Auto"/> <!-- Search -->
+                <RowDefinition Height="Auto"/> <!-- Error Card -->
+                <RowDefinition Height="Auto"/> <!-- Product Info -->
                 <RowDefinition Height="Auto"/> <!-- Product Info -->
                 <RowDefinition Height="Auto"/> <!-- Summary Cards -->
+                <RowDefinition Height="Auto"/> <!-- Incoming Details -->
+                <RowDefinition Height="Auto"/> <!-- Outgoing Details -->
+                <RowDefinition Height="*"/>    <!-- Spacer -->
                 <RowDefinition Height="Auto"/> <!-- Incoming Details -->
                 <RowDefinition Height="Auto"/> <!-- Outgoing Details -->
                 <RowDefinition Height="*"/>    <!-- Spacer -->
@@ -99,12 +104,24 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Product Name Input -->
-                    <TextBox Grid.Column="0" Height="42"
-                             Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}"
-                             materialDesign:HintAssist.Hint="أدخل اسم الصنف ثم اضغط على تحميل التقرير"
-                             FontSize="14"
-                             VerticalContentAlignment="Center"/>
+                    <!-- Product Name Input (Autocomplete) -->
+                    <ComboBox Grid.Column="0" Height="42"
+                              IsEditable="True"
+                              StaysOpenOnEdit="True"
+                              Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding SelectedSuggestion}"
+                              ItemsSource="{Binding Suggestions}"
+                              DisplayMemberPath="Name"
+                              materialDesign:HintAssist.Hint="أدخل اسم الصنف ثم اضغط على تحميل التقرير"
+                              FontSize="14"
+                              VerticalContentAlignment="Center"
+                              Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                              <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                              </ComboBox.ItemsPanel>
+                    </ComboBox>
 
                     <!-- Clear Button -->
                     <Button Grid.Column="1" Content="مسح" 
@@ -147,8 +164,38 @@
                 </Grid>
             </Border>
 
+            <!-- ========== ERROR CARD ========== -->
+            <Border Grid.Row="2" Margin="0,0,0,20"
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" 
+                    Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="12" Padding="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Background="#FEE2E2" CornerRadius="12" Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Top">
+                         <materialDesign:PackIcon Kind="{Binding ErrorState.IconKind}" Foreground="#DC2626" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ErrorState.Title}" FontWeight="Bold" FontSize="16" Foreground="#991B1B" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding ErrorState.Message}" FontSize="14" Foreground="#B91C1C" TextWrapping="Wrap" Opacity="0.9"/>
+                    </StackPanel>
+                    
+                    <Button Grid.Column="2" 
+                            Content="{Binding ErrorState.ActionText}" 
+                            Command="{Binding LoadReportCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Foreground="#DC2626" BorderBrush="#DC2626"
+                            Margin="16,0,0,0" VerticalAlignment="Center"
+                             Height="36" Padding="16,0"/>
+                </Grid>
+            </Border>
+
             <!-- ========== PRODUCT INFO CARD ========== -->
-            <Border Grid.Row="2" Margin="0,20,0,0" 
+            <Border Grid.Row="3" Margin="0,20,0,0" 
                     Background="White" CornerRadius="14" Padding="18"
                     BorderBrush="#E5E7EB" BorderThickness="1"
                     Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
@@ -196,7 +243,7 @@
             </Border>
 
             <!-- ========== SUMMARY CARDS (RTL: In → Out → Stock) ========== -->
-            <UniformGrid Grid.Row="3" Columns="3" Margin="0,20,0,0"
+            <UniformGrid Grid.Row="4" Columns="3" Margin="0,20,0,0"
                          Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
                 
                 <!-- Total In -->
@@ -270,7 +317,7 @@
             </UniformGrid>
 
             <!-- ========== INCOMING MOVEMENTS ========== -->
-            <StackPanel Grid.Row="4" Margin="0,28,0,0"
+            <StackPanel Grid.Row="5" Margin="0,28,0,0"
                         Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
                 
                 <Border Height="1" Background="#E5E7EB" Margin="0,0,0,18"/>
@@ -318,7 +365,7 @@
             </StackPanel>
 
             <!-- ========== OUTGOING MOVEMENTS ========== -->
-            <StackPanel Grid.Row="5" Margin="0,28,0,0"
+            <StackPanel Grid.Row="6" Margin="0,28,0,0"
                         Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
                 
                 <Border Height="1" Background="#E5E7EB" Margin="0,0,0,18"/>
@@ -357,13 +404,13 @@
             </StackPanel>
 
             <!-- ========== EMPTY STATE (Centered, Not in Cards) ========== -->
-            <Border Grid.Row="3" Grid.RowSpan="3" Margin="0,60,0,60"
+            <Border Grid.Row="4" Grid.RowSpan="3" Margin="0,60,0,60"
                     Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Visible}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
 
             <!-- ========== LOADING OVERLAY ========== -->
-            <Border Grid.Row="0" Grid.RowSpan="7" Background="#F8FFFFFF" 
+            <Border Grid.Row="0" Grid.RowSpan="8" Background="#F8FFFFFF" 
                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <ProgressBar Width="220" Height="5" IsIndeterminate="True" 

@@ -18,11 +18,63 @@ namespace erp.ViewModels.Reports
             LoadReportCommand = new AsyncRelayCommand(LoadReportAsync);
         }
 
+        public System.Collections.ObjectModel.ObservableCollection<erp.DTOS.Reports.CustomerSuggestionDto> Suggestions { get; } = new();
+
+        private erp.DTOS.Reports.CustomerSuggestionDto _selectedSuggestion;
+        public erp.DTOS.Reports.CustomerSuggestionDto SelectedSuggestion
+        {
+            get => _selectedSuggestion;
+            set
+            {
+                if (SetProperty(ref _selectedSuggestion, value))
+                {
+                    if (value != null)
+                    {
+                        // Match logic similar to other VMS
+                    }
+                }
+            }
+        }
+
         private string _customerName;
         public string CustomerName
         {
             get => _customerName;
-            set => SetProperty(ref _customerName, value);
+            set
+            {
+                if (SetProperty(ref _customerName, value))
+                {
+                    LoadSuggestions(value);
+                }
+            }
+        }
+
+        private async void LoadSuggestions(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                Suggestions.Clear();
+                return;
+            }
+
+            if (_selectedSuggestion != null && string.Equals(_selectedSuggestion.FullName, term, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            try
+            {
+                var results = await _reportService.GetCustomerSuggestionsAsync(term);
+                Suggestions.Clear();
+                foreach (var item in results)
+                {
+                    Suggestions.Add(item);
+                }
+            }
+            catch
+            {
+                // Ignore
+            }
         }
 
         private CustomerReportDto _report;
@@ -60,22 +112,21 @@ namespace erp.ViewModels.Reports
             }
         }
 
-        private bool _hasError;
-        public bool HasError
+        private Helpers.ReportErrorState _errorState;
+        public Helpers.ReportErrorState ErrorState
         {
-            get => _hasError;
-            set => SetProperty(ref _hasError, value);
+            get => _errorState;
+            set
+            {
+                SetProperty(ref _errorState, value);
+                OnPropertyChanged(nameof(HasError));
+            }
         }
-
-        private string _errorMessage;
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
-        }
+        
+        public bool HasError => ErrorState != null && ErrorState.IsVisible;
 
         public bool HasData => Report != null;
-        public bool NoData => HasSearched && !IsLoading && Report == null;
+        public bool NoData => HasSearched && !IsLoading && Report == null && !HasError;
         public bool ShowInitialState => !HasSearched && !IsLoading && Report == null;
 
         public IAsyncRelayCommand LoadReportCommand { get; }
@@ -84,39 +135,49 @@ namespace erp.ViewModels.Reports
         {
             if (string.IsNullOrWhiteSpace(CustomerName))
             {
-                HasError = true;
-                ErrorMessage = "من فضلك أدخل اسم العميل";
+                ErrorState = Helpers.ReportErrorHandler.CreateValidation("من فضلك أدخل اسم العميل");
                 return;
             }
 
             try
             {
-                HasError = false;
-                ErrorMessage = null;
+                ErrorState = Helpers.ReportErrorState.Empty;
                 IsLoading = true;
                 HasSearched = true;
                 Report = null;
 
                 var result = await _reportService.GetCustomerReportAsync(CustomerName);
-                if (result != null && result.StatusCode == 200)
+                if (result != null)
                 {
-                    Report = result;
-                }
-                else if (result != null && result.StatusCode == 404)
-                {
-                    // No data found - NoData state will handle it
-                    Report = null;
+                    if (result.StatusCode == 200)
+                    {
+                        Report = result;
+                    }
+                    else if (result.StatusCode == 404)
+                    {
+                         // 404 handled effectively by "NoData" state if that's preferred, 
+                         // OR we can show a specific "Customer Not Found" error.
+                         // Current logic sets Report=null, so NoData becomes true.
+                         // Let's stick to NoData for "Not Found" searches, but if it is an API error, use Error.
+                         // If API returns 404 for "Customer does not exist", NoData is better UX than Red Error.
+                         // But if it's "Endpoint not found", that's an error.
+                         // Assuming 404 = Customer not found here.
+                         Report = null; 
+                    }
+                    else
+                    {
+                        ErrorState = Helpers.ReportErrorHandler.HandleApiError(result.StatusCode, result.Message);
+                    }
                 }
                 else
                 {
-                    HasError = true;
-                    ErrorMessage = result?.Message ?? "تعذر جلب البيانات";
+                     // Null result usually means something went wrong if not 404
+                     ErrorState = Helpers.ReportErrorHandler.HandleException(new Exception("لم يتم استلام رد من الخادم"));
                 }
             }
             catch (Exception ex)
             {
-                HasError = true;
-                ErrorMessage = ex.Message;
+                ErrorState = Helpers.ReportErrorHandler.HandleException(ex);
             }
             finally
             {

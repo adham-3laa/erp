@@ -72,6 +72,36 @@ namespace erp.Services
             }
         }
 
+        // ===================== GET SUPPLIER INVOICE PRODUCTS BY INVOICE CODE =====================
+        public async Task<List<SupplierInvoiceProductDto>> GetSupplierInvoiceProductsAsync(int invoiceCode)
+        {
+            try
+            {
+                if (invoiceCode <= 0)
+                    throw new ArgumentException("رقم الفاتورة غير صالح", nameof(invoiceCode));
+
+                ErrorHandlingService.LogInfo($"GetSupplierInvoiceProductsAsync | InvoiceCode: {invoiceCode}");
+
+                var response = await _api.GetAsync<ApiResponseForReturn<List<SupplierInvoiceProductDto>>>(
+                    $"api/Invoices/GetSupplierInviceProductsByInvoicCode?invoiceCode={invoiceCode}"
+                );
+
+                return response?.Value ?? new List<SupplierInvoiceProductDto>();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandlingService.LogError(ex, $"ReturnsService.GetSupplierInvoiceProductsAsync - InvoiceCode: {invoiceCode}");
+                
+                if (ex is ServiceException) throw;
+                
+                // Customize message if 404
+                if (ex.Message.Contains("404") || ex.Message.Contains("Not Found"))
+                    throw new ServiceException($"الفاتورة رقم {invoiceCode} غير موجودة.");
+
+                throw new ServiceException("فشل في تحميل منتجات الفاتورة.", ex);
+            }
+        }
+
         // ===================== CREATE RETURN REQUEST (CUSTOMER) =====================
         public async Task<(bool Success, string? ErrorMessage)> CreateReturnAsync(CreateReturnRequestDto request)
         {

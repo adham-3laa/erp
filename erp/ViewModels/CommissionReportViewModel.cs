@@ -33,11 +33,63 @@ namespace erp.ViewModels.Reports
             }
         }
 
+        public ObservableCollection<erp.DTOS.Orders.SalesRepSuggestionDto> Suggestions { get; } = new();
+
+        private erp.DTOS.Orders.SalesRepSuggestionDto _selectedSuggestion;
+        public erp.DTOS.Orders.SalesRepSuggestionDto SelectedSuggestion
+        {
+            get => _selectedSuggestion;
+            set
+            {
+                if (SetProperty(ref _selectedSuggestion, value))
+                {
+                    if (value != null)
+                    {
+                        // Ensure text matches selected suggestion (usually automatic via binding)
+                    }
+                }
+            }
+        }
+
         private string _salesRepName;
         public string SalesRepName
         {
             get => _salesRepName;
-            set => SetProperty(ref _salesRepName, value);
+            set
+            {
+                if (SetProperty(ref _salesRepName, value))
+                {
+                    LoadSuggestions(value);
+                }
+            }
+        }
+
+        private async void LoadSuggestions(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                Suggestions.Clear();
+                return;
+            }
+
+            if (_selectedSuggestion != null && string.Equals(_selectedSuggestion.FullName, term, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            try
+            {
+                var results = await _reportService.GetSalesRepSuggestionsAsync(term);
+                Suggestions.Clear();
+                foreach (var item in results)
+                {
+                    Suggestions.Add(item);
+                }
+            }
+            catch
+            {
+                // Ignore errors for autocomplete
+            }
         }
 
         public ObservableCollection<CommissionReportItemDto> Items { get; } = new();
@@ -55,30 +107,43 @@ namespace erp.ViewModels.Reports
         }
 
         // ✅ HasData محسوبة صح + تتأثر بـ IsLoading
-        public bool HasData => !IsLoading && Items.Count > 0;
+        // ✅ جديد: لإدارة الأخطاء
+        private Helpers.ReportErrorState _errorState;
+        public Helpers.ReportErrorState ErrorState
+        {
+            get => _errorState;
+            set
+            {
+                SetProperty(ref _errorState, value);
+                OnPropertyChanged(nameof(HasError));
+            }
+        }
 
-        // ✅ NoData مش هتظهر غير بعد أول بحث
-        public bool NoData => HasSearched && !IsLoading && Items.Count == 0;
+        public bool HasError => ErrorState != null && ErrorState.IsVisible;
+
+        // ✅ HasData محسوبة صح
+        public bool HasData => !IsLoading && Items.Count > 0 && !HasError;
+
+        // ✅ NoData مش هتظهر غير بعد أول بحث، ولو مفيش أخطاء
+        public bool NoData => HasSearched && !IsLoading && Items.Count == 0 && !HasError;
 
         public ICommand LoadReportCommand { get; }
 
         private async Task LoadReportAsync()
         {
-            // ✅ لو فاضي، ما نعتبرهاش بحث (علشان NoData ما يظهرش)
             if (string.IsNullOrWhiteSpace(SalesRepName))
             {
-                MessageBox.Show("من فضلك أدخل اسم مندوب المبيعات");
+                ErrorState = Helpers.ReportErrorHandler.CreateValidation("من فضلك أدخل اسم مندوب المبيعات");
                 return;
             }
-
-            // ✅ أول ما يدوس تحميل = يعتبر بحث
-            HasSearched = true;
 
             try
             {
                 IsLoading = true;
-
+                HasSearched = true;
                 Items.Clear();
+                ErrorState = Helpers.ReportErrorState.Empty;
+
                 OnPropertyChanged(nameof(NoData));
                 OnPropertyChanged(nameof(HasData));
 
@@ -88,25 +153,24 @@ namespace erp.ViewModels.Reports
                 {
                     foreach (var item in response.Value)
                         Items.Add(item);
-                }
 
-                // ✅ بعد إضافة الداتا
-                OnPropertyChanged(nameof(NoData));
-                OnPropertyChanged(nameof(HasData));
+                    if(Items.Count == 0)
+                    {
+                         // Optional: You could treat empty list as "No Data" state, handled by NoData property
+                    }
+                }
+                else
+                {
+                    // If API returns null without exception, treated as empty or logic error can be added here
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                // ✅ في حالة خطأ: نخليها تظهر NoData بعد البحث لو مفيش Items
-                OnPropertyChanged(nameof(NoData));
-                OnPropertyChanged(nameof(HasData));
+                ErrorState = Helpers.ReportErrorHandler.HandleException(ex);
             }
             finally
             {
                 IsLoading = false;
-
-                // ✅ تأكيد تحديث الحالات بعد التحميل
                 OnPropertyChanged(nameof(NoData));
                 OnPropertyChanged(nameof(HasData));
             }

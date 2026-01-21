@@ -78,6 +78,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
             <RowDefinition Height="Auto"/> <!-- Filters -->
+            <RowDefinition Height="Auto"/> <!-- Error State -->
             <RowDefinition Height="Auto"/> <!-- Results -->
             <RowDefinition Height="*"/>    <!-- Spacer -->
         </Grid.RowDefinitions>
@@ -142,8 +143,38 @@
             </Grid>
         </Border>
 
+        <!-- ========== ERROR CARD ========== -->
+        <Border Grid.Row="2" Margin="0,24,0,0"
+                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" 
+                Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="12" Padding="20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Border Background="#FEE2E2" CornerRadius="12" Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Top">
+                        <materialDesign:PackIcon Kind="{Binding ErrorState.IconKind}" Foreground="#DC2626" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ErrorState.Title}" FontWeight="Bold" FontSize="16" Foreground="#991B1B" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding ErrorState.Message}" FontSize="14" Foreground="#B91C1C" TextWrapping="Wrap" Opacity="0.9"/>
+                </StackPanel>
+                
+                <Button Grid.Column="2" 
+                        Content="{Binding ErrorState.ActionText}" 
+                        Command="{Binding LoadReportCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Foreground="#DC2626" BorderBrush="#DC2626"
+                        Margin="16,0,0,0" VerticalAlignment="Center"
+                            Height="36" Padding="16,0"/>
+            </Grid>
+        </Border>
+
         <!-- ========== RESULTS SECTION ========== -->
-        <Grid Grid.Row="2" Margin="0,24,0,0">
+        <Grid Grid.Row="3" Margin="0,24,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -203,7 +234,7 @@
         </Grid>
 
         <!-- Empty State -->
-        <Border Grid.Row="2" Margin="0,24,0,0" 
+        <Border Grid.Row="3" Margin="0,24,0,0" 
                 Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,60,0,0">
                 <materialDesign:PackIcon Kind="ChartLineVariant" Width="80" Height="80" 
@@ -217,7 +248,7 @@
         </Border>
 
         <!-- Loading Overlay -->
-        <Border Grid.Row="2" Grid.RowSpan="2" Background="#F0FFFFFF" 
+        <Border Grid.Row="2" Grid.RowSpan="3" Background="#F0FFFFFF" 
                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ProgressBar Width="240" Height="6" IsIndeterminate="True" 

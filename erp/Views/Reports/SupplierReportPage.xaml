@@ -116,7 +116,7 @@
                               StaysOpenOnEdit="True"
                               ItemsSource="{Binding SupplierSuggestions}"
                               Text="{Binding SupplierName, UpdateSourceTrigger=PropertyChanged}"
-                              materialDesign:HintAssist.Hint="اسم المورد (مثال: طه انور طه)"
+                              materialDesign:HintAssist.Hint="اسم المورد"
                               Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                               VerticalAlignment="Center">
                         <ComboBox.InputBindings>
@@ -161,15 +161,35 @@
             <StackPanel>
                 
                 <!-- Error Banner -->
+                <!-- Error Banner (Standardized) -->
                 <Border Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" 
-                        Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,12">
+                        Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Grid.Column="0" Kind="AlertCircle" Foreground="#DC2626" Width="24" Height="24" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="1" Text="{Binding ErrorMessage}" Foreground="#DC2626" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        
+                        <!-- Icon -->
+                        <Border Background="#FEE2E2" CornerRadius="12" Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Top">
+                             <materialDesign:PackIcon Kind="{Binding ErrorState.IconKind}" Foreground="#DC2626" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- Content -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ErrorState.Title}" FontWeight="Bold" FontSize="16" Foreground="#991B1B" Margin="0,0,0,4"/>
+                            <TextBlock Text="{Binding ErrorState.Message}" FontSize="14" Foreground="#B91C1C" TextWrapping="Wrap" Opacity="0.9"/>
+                        </StackPanel>
+
+                        <!-- Action Button (Retry) -->
+                        <Button Grid.Column="2" 
+                                Content="{Binding ErrorState.ActionText}" 
+                                Command="{Binding LoadReportCommand}"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Foreground="#DC2626" BorderBrush="#DC2626"
+                                Margin="16,0,0,0" VerticalAlignment="Center"
+                                Height="36" Padding="16,0"/>
                     </Grid>
                 </Border>
 

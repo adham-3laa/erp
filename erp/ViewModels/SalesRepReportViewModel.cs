@@ -18,11 +18,63 @@ namespace erp.ViewModels
             LoadReportCommand = new AsyncRelayCommand(LoadReportAsync);
         }
 
+        public System.Collections.ObjectModel.ObservableCollection<erp.DTOS.Orders.SalesRepSuggestionDto> Suggestions { get; } = new();
+
+        private erp.DTOS.Orders.SalesRepSuggestionDto _selectedSuggestion;
+        public erp.DTOS.Orders.SalesRepSuggestionDto SelectedSuggestion
+        {
+            get => _selectedSuggestion;
+            set
+            {
+                if (SetProperty(ref _selectedSuggestion, value))
+                {
+                    if (value != null)
+                    {
+                        // Match logic similar to other VMS
+                    }
+                }
+            }
+        }
+
         private string _salesRepName;
         public string SalesRepName
         {
             get => _salesRepName;
-            set => SetProperty(ref _salesRepName, value);
+            set
+            {
+                if (SetProperty(ref _salesRepName, value))
+                {
+                    LoadSuggestions(value);
+                }
+            }
+        }
+
+        private async void LoadSuggestions(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                Suggestions.Clear();
+                return;
+            }
+
+            if (_selectedSuggestion != null && string.Equals(_selectedSuggestion.FullName, term, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            try
+            {
+                var results = await _reportService.GetSalesRepSuggestionsAsync(term);
+                Suggestions.Clear();
+                foreach (var item in results)
+                {
+                    Suggestions.Add(item);
+                }
+            }
+            catch
+            {
+                // Ignore
+            }
         }
 
         private SalesRepReportDto _report;
@@ -62,22 +114,21 @@ namespace erp.ViewModels
             }
         }
 
-        private bool _hasError;
-        public bool HasError
+        private Helpers.ReportErrorState _errorState;
+        public Helpers.ReportErrorState ErrorState
         {
-            get => _hasError;
-            set => SetProperty(ref _hasError, value);
+            get => _errorState;
+            set
+            {
+                SetProperty(ref _errorState, value);
+                OnPropertyChanged(nameof(HasError));
+            }
         }
-
-        private string _errorMessage;
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
-        }
+        
+        public bool HasError => ErrorState != null && ErrorState.IsVisible;
 
         public bool HasData => Report != null;
-        public bool NoData => HasSearched && !IsLoading && Report == null;
+        public bool NoData => HasSearched && !IsLoading && Report == null && !HasError;
         public bool ShowInitialState => !HasSearched && !IsLoading && Report == null;
         public bool HasUnpaidCommissions => Report?.UnpaidCommissions?.Count > 0;
         public bool NoUnpaidCommissions => Report != null && (Report.UnpaidCommissions == null || Report.UnpaidCommissions.Count == 0);
@@ -88,39 +139,41 @@ namespace erp.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SalesRepName))
             {
-                HasError = true;
-                ErrorMessage = "من فضلك أدخل اسم مندوب المبيعات";
+                ErrorState = Helpers.ReportErrorHandler.CreateValidation("من فضلك أدخل اسم مندوب المبيعات");
                 return;
             }
 
             try
             {
-                HasError = false;
-                ErrorMessage = null;
+                ErrorState = Helpers.ReportErrorState.Empty;
                 IsLoading = true;
                 HasSearched = true;
                 Report = null;
 
                 var result = await _reportService.GetSalesRepReportAsync(SalesRepName);
-                if (result != null && result.StatusCode == 200)
+                if (result != null)
                 {
-                    Report = result;
-                }
-                else if (result != null && result.StatusCode == 404)
-                {
-                    // No data found - NoData state will handle it
-                    Report = null;
+                   if(result.StatusCode == 200)
+                    {
+                        Report = result;
+                    }
+                    else if (result.StatusCode == 404)
+                    {
+                        Report = null; // NoData state
+                    }
+                    else
+                    {
+                        ErrorState = Helpers.ReportErrorHandler.HandleApiError(result.StatusCode, result.Message);
+                    }
                 }
                 else
                 {
-                    HasError = true;
-                    ErrorMessage = result?.Message ?? "تعذر جلب البيانات";
+                    ErrorState = Helpers.ReportErrorHandler.HandleException(new Exception("لم يتم استلام رد من الخادم"));
                 }
             }
             catch (Exception ex)
             {
-                HasError = true;
-                ErrorMessage = ex.Message;
+                ErrorState = Helpers.ReportErrorHandler.HandleException(ex);
             }
             finally
             {
