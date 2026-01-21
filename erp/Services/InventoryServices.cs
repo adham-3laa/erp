@@ -176,8 +176,8 @@ namespace erp.Services
 
         // ================== Add List Of Products ==================
         public async Task AddProductsWithCategoryNameAsync(
-            List<Product> products,
-            string supplierId)
+         List<Product> products,
+         string supplierId)
         {
             if (string.IsNullOrWhiteSpace(supplierId))
                 throw new Exception("SupplierId مطلوب");
@@ -199,9 +199,6 @@ namespace erp.Services
                 if (string.IsNullOrWhiteSpace(p.Category))
                     throw new Exception($"اسم الصنف للمنتج رقم {index + 1} مطلوب");
 
-                if (string.IsNullOrWhiteSpace(p.SKU))
-                    throw new Exception($"SKU للمنتج رقم {index + 1} مطلوب");
-
                 if (p.SalePrice <= 0 || p.BuyPrice <= 0 || p.Quantity <= 0)
                     throw new Exception($"أسعار / كمية غير صحيحة في المنتج رقم {index + 1}");
 
@@ -211,24 +208,35 @@ namespace erp.Services
                     saleprice = p.SalePrice,
                     buyprice = p.BuyPrice,
                     quantity = p.Quantity,
-                    sku = p.SKU.Trim(),
+                    sku = string.IsNullOrWhiteSpace(p.SKU) ? null : p.SKU.Trim(),
                     description = p.Description?.Trim() ?? "",
                     categoryname = p.Category.Trim()
                 };
             }).ToList();
 
-            var url =
-     $"/api/Inventory/ListOfProductsWithCategoryName?supplierName={Uri.EscapeDataString(supplierId)}";
-
+            var url = $"/api/Inventory/ListOfProductsWithCategoryName?supplierName={Uri.EscapeDataString(supplierId)}";
 
             var response = await _client.PostAsJsonAsync(url, body);
+            var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"API Error: {error}");
+                string msg;
+                try
+                {
+                    var jsonDoc = JsonDocument.Parse(content);
+                    msg = jsonDoc.RootElement.GetProperty("message").GetString() ?? content;
+                }
+                catch
+                {
+                    msg = content; // لو مش JSON
+                }
+
+                throw new Exception($"API Error: {msg}");
             }
         }
+
+
 
         // ================== Update Product ==================
         public async Task UpdateProductAsync(Product product)

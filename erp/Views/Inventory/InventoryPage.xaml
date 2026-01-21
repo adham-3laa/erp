@@ -173,11 +173,17 @@
                 Style="{StaticResource GlowingTableOuterBorder}">
 
             <DataGrid x:Name="ProductsDataGrid"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      Style="{StaticResource NiceDataGridStyle}"
-                      ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
-                      CellStyle="{StaticResource NiceDataGridCellStyle}">
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              Style="{StaticResource NiceDataGridStyle}"
+              ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
+              CellStyle="{StaticResource NiceDataGridCellStyle}"
+              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+              VerticalAlignment="Top"
+              RowDetailsVisibilityMode="Collapsed" 
+               EnableRowVirtualization="False">    
+
 
                 <DataGrid.Columns>
 
@@ -245,21 +251,26 @@
 
         <!-- ================= Pagination ================= -->
         <StackPanel Grid.Row="3"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,16,0,0">
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            Margin="0,16,0,0">
 
-            <Button Content="&lt;&lt;" Width="50" Click="FirstPage_Click"/>
-            <Button Content="&lt;" Width="50" Click="PrevPage_Click"/>
+            <Button Content="التالي"
+            Width="100"
+            Margin="0,0,10,0"
+            Click="NextPage_Click"/>
 
             <TextBlock x:Name="PageTextBlock"
-                       Margin="12,0"
-                       VerticalAlignment="Center"
-                       FontWeight="SemiBold"/>
+               Margin="10,0"
+               VerticalAlignment="Center"
+               FontWeight="SemiBold"/>
 
-            <Button Content="&gt;" Width="50" Click="NextPage_Click"/>
-            <Button Content="&gt;&gt;" Width="50" Click="LastPage_Click"/>
+            <Button Content="السابق"
+            Width="100"
+            Margin="10,0,0,0"
+            Click="PrevPage_Click"/>
         </StackPanel>
+
 
         <!-- ================= Error ================= -->
         <TextBlock x:Name="ErrorTextBlock"
