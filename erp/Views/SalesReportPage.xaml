@@ -5,249 +5,226 @@
       FlowDirection="RightToLeft"
       Background="{StaticResource PageBgBrush}">
 
-    <!-- ========== Resources (Same Reference Look) ========== -->
     <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
-        <!-- ===== Glow (needed for old table frame) ===== -->
-        <DropShadowEffect x:Key="PrimaryOutlineGlow"
-                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="16"
-                          ShadowDepth="0"
-                          Opacity="0.35"/>
+        <!-- Enhanced Card Style -->
+        <Style x:Key="EnhancedCard" TargetType="Border">
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.15" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <!-- ===== Old Frame (Like CategoryListPage) ===== -->
-        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
+        <!-- Filter Container Style -->
+        <Style x:Key="FilterContainer" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
             <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="Padding" Value="12"/>
-            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <!-- ===== Tabs ===== -->
-        <!-- Active tab uses the global DarkButtonStyle (Primary hover/pressed) -->
-        <Style x:Key="ActiveTabButtonStyle"
-               TargetType="Button"
-               BasedOn="{StaticResource DarkButtonStyle}">
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="Padding" Value="18,10"/>
+        <!-- Tab Styles -->
+        <Style x:Key="ActiveTabButtonStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonStyle}">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
-        <!-- Inactive tab (Gray + own hover/pressed so it doesn't switch to PrimaryHoverBrush) -->
         <Style x:Key="InactiveTabButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="MinWidth" Value="0"/>
-            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="20,12"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="#6B7280"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                CornerRadius="18"
-                                Background="{TemplateBinding Background}">
+                        <Border x:Name="Bd" CornerRadius="20" Background="{TemplateBinding Background}">
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.14"/>
+                                <DropShadowEffect BlurRadius="12" ShadowDepth="4" Opacity="0.12"/>
                             </Border.Effect>
-
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#4B5563"/>
                             </Trigger>
-
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#374151"/>
-                                <Setter TargetName="Bd" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                            </Trigger>
-
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
     </Page.Resources>
 
-    <!-- ========== Layout (Like Reference) ========== -->
-    <Grid Margin="24">
+    <Grid Margin="28">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- Header -->
-            <RowDefinition Height="Auto"/>
-            <!-- Filters -->
-            <RowDefinition Height="Auto"/>
-            <!-- Cards -->
-            <RowDefinition Height="*"/>
-            <!-- Spacer -->
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Filters -->
+            <RowDefinition Height="Auto"/> <!-- Results -->
+            <RowDefinition Height="*"/>    <!-- Spacer -->
         </Grid.RowDefinitions>
 
-        <!-- ================= Header (Title + Tabs) ================= -->
+        <!-- ========== HEADER SECTION ========== -->
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <!-- Title & Description -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                <TextBlock Text="📊 التقارير" FontSize="32" FontWeight="Bold" Foreground="#1F2937"/>
+                <TextBlock Text="متابعة وتحليل أداء المبيعات والطلبات" 
+                           FontSize="15" Foreground="#6B7280" Margin="0,8,0,0"/>
+            </StackPanel>
 
-                <!-- Title -->
-                <TextBlock Grid.Column="0"
-                           Text="📊 التقارير"
-                           FontSize="26"
-                           FontWeight="Bold"
-                           Foreground="#FF1F2937"
-                           VerticalAlignment="Center"
-                           Margin="0,0,14,0"/>
-
-                <!-- (Center column left empty on purpose to match layout style) -->
-
-                <!-- Tabs (Buttons) -->
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center">
-
-                     <Button Content="📊 تقرير المبيعات"
-                            Style="{StaticResource ActiveTabButtonStyle}"
-                            Margin="0,0,10,0"/>
-
-                    <Button Content="📦 حركة صنف"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenStockMovementReport"/>
-
-                    <Button Content="💰 العمولات"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenCommissionReport"/>
-
-                    <Button Content="👤 العملاء"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenCustomerReport"/>
-
-                    <Button Content="👔 المندوبين"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenSalesRepReport"/>
-
-                    <Button Content="🏭 الموردين"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Click="OpenSupplierReport"/>
-                </StackPanel>
-            </Grid>
-
-            <!-- Subtitle -->
-            <TextBlock Grid.Row="1"
-                       Text="متابعة وتحليل أداء المبيعات والطلبات"
-                       FontSize="14"
-                       Foreground="#6B7280"
-                       Margin="0,6,0,0"/>
+            <!-- Navigation Tabs -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,0">
+                <Button Content="📊 تقرير المبيعات" Style="{StaticResource ActiveTabButtonStyle}" Margin="0,0,8,0"/>
+                <Button Content="📦 حركة صنف" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenStockMovementReport"/>
+                <Button Content="💰 العمولات" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenCommissionReport"/>
+                <Button Content="👤 العملاء" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenCustomerReport"/>
+                <Button Content="👔 المندوبين" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenSalesRepReport"/>
+                <Button Content="🏭 الموردين" Style="{StaticResource InactiveTabButtonStyle}" Click="OpenSupplierReport"/>
+            </StackPanel>
         </Grid>
 
-        <!-- ================= Filters (Old Frame) ================= -->
-        <Border Grid.Row="1"
-                Margin="0,18,0,0"
-                Style="{StaticResource GlowingTableOuterBorder}">
+        <!-- ========== FILTERS SECTION ========== -->
+        <Border Grid.Row="1" Margin="0,24,0,0" Style="{StaticResource FilterContainer}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-
-                <StackPanel Margin="0,0,16,0">
-                    <TextBlock Text="من تاريخ"
-                               FontSize="12"
-                               Foreground="#6B7280"/>
-                    <DatePicker SelectedDate="{Binding FromDate}"
-                                Height="40"/>
+                <!-- From Date -->
+                <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                    <TextBlock Text="من تاريخ" FontSize="13" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                    <DatePicker SelectedDate="{Binding FromDate}" Width="180" Height="44"
+                                materialDesign:HintAssist.Hint="اختر التاريخ"/>
                 </StackPanel>
 
-                <StackPanel Margin="0,0,16,0">
-                    <TextBlock Text="إلى تاريخ"
-                               FontSize="12"
-                               Foreground="#6B7280"/>
-                    <DatePicker SelectedDate="{Binding ToDate}"
-                                Height="40"/>
+                <!-- To Date -->
+                <StackPanel Grid.Column="1" Margin="0,0,20,0">
+                    <TextBlock Text="إلى تاريخ" FontSize="13" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,8"/>
+                    <DatePicker SelectedDate="{Binding ToDate}" Width="180" Height="44"
+                                materialDesign:HintAssist.Hint="اختر التاريخ"/>
                 </StackPanel>
 
-                <Button Content="تحميل التقرير"
+                <!-- Load Button -->
+                <Button Grid.Column="2" Content="📥 تحميل التقرير" 
                         Command="{Binding LoadReportCommand}"
                         Style="{StaticResource DarkButtonStyle}"
-                        Height="40"
-                        Margin="16,18,0,0"/>
-            </StackPanel>
+                        Height="44" Width="160"
+                        Margin="0,27,0,0"
+                        VerticalAlignment="Bottom"/>
+            </Grid>
         </Border>
 
-        <!-- ================= Result Cards ================= -->
-        <Grid Grid.Row="2" Margin="0,16,0,0" VerticalAlignment="Top">
+        <!-- ========== RESULTS SECTION ========== -->
+        <Grid Grid.Row="2" Margin="0,24,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Total Sales -->
-            <Border Grid.Column="0"
-                    Margin="8,8,4,8"
-                    Padding="16"
-                    Height="90"
-                    CornerRadius="16"
-                    Background="#FF4E88D2"
-                    VerticalAlignment="Top">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="إجمالي المبيعات"
-                               Foreground="#DBEAFE"
-                               FontSize="13"/>
-                    <TextBlock Text="{Binding Report.TotalSales, StringFormat='{}{0:N0} ج.م'}"
-                               Foreground="White"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               Margin="0,6,0,0"/>
-                </StackPanel>
+            <!-- Total Sales Card -->
+            <Border Grid.Column="0" Style="{StaticResource EnhancedCard}" Background="#FF4E88D2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="إجمالي المبيعات" Foreground="#DBEAFE" FontSize="14" FontWeight="Medium"/>
+                        <TextBlock Text="{Binding Report.TotalSales, StringFormat='{}{0:N0} ج.م', FallbackValue='0 ج.م'}" 
+                                   Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,8,0,0"/>
+                        <TextBlock Text="خلال الفترة المحددة" Foreground="#BFDBFE" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <materialDesign:PackIcon Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                                             Kind="CashMultiple" Width="48" Height="48" 
+                                             Foreground="#FFFFFF" Opacity="0.3" 
+                                             VerticalAlignment="Center"/>
+                </Grid>
             </Border>
 
-            <!-- Total Orders -->
-            <Border Grid.Column="1"
-                    Margin="4,8,8,8"
-                    Padding="16"
-                    Height="90"
-                    CornerRadius="16"
-                    Background="#FF549476"
-                    VerticalAlignment="Top">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="عدد الطلبات"
-                               Foreground="#D1FAE5"
-                               FontSize="13"/>
-                    <TextBlock Text="{Binding Report.TotalOrders}"
-                               Foreground="White"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               Margin="0,6,0,0"/>
-                </StackPanel>
+            <!-- Total Orders Card -->
+            <Border Grid.Column="1" Style="{StaticResource EnhancedCard}" Background="#FF10B981">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="عدد الطلبات" Foreground="#D1FAE5" FontSize="14" FontWeight="Medium"/>
+                        <TextBlock Text="{Binding Report.TotalOrders, FallbackValue='0'}" 
+                                   Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,8,0,0"/>
+                        <TextBlock Text="طلب مكتمل" Foreground="#A7F3D0" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <materialDesign:PackIcon Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                                             Kind="ShoppingOutline" Width="48" Height="48" 
+                                             Foreground="#FFFFFF" Opacity="0.3" 
+                                             VerticalAlignment="Center"/>
+                </Grid>
             </Border>
         </Grid>
 
-        <!-- Row 3 spacer -->
+        <!-- Empty State -->
+        <Border Grid.Row="2" Margin="0,24,0,0" 
+                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,60,0,0">
+                <materialDesign:PackIcon Kind="ChartLineVariant" Width="80" Height="80" 
+                                         Foreground="#D1D5DB" Margin="0,0,0,16"/>
+                <TextBlock Text="لا توجد بيانات للعرض" FontSize="18" FontWeight="SemiBold" 
+                           Foreground="#6B7280" HorizontalAlignment="Center"/>
+                <TextBlock Text="اختر نطاق التواريخ ثم اضغط على تحميل التقرير" 
+                           FontSize="14" Foreground="#9CA3AF" 
+                           HorizontalAlignment="Center" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="2" Grid.RowSpan="2" Background="#F0FFFFFF" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar Width="240" Height="6" IsIndeterminate="True" 
+                             Foreground="{StaticResource PrimaryBrush}"/>
+                <TextBlock Text="جاري تحميل التقرير..." FontSize="15" FontWeight="Medium"
+                           Foreground="#374151" Margin="0,16,0,0" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

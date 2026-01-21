@@ -137,9 +137,24 @@
                             Style="{StaticResource ActiveTabButtonStyle}"
                             Margin="0,0,10,0"/>
 
-                    <Button Content="💰 عمولات المندوبين"
+                    <Button Content="💰 العمولات"
                             Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
                             Click="OpenCommissionReport"/>
+
+                    <Button Content="👤 العملاء"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
+                            Click="OpenCustomerReport"/>
+
+                    <Button Content="👔 المندوبين"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
+                            Click="OpenSalesRepReport"/>
+
+                    <Button Content="🏭 الموردين"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Click="OpenSupplierReport"/>
                 </StackPanel>
             </Grid>
 
