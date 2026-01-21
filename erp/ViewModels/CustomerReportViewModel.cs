@@ -44,6 +44,7 @@ namespace erp.ViewModels.Reports
             {
                 SetProperty(ref _isLoading, value);
                 OnPropertyChanged(nameof(NoData));
+                OnPropertyChanged(nameof(ShowInitialState));
             }
         }
 
@@ -55,11 +56,27 @@ namespace erp.ViewModels.Reports
             {
                 SetProperty(ref _hasSearched, value);
                 OnPropertyChanged(nameof(NoData));
+                OnPropertyChanged(nameof(ShowInitialState));
             }
+        }
+
+        private bool _hasError;
+        public bool HasError
+        {
+            get => _hasError;
+            set => SetProperty(ref _hasError, value);
+        }
+
+        private string _errorMessage;
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
         }
 
         public bool HasData => Report != null;
         public bool NoData => HasSearched && !IsLoading && Report == null;
+        public bool ShowInitialState => !HasSearched && !IsLoading && Report == null;
 
         public IAsyncRelayCommand LoadReportCommand { get; }
 
@@ -67,12 +84,15 @@ namespace erp.ViewModels.Reports
         {
             if (string.IsNullOrWhiteSpace(CustomerName))
             {
-                MessageBox.Show("من فضلك أدخل اسم العميل", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Warning);
+                HasError = true;
+                ErrorMessage = "من فضلك أدخل اسم العميل";
                 return;
             }
 
             try
             {
+                HasError = false;
+                ErrorMessage = null;
                 IsLoading = true;
                 HasSearched = true;
                 Report = null;
@@ -82,14 +102,21 @@ namespace erp.ViewModels.Reports
                 {
                     Report = result;
                 }
+                else if (result != null && result.StatusCode == 404)
+                {
+                    // No data found - NoData state will handle it
+                    Report = null;
+                }
                 else
                 {
-                    MessageBox.Show(result?.Message ?? "تعذر جلب البيانات", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    HasError = true;
+                    ErrorMessage = result?.Message ?? "تعذر جلب البيانات";
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                HasError = true;
+                ErrorMessage = ex.Message;
             }
             finally
             {

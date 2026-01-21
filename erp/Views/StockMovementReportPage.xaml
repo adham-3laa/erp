@@ -5,432 +5,375 @@
       FlowDirection="RightToLeft"
       Background="{StaticResource PageBgBrush}">
 
-    <!-- ========== Resources (Same Reference Look) ========== -->
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
-        <!-- ===== Glow (needed for old frame) ===== -->
-        <DropShadowEffect x:Key="PrimaryOutlineGlow"
-                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="16"
-                          ShadowDepth="0"
-                          Opacity="0.35"/>
-
-        <!-- ===== Old Frame (Like CategoryListPage) ===== -->
-        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
-            <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="Padding" Value="12"/>
-            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
-        </Style>
-
-        <!-- ===== Tabs ===== -->
-        <Style x:Key="ActiveTabButtonStyle"
-               TargetType="Button"
-               BasedOn="{StaticResource DarkButtonStyle}">
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="Padding" Value="18,10"/>
+        <!-- Tab Styles -->
+        <Style x:Key="ActiveTabButtonStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonStyle}">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
         <Style x:Key="InactiveTabButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="MinWidth" Value="0"/>
-            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="20,12"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="#6B7280"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                CornerRadius="18"
-                                Background="{TemplateBinding Background}">
+                        <Border x:Name="Bd" CornerRadius="20" Background="{TemplateBinding Background}">
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="18" ShadowDepth="6" Opacity="0.14"/>
+                                <DropShadowEffect BlurRadius="12" ShadowDepth="4" Opacity="0.12"/>
                             </Border.Effect>
-
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#4B5563"/>
                             </Trigger>
-
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="#374151"/>
-                                <Setter TargetName="Bd" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                            </Trigger>
-
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
     </Page.Resources>
 
-    <!-- ========== Layout (Like Reference) ========== -->
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- Header + Tabs -->
-            <RowDefinition Height="Auto"/>
-            <!-- Input -->
-            <RowDefinition Height="Auto"/>
-            <!-- Info row -->
-            <RowDefinition Height="*"/>
-            <!-- Cards -->
-        </Grid.RowDefinitions>
-
-        <!-- ================= Header (Title + Tabs) ================= -->
-        <Grid Grid.Row="0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="28">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="Auto"/> <!-- Search -->
+                <RowDefinition Height="Auto"/> <!-- Product Info -->
+                <RowDefinition Height="Auto"/> <!-- Summary Cards -->
+                <RowDefinition Height="Auto"/> <!-- Incoming Details -->
+                <RowDefinition Height="Auto"/> <!-- Outgoing Details -->
+                <RowDefinition Height="*"/>    <!-- Spacer -->
             </Grid.RowDefinitions>
 
+            <!-- ========== HEADER SECTION ========== -->
             <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <!-- Title -->
-                <TextBlock Grid.Column="0"
-                           Text="📦 تقرير حركة صنف"
-                           FontSize="26"
-                           FontWeight="Bold"
-                           Foreground="#FF1F2937"
-                           VerticalAlignment="Center"
-                           Margin="0,0,14,0"/>
+                <!-- Title & Description -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                    <TextBlock Text="📦 تقرير حركة صنف" FontSize="32" FontWeight="Bold" Foreground="#1F2937"/>
+                    <TextBlock Text="متابعة حركة الإدخال والإخراج للمخزون" 
+                               FontSize="15" Foreground="#6B7280" Margin="0,8,0,0"/>
+                </StackPanel>
 
-                <!-- Tabs -->
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center">
-
-                    <Button Content="📊 تقرير المبيعات"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenSalesReport"/>
-
-                    <Button Content="📦 حركة صنف"
-                            Style="{StaticResource ActiveTabButtonStyle}"
-                            Margin="0,0,10,0"/>
-
-                    <Button Content="💰 العمولات"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenCommissionReport"/>
-
-                    <Button Content="👤 العملاء"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenCustomerReport"/>
-
-                    <Button Content="👔 المندوبين"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Margin="0,0,10,0"
-                            Click="OpenSalesRepReport"/>
-
-                    <Button Content="🏭 الموردين"
-                            Style="{StaticResource InactiveTabButtonStyle}"
-                            Click="OpenSupplierReport"/>
+                <!-- Navigation Tabs -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <Button Content="📊 تقريرالمبيعات" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenSalesReport"/>
+                    <Button Content="📦 حركة صنف" Style="{StaticResource ActiveTabButtonStyle}" Margin="0,0,8,0"/>
+                    <Button Content="💰 العمولات" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenCommissionReport"/>
+                    <Button Content="👤 العملاء" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenCustomerReport"/>
+                    <Button Content="👔 المندوبين" Style="{StaticResource InactiveTabButtonStyle}" Margin="0,0,8,0" Click="OpenSalesRepReport"/>
+                    <Button Content="🏭 الموردين" Style="{StaticResource InactiveTabButtonStyle}" Click="OpenSupplierReport"/>
                 </StackPanel>
             </Grid>
 
-            <!-- Subtitle -->
-            <TextBlock Grid.Row="1"
-                       Text="متابعة حركة الإدخال والإخراج للمخزون"
-                       FontSize="14"
-                       Foreground="#6B7280"
-                       Margin="0,6,0,0"/>
-        </Grid>
+            <!-- ========== SEARCH SECTION (Single Row: Input + Clear + Download) ========== -->
+            <Border Grid.Row="1" Margin="0,24,0,0" Background="White" CornerRadius="14" Padding="16"
+                    BorderBrush="#E5E7EB" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05"/>
+                </Border.Effect>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-        <!-- ================= Input (Old Frame) ================= -->
-        <Border Grid.Row="1"
-                Margin="0,18,0,0"
-                Style="{StaticResource GlowingTableOuterBorder}">
-
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-
-                <StackPanel>
-                    <TextBlock Text="اسم الصنف"
-                               FontSize="12"
-                               Foreground="#6B7280"/>
-                    <TextBox Width="320"
-                             Height="40"
+                    <!-- Product Name Input -->
+                    <TextBox Grid.Column="0" Height="42"
                              Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}"
-                             materialDesign:HintAssist.Hint="أدخل اسم المنتج مثل Rolex أو rolex"/>
-                </StackPanel>
+                             materialDesign:HintAssist.Hint="أدخل اسم الصنف ثم اضغط على تحميل التقرير"
+                             FontSize="14"
+                             VerticalContentAlignment="Center"/>
 
-                <Button Content="تحميل التقرير"
-                        Command="{Binding LoadReportCommand}"
-                        Style="{StaticResource DarkButtonStyle}"
-                        Height="40"
-                        Margin="12,18,0,0"/>
-            </StackPanel>
-        </Border>
+                    <!-- Clear Button -->
+                    <Button Grid.Column="1" Content="مسح" 
+                            Height="42" Width="80"
+                            Margin="8,0,0,0"
+                            Background="#F3F4F6"
+                            Foreground="#6B7280"
+                            BorderThickness="0"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" CornerRadius="10" 
+                                                    Background="{TemplateBinding Background}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="border" Property="Background" Value="#E5E7EB"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
 
-        <!-- ================= Info Row (Old Frame) ================= -->
-        <Border Grid.Row="2"
-                Margin="0,16,0,0"
-                Style="{StaticResource GlowingTableOuterBorder}"
-                Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <!-- Download Button -->
+                    <Button Grid.Column="2" Content="📥 تحميل التقرير" 
+                            Command="{Binding LoadReportCommand}"
+                            Style="{StaticResource DarkButtonStyle}"
+                            Height="42" Width="150"
+                            Margin="8,0,0,0"
+                            IsEnabled="{Binding IsNotLoading}"/>
+                </Grid>
+            </Border>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <!-- ========== PRODUCT INFO CARD ========== -->
+            <Border Grid.Row="2" Margin="0,20,0,0" 
+                    Background="White" CornerRadius="14" Padding="18"
+                    BorderBrush="#E5E7EB" BorderThickness="1"
+                    Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05"/>
+                </Border.Effect>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Product ID"
-                               FontSize="12"
-                               Foreground="#6B7280"/>
-                    <TextBlock Text="{Binding Report.ProductId}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="#FF111827"
-                               TextTrimming="CharacterEllipsis"/>
-                </StackPanel>
+                    <!-- Product Icon -->
+                    <Border Grid.Column="0" Background="#EFF6FF" CornerRadius="10" 
+                            Width="48" Height="48" Margin="0,0,14,0">
+                        <materialDesign:PackIcon Kind="PackageVariant" Width="24" Height="24" 
+                                                 Foreground="#3B82F6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
 
-                <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                    <TextBlock Text="اسم الصنف (من التقرير)"
-                               FontSize="12"
-                               Foreground="#6B7280"/>
-                    <TextBlock Text="{Binding Report.ProductName}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="#FF111827"
-                               TextTrimming="CharacterEllipsis"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Margin="12,0,0,0">
-                    <TextBlock Text="Message"
-                               FontSize="12"
-                               Foreground="#6B7280"/>
-                    <TextBlock Text="{Binding Report.Message}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="#FF111827"
-                               TextTrimming="CharacterEllipsis"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ================= Result Cards (KEEP LOGIC/BINDINGS) ================= -->
-        <Grid Grid.Row="3" Margin="0,10,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- الصف الأول: 3 كروت -->
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Total In -->
-                <Border Grid.Column="0"
-                        Margin="8"
-                        Padding="24"
-                        CornerRadius="16"
-                        Background="#FF4E88D2">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الداخل"
-                                   Foreground="#DBEAFE"
-                                   FontSize="14"/>
-                        <TextBlock Text="{Binding Report.TotalIn}"
-                                   Foreground="White"
-                                   FontSize="28"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
+                    <!-- Product Details -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Report.ProductName, FallbackValue='اسم المنتج'}" 
+                                   FontSize="16" FontWeight="Bold" Foreground="#111827"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="معرف:" FontSize="11" Foreground="#9CA3AF" Margin="0,0,4,0"/>
+                            <TextBlock Text="{Binding Report.ProductId, FallbackValue='-'}" 
+                                       FontSize="11" Foreground="#6B7280" FontFamily="Consolas"/>
+                        </StackPanel>
                     </StackPanel>
+
+                    <!-- Status Badge -->
+                    <Border Grid.Column="2" Background="#ECFDF5" CornerRadius="8" 
+                            Padding="10,5" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="CheckCircle" Width="14" Height="14" 
+                                                     Foreground="#10B981" Margin="0,0,4,0"/>
+                            <TextBlock Text="تم جلب البيانات بنجاح" FontSize="12" 
+                                       Foreground="#059669" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ========== SUMMARY CARDS (RTL: In → Out → Stock) ========== -->
+            <UniformGrid Grid.Row="3" Columns="3" Margin="0,20,0,0"
+                         Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+                
+                <!-- Total In -->
+                <Border Background="#EFF6FF" CornerRadius="14" Padding="18" Margin="5" Height="110">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.06"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="إجمالي الداخل" Foreground="#3B82F6" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Report.TotalIn, FallbackValue='0'}" 
+                                       Foreground="#1E3A8A" FontSize="34" FontWeight="Bold" Margin="0,6,0,0"/>
+                        </StackPanel>
+
+                        <materialDesign:PackIcon Grid.Column="1" Kind="ArrowDownCircle" 
+                                                 Width="36" Height="36" Foreground="#3B82F6" 
+                                                 Opacity="0.25" VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
 
                 <!-- Total Out -->
-                <Border Grid.Column="1"
-                        Margin="8"
-                        Padding="24"
-                        CornerRadius="16"
-                        Background="#FF5A1212">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الخارج"
-                                   Foreground="#FEE2E2"
-                                   FontSize="14"/>
-                        <TextBlock Text="{Binding Report.TotalOut}"
-                                   Foreground="White"
-                                   FontSize="28"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
+                <Border Background="#FEF2F2" CornerRadius="14" Padding="18" Margin="5" Height="110">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.06"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="إجمالي الخارج" Foreground="#EF4444" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Report.TotalOut, FallbackValue='0'}" 
+                                       Foreground="#991B1B" FontSize="34" FontWeight="Bold" Margin="0,6,0,0"/>
+                        </StackPanel>
+
+                        <materialDesign:PackIcon Grid.Column="1" Kind="ArrowUpCircle" 
+                                                 Width="36" Height="36" Foreground="#EF4444" 
+                                                 Opacity="0.25" VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
 
                 <!-- Current Stock -->
-                <Border Grid.Column="2"
-                        Margin="8"
-                        Padding="24"
-                        CornerRadius="16"
-                        Background="#FF549476">
-                    <StackPanel>
-                        <TextBlock Text="الرصيد الحالي"
-                                   Foreground="#D1FAE5"
-                                   FontSize="14"/>
-                        <TextBlock Text="{Binding Report.CurrentStock}"
-                                   Foreground="White"
-                                   FontSize="28"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
+                <Border Background="#ECFDF5" CornerRadius="14" Padding="18" Margin="5" Height="110">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.06"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="الرصيد الحالي" Foreground="#10B981" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Report.CurrentStock, FallbackValue='0'}" 
+                                       Foreground="#065F46" FontSize="34" FontWeight="Bold" Margin="0,6,0,0"/>
+                        </StackPanel>
+
+                        <materialDesign:PackIcon Grid.Column="1" Kind="PackageVariant" 
+                                                 Width="36" Height="36" Foreground="#10B981" 
+                                                 Opacity="0.25" VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
-            </Grid>
+            </UniformGrid>
 
-            <!-- الصف الثاني: تفاصيل Total In (4 كروت) -->
-            <Grid Grid.Row="1" Margin="0,8,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
+            <!-- ========== INCOMING MOVEMENTS ========== -->
+            <StackPanel Grid.Row="4" Margin="0,28,0,0"
+                        Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+                
+                <Border Height="1" Background="#E5E7EB" Margin="0,0,0,18"/>
+                
+                <TextBlock Text="📥 الحركات الداخلة" FontSize="18" FontWeight="Bold" 
+                           Foreground="#1F2937" Margin="0,0,0,14"/>
 
-                <Border Grid.Column="0" Margin="8" Padding="18" CornerRadius="16" Background="#EFF6FF">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الداخل (مشتريات)"
-                                   Foreground="#1D4ED8"
-                                   FontSize="13"/>
-                        <TextBlock Text="{Binding Report.TotalInPurchased}"
-                                   Foreground="#111827"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
+                <UniformGrid Columns="4">
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="المشتريات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalInPurchased, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                <Border Grid.Column="1" Margin="8" Padding="18" CornerRadius="16" Background="#ECFDF5">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الداخل (مرتجعات)"
-                                   Foreground="#047857"
-                                   FontSize="13"/>
-                        <TextBlock Text="{Binding Report.TotalInReturned}"
-                                   Foreground="#111827"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="المرتجعات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalInReturned, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                <Border Grid.Column="2" Margin="8" Padding="18" CornerRadius="16" Background="#FDF2F8">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الداخل (تسويات)"
-                                   Foreground="#9D174D"
-                                   FontSize="13"/>
-                        <TextBlock Text="{Binding Report.TotalInAdjusted}"
-                                   Foreground="#111827"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="التسويات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalInAdjusted, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                <!-- ✅ NEW -->
-                <Border Grid.Column="3" Margin="8" Padding="18" CornerRadius="16" Background="#EEF2FF">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الداخل (تعديل موظف)"
-                                   Foreground="#3730A3"
-                                   FontSize="13"/>
-                        <TextBlock Text="{Binding Report.TotalInUpdatedByEmployee}"
-                                   Foreground="#111827"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="تعديلات موظفين" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalInUpdatedByEmployee, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </StackPanel>
 
-            <!-- الصف الثالث: تفاصيل Total Out (4 كروت) -->
-            <Grid Grid.Row="2" Margin="0,8,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
+            <!-- ========== OUTGOING MOVEMENTS ========== -->
+            <StackPanel Grid.Row="5" Margin="0,28,0,0"
+                        Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+                
+                <Border Height="1" Background="#E5E7EB" Margin="0,0,0,18"/>
+                
+                <TextBlock Text="📤 الحركات الخارجة" FontSize="18" FontWeight="Bold" 
+                           Foreground="#1F2937" Margin="0,0,0,14"/>
 
-                <Border Grid.Column="0" Margin="8" Padding="18" CornerRadius="16" Background="#FEF2F2">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الخارج (مبيعات)"
-                                   Foreground="#991B1B"
-                                   FontSize="13"/>
-                        <TextBlock Text="{Binding Report.TotalOutSold}"
-                                   Foreground="#111827"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
+                <UniformGrid Columns="3">
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="المبيعات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalOutSold, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                <Border Grid.Column="1" Margin="8" Padding="18" CornerRadius="16" Background="#FFF7ED">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الخارج (تسويات)"
-                                   Foreground="#9A3412"
-                                   FontSize="13"/>
-                        <TextBlock Text="{Binding Report.TotalOutAdjusted}"
-                                   Foreground="#111827"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="التسويات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalOutAdjusted, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                <!-- ✅ NEW -->
-                <Border Grid.Column="2" Margin="8" Padding="18" CornerRadius="16" Background="#F0FDFA">
-                    <StackPanel>
-                        <TextBlock Text="إجمالي الخارج (تعديل موظف)"
-                                   Foreground="#0F766E"
-                                   FontSize="13"/>
-                        <TextBlock Text="{Binding Report.TotalOutUpdatedByEmployee}"
-                                   Foreground="#111827"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="تعديلات موظفين" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalOutUpdatedByEmployee, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </StackPanel>
 
-                <!-- TraceId -->
+            <!-- ========== EMPTY STATE (Centered, Not in Cards) ========== -->
+            <Border Grid.Row="3" Grid.RowSpan="3" Margin="0,60,0,60"
+                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Visible}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
 
-                <Border Grid.Column="3" Margin="8" Padding="18" CornerRadius="16" Background="#F3F4F6"/>
-
-            </Grid>
-
-            <!-- Spacer -->
-            <Border Grid.Row="3" Background="Transparent"/>
+            <!-- ========== LOADING OVERLAY ========== -->
+            <Border Grid.Row="0" Grid.RowSpan="7" Background="#F8FFFFFF" 
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Width="220" Height="5" IsIndeterminate="True" 
+                                 Foreground="{StaticResource PrimaryBrush}"/>
+                    <TextBlock Text="جاري تحميل التقرير..." FontSize="15" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,16,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="يرجى الانتظار..." FontSize="12"
+                               Foreground="#6B7280" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </Page>

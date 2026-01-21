@@ -29,6 +29,7 @@
             <conv:StatusTooltipConverter x:Key="StatusTooltipConverter"/>
             <conv:CollectionCountToVisibilityConverter x:Key="CollectionCountToVisibilityConverter"/>
             <conv:UserStatusConverter x:Key="UserStatusConverter"/>
+            <conv:QuantityLessThanConverter x:Key="QuantityLessThanConverter"/>
             
         </ResourceDictionary>
     </Application.Resources>

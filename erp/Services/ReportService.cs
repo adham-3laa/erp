@@ -86,5 +86,10 @@ namespace erp.Services
             );
         }
 
+        public async Task<SuppliersListResponseDto?> GetSuppliersAsync()
+        {
+            return await _api.GetAsync<SuppliersListResponseDto>("api/Supplier/suppliers");
+        }
+
     }
 }
