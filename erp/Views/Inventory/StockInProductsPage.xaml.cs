@@ -9,6 +9,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using EduGate.Models;
+using static MaterialDesignThemes.Wpf.Theme.ToolBar;
+using System.Collections.ObjectModel;
 
 namespace erp.Views.Inventory
 {
@@ -21,12 +24,20 @@ namespace erp.Views.Inventory
         private List<string> _allProducts = new List<string>();
         private List<string> _allSuppliers = new List<string>();
 
+        private ObservableCollection<StockInItemRequest> _products =
+        new ObservableCollection<StockInItemRequest>();
+
+
         public StockInProductsPage()
         {
             InitializeComponent();
-            ProductsGrid.ItemsSource = new List<StockInItemRequest>();
+
+            _products.Add(new StockInItemRequest()); // صف جاهز
+            ProductsGrid.ItemsSource = _products;
+
             Loaded += StockInProductsPage_Loaded;
         }
+
 
         private async void StockInProductsPage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -237,9 +248,11 @@ namespace erp.Views.Inventory
 
         private void ProductNameCell_TextChanged(object sender, TextChangedEventArgs e)
         {
+            StockInItemRequest item = null;
+
             if (sender is TextBox textBox)
             {
-                var item = textBox.DataContext as StockInItemRequest;
+                item = textBox.DataContext as StockInItemRequest;
                 if (item == null) return;
 
                 _currentProductTextBox = textBox;
@@ -277,7 +290,16 @@ namespace erp.Views.Inventory
                     ProductSuggestionsPopup.IsOpen = false;
                 }
             }
+
+            // ✅ دلوقتي item متاح هنا
+            if (item != null &&
+                _products.Last() == item &&
+                !string.IsNullOrWhiteSpace(item.productname))
+            {
+                _products.Add(new StockInItemRequest());
+            }
         }
+
 
         private void ProductNameCell_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -362,11 +384,16 @@ namespace erp.Views.Inventory
         {
             if (ProductSuggestionsPopupListBox.SelectedItem != null && _currentProductItem != null)
             {
-                _currentProductItem.productname = ProductSuggestionsPopupListBox.SelectedItem.ToString();
-                ProductsGrid.Items.Refresh();
+                var selected = ProductSuggestionsPopupListBox.SelectedItem.ToString();
+
+                _currentProductItem.productname = selected;
+                _currentProductTextBox.Text = selected;
+
                 ProductSuggestionsPopup.IsOpen = false;
+                ProductsGrid.CommitEdit();
             }
         }
+
 
         private void ProductSuggestionsPopupListBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {

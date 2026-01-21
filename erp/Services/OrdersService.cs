@@ -5,9 +5,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static erp.Services.InventoryService;
 
 namespace erp.Services
 {
+    // ===================== Autocomplete DTOs =====================
+    public class CustomerAutocompleteItem
+    {
+        public int usernumber { get; set; }
+        public string fullname { get; set; } = "";
+    }
+
+    public class SalesRepAutocompleteItem
+    {
+        public int usernumber { get; set; }
+        public string fullname { get; set; } = "";
+    }
+
+    public class ProductAutocompleteItem
+    {
+        public int code { get; set; }
+        public string name { get; set; } = "";
+    }
+
+    public class AutocompleteResponse<T>
+    {
+        public int statusCode { get; set; }
+        public string message { get; set; } = "";
+        public string traceId { get; set; } = "";
+        public List<T> value { get; set; } = new();
+    }
+
     public class OrdersService
     {
         private readonly ApiClient _api;
@@ -16,6 +44,68 @@ namespace erp.Services
         public OrdersService(ApiClient api)
         {
             _api = api;
+        }
+
+        // ===================== Autocomplete APIs =====================
+
+        /// <summary>
+        /// البحث عن العملاء بالاسم (Autocomplete)
+        /// </summary>
+        public async Task<List<CustomerAutocompleteItem>> GetCustomersAutocompleteAsync(string term)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(term)) return new();
+                
+                var res = await _api.GetAsync<AutocompleteResponse<CustomerAutocompleteItem>>(
+                    $"{BaseUrl}/api/Orders/customers/autocomplete?term={Uri.EscapeDataString(term)}");
+
+                return res?.value ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
+        /// <summary>
+        /// البحث عن المندوبين بالاسم (Autocomplete)
+        /// </summary>
+        public async Task<List<SalesRepAutocompleteItem>> GetSalesRepAutocompleteAsync(string term)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(term)) return new();
+
+                var res = await _api.GetAsync<AutocompleteResponse<SalesRepAutocompleteItem>>(
+                    $"{BaseUrl}/api/Orders/SalesRep/autocomplete?term={Uri.EscapeDataString(term)}");
+
+                return res?.value ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
+        /// <summary>
+        /// البحث عن المنتجات بالاسم (Autocomplete)
+        /// </summary>
+        public async Task<List<ProductAutocompleteItem>> GetProductsAutocompleteAsync(string term)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(term)) return new();
+
+                var res = await _api.GetAsync<AutocompleteResponse<ProductAutocompleteItem>>(
+                    $"{BaseUrl}/api/Inventory/autocomplete?term={Uri.EscapeDataString(term)}");
+
+                return res?.value ?? new();
+            }
+            catch
+            {
+                return new();
+            }
         }
 
         // ===================== Orders Lists =====================
@@ -110,5 +200,13 @@ namespace erp.Services
             );
             return true;
         }
+
+        // 🔹 جلب كل المنتجات للاستخدام في autocomplete
+        public async Task<List<ProductLookupDto>> GetProductsLookupAsync()
+        {
+            var res = await _api.GetAsync<ApiResponse<List<ProductLookupDto>>>($"{BaseUrl}/api/Inventory/GetProductsLookup");
+            return res.value ?? new List<ProductLookupDto>();
+        }
+
     }
 }
