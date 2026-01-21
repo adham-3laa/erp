@@ -43,5 +43,8 @@ namespace erp.DTOS.Dashboard
 
         [JsonPropertyName("sku")]
         public string Sku { get; set; } = "";
+
+        [JsonPropertyName("productcode")]
+        public int ProductCode { get; set; }
     }
 }

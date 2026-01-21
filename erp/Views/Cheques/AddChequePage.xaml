@@ -1,0 +1,162 @@
+<Page x:Class="erp.Views.Cheques.AddChequePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:erp.Views.Cheques"
+      xmlns:converters="clr-namespace:erp.Converters"
+      mc:Ignorable="d" 
+      Title="AddChequePage"
+      FlowDirection="RightToLeft"
+      Background="#F3F4F6">
+
+    <Page.Resources>
+        <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="DatePicker">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Border Background="White" Width="600" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="12" Padding="30">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.1" Color="Black"/>
+            </Border.Effect>
+            
+            <StackPanel>
+                <TextBlock Text="إضافة شيك جديد" FontSize="22" FontWeight="Bold" Margin="0,0,0,20" Foreground="#111827"/>
+                
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="رقم الشيك *"/>
+                        <TextBox Text="{Binding CheckNumber, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="المبلغ *"/>
+                        <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="البنك *"/>
+                        <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="تاريخ الاستحقاق *"/>
+                        <DatePicker SelectedDate="{Binding DueDate}"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,15">
+                    <TextBlock Text="نوع الشيك"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <RadioButton GroupName="Type" Content="شيك وارد (من عميل)" IsChecked="{Binding IsIncoming}" Margin="0,0,20,0"/>
+                        <RadioButton GroupName="Type" Content="شيك صادر (لمورد)" IsChecked="{Binding IsIncoming, Converter={StaticResource InvertBoolConverter}}"/> 
+                        <!-- Need InvertBoolConverter or just bind inverse in VM. Simplest: Two bools in VM or ValueConverter -->
+                        <!-- Actually, if IsIncoming is checked, then checked. The second one needs to conform to !IsIncoming. -->
+                        <!-- WPF RadioButton binding usually tricky. Let's just create BooleanInverter -->
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,15" ZIndex="100">
+                    <TextBlock Text="الاسم المرتبط (العميل/المورد)"/>
+                    <Grid>
+                        <TextBox x:Name="RelatedNameBox" 
+                                 Text="{Binding RelatedName, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewKeyDown="RelatedNameBox_PreviewKeyDown"/>
+                        
+                        <Popup IsOpen="{Binding IsSuggestionOpen, Mode=TwoWay}" 
+                               PlacementTarget="{Binding ElementName=RelatedNameBox}"
+                               StaysOpen="False"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               Width="{Binding ActualWidth, ElementName=RelatedNameBox}">
+                            <Border Background="White" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Margin="0,2,0,0">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                                </Border.Effect>
+                                <ListBox x:Name="SuggestionsList"
+                                         ItemsSource="{Binding FilteredSuggestions}" 
+                                         SelectedItem="{Binding SelectedSuggestion, UpdateSourceTrigger=PropertyChanged}"
+                                         MaxHeight="200"
+                                         BorderThickness="0"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="8,6"/>
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F3F4F6"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="#E5E7EB"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                </ListBox>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="ملاحظات"/>
+                    <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" Height="80" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="إلغاء" Click="Cancel_Click" Background="Transparent" Foreground="Gray" BorderThickness="0" Margin="0,0,10,0"/>
+                    <Button Content="حفظ الشيك" Command="{Binding SaveCommand}" Background="#10B981" Foreground="White" Padding="20,10" BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

@@ -1,10 +1,11 @@
 using erp.Services;
 using erp.ViewModels.Returns;
+using erp.Views;
 using erp.Views.Category;
 using erp.Views.Dashboard;
 using erp.Views.Expenses;
 using erp.Views.Invoices;
-using erp.Views.Returns;
+// using erp.Views.Returns;
 using erp.Views.Users;
 using System;
 using System.Runtime.InteropServices;
@@ -105,15 +106,8 @@ namespace erp
                     break;
 
                 case "Returns":
-                    {
-                        var returnsService = new ReturnsService(_apiClient);
-
-                        var returnsVm = new ReturnsOrderItemsViewModel(returnsService);
-                        var createReturnVm = new CreateReturnViewModel(returnsService);
-
-                        MainFrame.Navigate(new ReturnsOrderItemsView(returnsVm, createReturnVm));
-                        break;
-                    }
+                    MainFrame.Navigate(new erp.Views.EnhancedCreateReturnView());
+                    break;
 
                 case "Reports":
                     MainFrame.Navigate(new erp.Views.Reports.SalesReportPage());
@@ -122,6 +116,10 @@ namespace erp
                 case "Orders":
                     MainFrame.Navigate(new erp.Views.Orders.ApprovedOrdersPage());
                     SelectNavItem("Orders");
+                    break;
+
+                case "Cheques":
+                    MainFrame.Navigate(new erp.Views.Cheques.ChequesListPage());
                     break;
 
                 default:

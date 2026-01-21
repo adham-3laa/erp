@@ -1,15 +1,18 @@
 ﻿using erp.ViewModels.Returns;
+// using erp.Views.Returns;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
-namespace erp.Views.Returns
+namespace erp.Views
 {
-    public partial class ReturnsOrderItemsView : Page
+    public partial class ReturnsOrderItemsPage : Page
     {
         private readonly ReturnsOrderItemsViewModel _vm;
         private readonly CreateReturnViewModel _createReturnVm;
 
-        public ReturnsOrderItemsView(
+        public ReturnsOrderItemsPage(
             ReturnsOrderItemsViewModel vm,
             CreateReturnViewModel createReturnVm)
         {
@@ -21,15 +24,27 @@ namespace erp.Views.Returns
 
         private async void Load_Click(object sender, RoutedEventArgs e)
         {
-            var orderId = OrderIdTextBoxInput.Text?.Trim();
+            await LoadOrderItemsAsync();
+        }
 
-            if (string.IsNullOrWhiteSpace(orderId))
+        private async Task LoadOrderItemsAsync()
+        {
+            if (string.IsNullOrWhiteSpace(_vm.OrderId))
             {
-                MessageBox.Show("من فضلك أدخل رقم الطلب");
+                MessageBox.Show("من فضلك أدخل رقم الطلب", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            await _vm.LoadOrderItemsAsync(orderId);
+            await _vm.LoadOrderItemsAsync(_vm.OrderId.Trim());
+        }
+
+        private async void OrderIdTextBoxInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true;
+                await LoadOrderItemsAsync();
+            }
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
@@ -39,7 +54,7 @@ namespace erp.Views.Returns
 
         private void CreateReturn_Click(object sender, RoutedEventArgs e)
         {
-            var view = new CreateReturnView(_createReturnVm);
+            var view = new CreateReturnView();
             NavigationService?.Navigate(view);
         }
     }

@@ -249,7 +249,7 @@
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="الكود"
-                                        Binding="{Binding Id}"
+                                        Binding="{Binding code}"
                                         Width="*"
                                         ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 

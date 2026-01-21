@@ -503,6 +503,17 @@ namespace erp.ViewModels
             }
         }
 
+        private int _usernumber;
+        public int usernumber
+        {
+            get => _originalUser.usernumber;
+            set
+            {
+                _usernumber = value;
+                OnPropertyChanged(nameof(usernumber));
+            }
+        }
+
         // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

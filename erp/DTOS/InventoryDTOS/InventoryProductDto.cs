@@ -9,6 +9,7 @@ namespace erp.DTOS.InventoryDTOS
     public class InventoryProductDto
     {
         public string productid { get; set; } = "";
+        public int code { get; set; }
         public string productname { get; set; } = "";
         public decimal saleprice { get; set; }
         public decimal buyprice { get; set; }

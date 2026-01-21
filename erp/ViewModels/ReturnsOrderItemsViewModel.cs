@@ -1,4 +1,5 @@
-﻿using erp.DTOS;
+﻿using erp.Commands;
+using erp.DTOS;
 using erp.Services;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -44,13 +45,28 @@ namespace erp.ViewModels.Returns
             }
         }
 
+        private string _orderId = "";
+        public string OrderId
+        {
+            get => _orderId;
+            set
+            {
+                SetProperty(ref _orderId, value);
+                (LoadCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+
         public ICommand LoadCommand { get; }
 
         // دالة وسيطة تستدعي LoadOrderItemsAsync مع المعلمة
         private async Task LoadOrderItemsAsyncWrapper()
         {
-            var orderId = "YOUR_ORDER_ID"; // قم بتحديد الـ orderId بناءً على الحاجة
-            await LoadOrderItemsAsync(orderId);  // استدعاء الدالة الأصلية مع الـ orderId
+            if (string.IsNullOrWhiteSpace(OrderId))
+            {
+                ErrorMessage = "من فضلك أدخل رقم الطلب";
+                return;
+            }
+            await LoadOrderItemsAsync(OrderId.Trim());
         }
 
         // دالة لتحميل بيانات الـ OrderItems بناءً على الـ orderId المدخل
@@ -60,11 +76,23 @@ namespace erp.ViewModels.Returns
             {
                 IsBusy = true;
                 ErrorMessage = string.Empty;
+                
+                if (string.IsNullOrWhiteSpace(orderId))
+                {
+                    ErrorMessage = "من فضلك أدخل رقم الطلب";
+                    return;
+                }
 
                 // تحميل بيانات الـ OrderItems بناءً على الـ orderId
-                var orderItems = await _returnsService.GetOrderItemsByOrderIdAsync(orderId);
+                var orderItems = await _returnsService.GetOrderItemsByOrderIdAsync(orderId.Trim());
 
                 OrderItems.Clear();
+                if (orderItems == null || orderItems.Count == 0)
+                {
+                    ErrorMessage = "لم يتم العثور على عناصر للطلب المحدد";
+                    return;
+                }
+                
                 foreach (var item in orderItems)
                 {
                     OrderItems.Add(item);
@@ -72,7 +100,20 @@ namespace erp.ViewModels.Returns
             }
             catch (System.Exception ex)
             {
-                ErrorMessage = "An error occurred while loading the order items: " + ex.Message;
+                // تحسين رسالة الخطأ
+                var errorMsg = ex.Message;
+                if (errorMsg.Contains("404") || errorMsg.Contains("Not Found") || errorMsg.Contains("غير موجود"))
+                {
+                    ErrorMessage = $"الطلب برقم '{orderId}' غير موجود. تأكد من إدخال رقم الطلب الصحيح.";
+                }
+                else if (errorMsg.Contains("401") || errorMsg.Contains("Unauthorized"))
+                {
+                    ErrorMessage = "غير مصرح لك بالوصول. يرجى تسجيل الدخول مرة أخرى.";
+                }
+                else
+                {
+                    ErrorMessage = "حدث خطأ أثناء تحميل عناصر الطلب: " + errorMsg;
+                }
             }
             finally
             {
@@ -87,24 +128,5 @@ namespace erp.ViewModels.Returns
         }
     }
 
-    // RelayCommand to support async commands
-    public class AsyncRelayCommand : ICommand
-    {
-        private readonly Func<Task> _execute;
-        private readonly Func<bool> _canExecute;
-
-        public AsyncRelayCommand(Func<Task> execute, Func<bool> canExecute = null)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
-        }
-
-        public bool CanExecute(object parameter) => _canExecute?.Invoke() ?? true;
-
-        public async void Execute(object parameter) => await _execute();
-
-        public event EventHandler CanExecuteChanged;
-
-        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-    }
+    // Note: AsyncRelayCommand is now in erp.Commands namespace
 }

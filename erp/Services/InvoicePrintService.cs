@@ -30,7 +30,7 @@ namespace erp.Services
 
             _categoriesClient = new HttpClient
             {
-                BaseAddress = new Uri("http://be-positive.runasp.net/")
+                BaseAddress = new Uri("http://warhouse.runasp.net/")
             };
         }
 
@@ -38,20 +38,103 @@ namespace erp.Services
             UserDto user,
             InvoiceResponseDto invoice)
         {
+            if (invoice == null)
+                return null;
+
+            // =====================================================
+            // ============== SUPPLIER INVOICE =====================
+            // =====================================================
+            // في SupplierInvoice الـ API بيرجع items داخل الفاتورة نفسها (مش OrderId)
+            if (string.Equals(invoice.Type, "SupplierInvoice", StringComparison.OrdinalIgnoreCase))
+            {
+                if (invoice.Items == null || invoice.Items.Count == 0)
+                    return null;
+
+                var printable = new PrintableInvoiceDto
+                {
+                    InvoiceId = invoice.Id,
+                    InvoiceDate = invoice.GeneratedDate,
+                    CustomerName = invoice.RecipientName ?? user.Fullname,
+                    CustomerEmail = user.Email,
+                    OrderId = invoice.OrderId?.ToString() ?? "",
+                    PaidAmount = invoice.PaidAmount,
+                    RemainingAmount = invoice.RemainingAmount
+                };
+
+                foreach (var it in invoice.Items)
+                {
+                    if (it == null) continue;
+
+                    printable.Items.Add(new PrintableInvoiceItemDto
+                    {
+                        ProductName = it.ProductName ?? "-",
+                        Quantity = it.Quantity,
+                        UnitPrice = it.UnitPrice,
+                        CategoryName = it.CategoryName ?? "غير محدد"
+                    });
+                }
+
+                return printable.Items.Any() ? printable : null;
+            }
+
+            // =====================================================
+            // ============== CUSTOMER INVOICE =====================
+            // =====================================================
             if (invoice.OrderId == null)
                 return null;
 
-            // 1️⃣ Get order items (اولًا من Orders endpoint، ولو فشل نجرب Returns)
-            List<OrderItemDto> orderItems;
+            var orderId = invoice.OrderId.Value.ToString();
+
+            // 1️⃣ Get order items (بنفس منطق شاشة التفاصيل: نجرب Returns first ثم Orders)
+            List<OrderItemDto> orderItems = null;
+            
             try
             {
-                orderItems = await _ordersService
-                    .GetOrderItemsAsync(invoice.OrderId.Value.ToString());
+                // محاولة أولى: استخدام OrderId (GUID) من Returns endpoint
+                orderItems = await _ordersService.GetOrderItemsByOrderIdAsync(orderId);
+            }
+            catch (Exception ex1) when (ex1.Message.Contains("404") || ex1.Message.Contains("Not Found"))
+            {
+                // لو فشل بـ OrderId (GUID)، نجرب Orders endpoint
+                try
+                {
+                    orderItems = await _ordersService.GetOrderItemsAsync(orderId);
+                }
+                catch (Exception ex2) when (ex2.Message.Contains("404") || ex2.Message.Contains("Not Found"))
+                {
+                    // لو فشل كمان، نحاول نستخدم orderCode
+                    // نجيب الطلب من قائمة الطلبات المعتمدة للحصول على code
+                    var orders = await _ordersService.GetApprovedOrdersAsync();
+                    var order = orders.FirstOrDefault(o => o.id == orderId);
+                    
+                    if (order != null && order.code > 0)
+                    {
+                        // استخدام orderCode للبحث من Returns endpoint
+                        var returnsService = new ReturnsService(App.Api);
+                        var orderItemsForReturn = await returnsService.GetOrderItemsByOrderIdAsync(order.code.ToString());
+                        
+                        // تحويل OrderItemForReturnDto إلى OrderItemDto
+                        orderItems = orderItemsForReturn.Select(item => new OrderItemDto
+                        {
+                            ProductId = item.Productid,
+                            ProductName = item.Productname,
+                            Quantity = item.Quantity,
+                            Price = item.Unitprice
+                        }).ToList();
+                    }
+                }
             }
             catch
             {
-                orderItems = await _ordersService
-                    .GetOrderItemsByOrderIdAsync(invoice.OrderId.Value.ToString());
+                // أي خطأ تاني، نجرب Orders endpoint
+                try
+                {
+                    orderItems = await _ordersService.GetOrderItemsAsync(orderId);
+                }
+                catch
+                {
+                    orderItems = null;
+                }
             }
 
             if (orderItems == null || orderItems.Count == 0)
@@ -63,13 +146,13 @@ namespace erp.Services
             // 3️⃣ Get categories map (categoryId -> categoryName)
             var categoriesMap = await GetCategoriesMapAsync();
 
-            var printable = new PrintableInvoiceDto
+            var printableCustomer = new PrintableInvoiceDto
             {
                 InvoiceId = invoice.Id,
                 InvoiceDate = invoice.GeneratedDate,
-                CustomerName = user.Fullname,
+                CustomerName = invoice.RecipientName ?? user.Fullname,
                 CustomerEmail = user.Email,
-                OrderId = invoice.OrderId.Value.ToString(),
+                OrderId = orderId,
                 PaidAmount = invoice.PaidAmount,
                 RemainingAmount = invoice.RemainingAmount
             };
@@ -97,7 +180,7 @@ namespace erp.Services
                 // ✅ اسم الفئة: product.Category غالبًا فيها categoryId (GUID)
                 var categoryName = ResolveCategoryName(product?.Category, categoriesMap);
 
-                printable.Items.Add(new PrintableInvoiceItemDto
+                printableCustomer.Items.Add(new PrintableInvoiceItemDto
                 {
                     ProductName = productName,
                     Quantity = orderItem.Quantity,
@@ -106,11 +189,7 @@ namespace erp.Services
                 });
             }
 
-            // لو مفيش items بعد الربط
-            if (!printable.Items.Any())
-                return null;
-
-            return printable;
+            return printableCustomer.Items.Any() ? printableCustomer : null;
         }
 
         // =========================

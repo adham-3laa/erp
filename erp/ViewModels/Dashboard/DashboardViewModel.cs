@@ -30,8 +30,14 @@ namespace erp.ViewModels.Dashboard
         public int LowStockCount
         {
             get => _lowStockCount;
-            private set => Set(ref _lowStockCount, value);
+            private set
+            {
+                if (Set(ref _lowStockCount, value))
+                    OnPropertyChanged(nameof(HasLowStockProducts));
+            }
         }
+
+        public bool HasLowStockProducts => LowStockCount > 0;
 
         private decimal _totalSalesToday;
         public decimal TotalSalesToday { get => _totalSalesToday; set => Set(ref _totalSalesToday, value); }

@@ -57,20 +57,43 @@ namespace erp.ViewModels
         public ICommand LoadReportCommand { get; }
 
         // ================= Logic =================
+        // ================= Error Handling =================
+        private Helpers.ReportErrorState _errorState;
+        public Helpers.ReportErrorState ErrorState
+        {
+            get => _errorState;
+            set
+            {
+                SetProperty(ref _errorState, value);
+                OnPropertyChanged(nameof(HasError));
+            }
+        }
+        
+        public bool HasError => ErrorState != null && ErrorState.IsVisible;
+
+        // ================= Logic =================
         private async Task LoadReportAsync()
         {
             try
             {
+                ErrorState = Helpers.ReportErrorState.Empty;
                 IsLoading = true;
-                Report = await _reportService.GetSalesReportAsync(FromDate, ToDate);
+                Report = null;
+
+                var result = await _reportService.GetSalesReportAsync(FromDate, ToDate);
+                if (result != null)
+                {
+                    Report = result;
+                }
+                else
+                {
+                    // Assuming null means empty or error, but GetSalesReportAsync returns SalesReportDto directly.
+                    // If it throws exception, it's caught below.
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    ex.Message,
-                    "خطأ",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ErrorState = Helpers.ReportErrorHandler.HandleException(ex);
             }
             finally
             {

@@ -100,6 +100,8 @@
             <!-- Header + Tabs -->
             <RowDefinition Height="Auto"/>
             <!-- Search -->
+            <RowDefinition Height="Auto"/>
+            <!-- Error State -->
             <RowDefinition Height="*"/>
             <!-- Content -->
         </Grid.RowDefinitions>
@@ -143,8 +145,23 @@
                             Margin="0,0,10,0"
                             Click="OpenStockMovementReport"/>
 
-                    <Button Content="💰 عمولات المندوبين"
-                            Style="{StaticResource ActiveTabButtonStyle}"/>
+                    <Button Content="💰 العمولات"
+                            Style="{StaticResource ActiveTabButtonStyle}"
+                            Margin="0,0,10,0"/>
+
+                    <Button Content="👤 العملاء"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
+                            Click="OpenCustomerReport"/>
+
+                    <Button Content="👔 المندوبين"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
+                            Click="OpenSalesRepReport"/>
+
+                    <Button Content="🏭 الموردين"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Click="OpenSupplierReport"/>
                 </StackPanel>
             </Grid>
 
@@ -172,12 +189,24 @@
                         Style="{StaticResource GlowInputFrame}"
                         Width="420"
                         Height="40">
-                    <Border Style="{StaticResource GlowInputInner}">
-                        <TextBox Height="40"
-                                 Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding SalesRepId, UpdateSourceTrigger=PropertyChanged}"
-                                 materialDesign:HintAssist.Hint="رقم المندوب (SalesRep ID)"
-                                 materialDesign:HintAssist.Foreground="#6B7280"/>
+                    <Border Style="{StaticResource GlowInputInner}" Padding="4">
+                        <ComboBox Height="40"
+                                  IsEditable="True"
+                                  StaysOpenOnEdit="True"
+                                  Text="{Binding SalesRepName, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemsSource="{Binding Suggestions}"
+                                  SelectedItem="{Binding SelectedSuggestion}"
+                                  DisplayMemberPath="FullName"
+                                  materialDesign:HintAssist.Hint="اسم المندوب"
+                                  materialDesign:HintAssist.Foreground="#6B7280"
+                                  Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                  VerticalAlignment="Center">
+                             <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                              </ComboBox.ItemsPanel>
+                        </ComboBox>
                     </Border>
                 </Border>
 
@@ -192,8 +221,40 @@
             </Grid>
         </Border>
 
+
+
+        <!-- ================= Error Card ================= -->
+        <Border Grid.Row="2" Margin="0,18,0,0"
+                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" 
+                Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="12" Padding="20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Border Background="#FEE2E2" CornerRadius="12" Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Top">
+                        <materialDesign:PackIcon Kind="{Binding ErrorState.IconKind}" Foreground="#DC2626" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ErrorState.Title}" FontWeight="Bold" FontSize="16" Foreground="#991B1B" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding ErrorState.Message}" FontSize="14" Foreground="#B91C1C" TextWrapping="Wrap" Opacity="0.9"/>
+                </StackPanel>
+                
+                <Button Grid.Column="2" 
+                        Content="{Binding ErrorState.ActionText}" 
+                        Command="{Binding LoadReportCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Foreground="#DC2626" BorderBrush="#DC2626"
+                        Margin="16,0,0,0" VerticalAlignment="Center"
+                            Height="36" Padding="16,0"/>
+            </Grid>
+        </Border>
+
         <!-- ================= Content ================= -->
-        <Grid Grid.Row="2" Margin="0,14,0,0">
+        <Grid Grid.Row="3" Margin="0,14,0,0">
 
             <!-- ✅ الجدول موجود لكن مخفي نهائيًا (مش هنحذفه) -->
             <materialDesign:Card Padding="8"

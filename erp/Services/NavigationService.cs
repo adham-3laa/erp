@@ -108,6 +108,21 @@ namespace erp.Services
         {
             _mainFrame?.Navigate(new erp.Views.Reports.CommissionReportPage());
         }
+
+        public static void NavigateToCustomerReport()
+        {
+            _mainFrame?.Navigate(new erp.Views.Reports.CustomerReportPage());
+        }
+
+        public static void NavigateToSalesRepReport()
+        {
+            _mainFrame?.Navigate(new erp.Views.Reports.SalesRepReportPage());
+        }
+
+        public static void NavigateToSupplierReport()
+        {
+            _mainFrame?.Navigate(new erp.Views.Reports.SupplierReportPage());
+        }
         public static void NavigateToUserProfile(string userId)
         {
             _mainFrame.Navigate(new CurrentUserPage(userId));

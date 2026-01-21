@@ -139,6 +139,7 @@
                             <ListBoxItem Tag="Items" Content="🏷️ الأصناف"/>
                             <ListBoxItem Tag="Reports" Content="📊 التقارير"/>
                             <ListBoxItem Tag="Returns" Content="↩️ المرتجعات"/>
+                            <ListBoxItem Tag="Cheques" Content="💳 الشيكات"/>
                         </ListBox>
 
                         <!-- Window Controls -->

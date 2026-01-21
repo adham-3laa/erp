@@ -17,5 +17,14 @@ namespace erp.Views.Reports
 
         private void OpenCommissionReport(object sender, RoutedEventArgs e)
             => AppNavigation.NavigateToCommissionReport();
+
+        private void OpenCustomerReport(object sender, RoutedEventArgs e)
+            => AppNavigation.NavigateToCustomerReport();
+
+        private void OpenSalesRepReport(object sender, RoutedEventArgs e)
+            => AppNavigation.NavigateToSalesRepReport();
+
+        private void OpenSupplierReport(object sender, RoutedEventArgs e)
+            => AppNavigation.NavigateToSupplierReport();
     }
 }

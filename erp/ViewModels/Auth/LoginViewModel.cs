@@ -26,7 +26,7 @@ namespace erp.ViewModels.Auth
             LoginCommand = new AsyncRelayCommand(LoginAsync, CanLogin);
         }
 
-        private string _email = "systemadmin@gmail.com";
+        private string _email = "admin@gmail.com";
         public string Email
         {
             get => _email;
