@@ -1,361 +1,224 @@
 ﻿using erp.DTOS.Orders;
-using erp.DTOS;
 using erp.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace erp.Views.Orders
 {
     public partial class CreateOrderPage : Page
     {
         private readonly OrdersService _ordersService;
-        private readonly UserService _userService;
 
-        // 🔹 مصدر البيانات للـ DataGrid
-        private readonly List<CreateOrderItemDto> _items =
-            new List<CreateOrderItemDto>();
+        // مصدر البيانات للمنتجات
+        private readonly ObservableCollection<OrderItemViewModel> _items = new();
 
-        // ✅ قوائم العملاء والمندوبين
-        private List<string> _allCustomers = new List<string>();
-        private List<string> _allSalesReps = new List<string>();
+        // حقول للـ Autocomplete
+        private List<CustomerAutocompleteItem> _customerSuggestions = new();
+        private List<SalesRepAutocompleteItem> _salesRepSuggestions = new();
+        private List<ProductAutocompleteItem> _productSuggestions = new();
+
+        // Debounce timers
+        private CancellationTokenSource? _customerSearchCts;
+        private CancellationTokenSource? _salesRepSearchCts;
+        private CancellationTokenSource? _productSearchCts;
+
+        // المنتج الحالي المحدد للـ Autocomplete
+        private TextBox? _currentProductTextBox;
+        private OrderItemViewModel? _currentProductItem;
+
+        // العميل والمندوب المحددين
+        private CustomerAutocompleteItem? _selectedCustomer;
+        private SalesRepAutocompleteItem? _selectedSalesRep;
+
+        // ثابت لوقت التأخير في البحث (بالمللي ثانية)
+        private const int SearchDebounceMs = 300;
 
         public CreateOrderPage()
         {
             InitializeComponent();
 
             _ordersService = new OrdersService(App.Api);
-            _userService = new UserService(App.Api);
 
-            // صف افتراضي
-            _items.Add(new CreateOrderItemDto());
-            ItemsGrid.ItemsSource = _items;
+            // إضافة منتج افتراضي
+            _items.Add(new OrderItemViewModel());
+            ItemsControl.ItemsSource = _items;
+            UpdateItemsCount();
 
+            // ربط أحداث الـ TopBar
             OrdersTopBarControl.ApprovedOrdersClicked += (_, __) =>
-                NavigationService.Navigate(new ApprovedOrdersPage());
+                NavigationService?.Navigate(new ApprovedOrdersPage());
 
-            // تحميل قوائم العملاء والمندوبين
-            Loaded += CreateOrderPage_Loaded;
+            // تحديث الـ Placeholders
+            Loaded += (_, __) => UpdatePlaceholders();
         }
 
-        private async void CreateOrderPage_Loaded(object sender, RoutedEventArgs e)
+        #region === Placeholders ===
+
+        private void UpdatePlaceholders()
         {
-            await LoadCustomersAndSalesRepsAsync();
+            CustomerPlaceholder.Visibility = string.IsNullOrEmpty(CustomerNameTextBox.Text)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+            SalesRepPlaceholder.Visibility = string.IsNullOrEmpty(SalesRepNameTextBox.Text)
+                ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private async Task LoadCustomersAndSalesRepsAsync()
+        #endregion
+
+        #region === Customer Autocomplete ===
+
+        private async void CustomerNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            try
+            UpdatePlaceholders();
+            ClearError(CustomerErrorText, CustomerInputWrapper);
+
+            var searchText = CustomerNameTextBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(searchText))
             {
-                // جلب العملاء
-                var customersResponse = await _userService.GetUsersAsync(
-                    userType: "Customer",
-                    isActive: true,
-                    page: 1,
-                    pageSize: 1000);
-
-                _allCustomers = customersResponse?.Users
-                    ?.Where(u => !string.IsNullOrWhiteSpace(u.Fullname))
-                    .Select(u => u.Fullname.Trim())
-                    .Distinct()
-                    .ToList() ?? new List<string>();
-
-                // جلب المندوبين
-                var salesRepsResponse = await _userService.GetUsersAsync(
-                    userType: "SalesRep",
-                    isActive: true,
-                    page: 1,
-                    pageSize: 1000);
-
-                _allSalesReps = salesRepsResponse?.Users
-                    ?.Where(u => !string.IsNullOrWhiteSpace(u.Fullname))
-                    .Select(u => u.Fullname.Trim())
-                    .Distinct()
-                    .ToList() ?? new List<string>();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"خطأ في تحميل البيانات: {ex.Message}", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
-        // 🔢 أرقام فقط (للعمولة - تقبل double)
-        private void CommissionTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            var textBox = sender as TextBox;
-            if (textBox == null) return;
-
-            string newText = textBox.Text.Insert(textBox.SelectionStart, e.Text);
-            
-            // السماح بالأرقام والنقطة
-            bool isValid = newText.All(c => char.IsDigit(c) || c == '.' || c == ',');
-            
-            if (isValid)
-            {
-                // التحقق من وجود نقطة واحدة فقط
-                int dotCount = newText.Count(c => c == '.' || c == ',');
-                if (dotCount > 1)
-                {
-                    e.Handled = true;
-                    return;
-                }
-                
-                // السماح بكتابة النقطة
-                e.Handled = false;
-            }
-            else
-            {
-                e.Handled = true;
-            }
-        }
-
-        // ➕ إضافة منتج
-        private void AddItem_Click(object sender, RoutedEventArgs e)
-        {
-            _items.Add(new CreateOrderItemDto());
-            ItemsGrid.Items.Refresh();
-        }
-
-        // ❌ حذف منتج
-        private void RemoveItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn &&
-                btn.DataContext is CreateOrderItemDto item)
-            {
-                _items.Remove(item);
-                ItemsGrid.Items.Refresh();
-            }
-        }
-
-        private async void ConfirmOrder_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // التحقق من اسم العميل
-                var customerName = CustomerNameTextBox.Text?.Trim();
-                if (string.IsNullOrWhiteSpace(customerName))
-                {
-                    MessageBox.Show("من فضلك أدخل اسم العميل", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    CustomerNameTextBox.Focus();
-                    return;
-                }
-
-                // التحقق من أن اسم العميل ثلاثي (يحتوي على مسافتين على الأقل)
-                var nameParts = customerName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (nameParts.Length < 3)
-                {
-                    MessageBox.Show("اسم العميل يجب أن يكون ثلاثي (يحتوي على مسافتين على الأقل)", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    CustomerNameTextBox.Focus();
-                    return;
-                }
-
-                // التحقق من أن اسم العميل موجود في النظام
-                if (!_allCustomers.Contains(customerName))
-                {
-                    MessageBox.Show("اسم العميل غير موجود في النظام", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    CustomerNameTextBox.Focus();
-                    return;
-                }
-
-                // التحقق من اسم المندوب
-                var salesRepName = SalesRepNameTextBox.Text?.Trim();
-                if (string.IsNullOrWhiteSpace(salesRepName))
-                {
-                    MessageBox.Show("من فضلك أدخل اسم المندوب", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    SalesRepNameTextBox.Focus();
-                    return;
-                }
-
-                // التحقق من أن اسم المندوب موجود في النظام
-                if (!_allSalesReps.Contains(salesRepName))
-                {
-                    MessageBox.Show("اسم المندوب غير موجود في النظام", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    SalesRepNameTextBox.Focus();
-                    return;
-                }
-
-                // التحقق من نسبة العمولة (double)
-                if (string.IsNullOrWhiteSpace(CommissionTextBox.Text))
-                {
-                    MessageBox.Show("من فضلك أدخل نسبة العمولة", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    CommissionTextBox.Focus();
-                    return;
-                }
-
-                // تحويل النقطة العربية إلى إنجليزية
-                var commissionText = CommissionTextBox.Text.Replace(',', '.');
-                if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
-                {
-                    MessageBox.Show("نسبة العمولة غير صحيحة. يرجى إدخال رقم صحيح", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    CommissionTextBox.Focus();
-                    return;
-                }
-
-                if (commission < 0 || commission > 100)
-                {
-                    MessageBox.Show("نسبة العمولة يجب أن تكون بين 0 و 100", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    CommissionTextBox.Focus();
-                    return;
-                }
-
-                // التحقق من المنتجات
-                var validItems = _items
-                    .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.quantity > 0)
-                    .ToList();
-
-                if (!validItems.Any())
-                {
-                    MessageBox.Show("من فضلك أدخل منتج واحد على الأقل", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var request = new CreateOrderRequestDto
-                {
-                    customername = customerName,
-                    salesrepname = salesRepName,
-                    items = validItems
-                };
-
-                // إنشاء الطلب
-                await _ordersService.CreateOrderAsync(request, commission);
-                MessageBox.Show("تم إنشاء الطلب بنجاح ✅", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
-                ClearForm();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"حدث خطأ أثناء إنشاء الطلب:\n{ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void ClearForm()
-        {
-            CustomerNameTextBox.Clear();
-            SalesRepNameTextBox.Clear();
-            CommissionTextBox.Clear();
-            CustomerNumberTextBox.Clear();
-
-            _items.Clear();
-            _items.Add(new CreateOrderItemDto());
-            ItemsGrid.Items.Refresh();
-        }
-
-        // ================== Customer AutoComplete Logic ==================
-        private void CustomerNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (CustomerNameTextBox == null || string.IsNullOrEmpty(CustomerNameTextBox.Text))
-            {
-                CustomerSuggestionsBorder.Visibility = Visibility.Collapsed;
+                CustomerSuggestionsPopup.IsOpen = false;
+                _selectedCustomer = null;
                 return;
             }
 
-            var searchText = CustomerNameTextBox.Text.Trim();
-            var filtered = _allCustomers
-                .Where(c => c.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(c =>
-                {
-                    if (c.Equals(searchText, StringComparison.OrdinalIgnoreCase))
-                        return 0;
-                    if (c.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
-                        return 1;
-                    return 2;
-                })
-                .ThenBy(c => c.Length)
-                .Take(10)
-                .ToList();
+            // إلغاء البحث السابق
+            _customerSearchCts?.Cancel();
+            _customerSearchCts = new CancellationTokenSource();
+            var token = _customerSearchCts.Token;
 
-            if (filtered.Count > 0)
+            try
             {
-                CustomerSuggestionsListBox.ItemsSource = filtered;
-                CustomerSuggestionsBorder.Visibility = Visibility.Visible;
+                // إظهار حالة التحميل
+                ShowCustomerLoading(true);
+                CustomerSuggestionsPopup.IsOpen = true;
+
+                await Task.Delay(SearchDebounceMs, token);
+                if (token.IsCancellationRequested) return;
+
+                // البحث من الـ API
+                _customerSuggestions = await _ordersService.GetCustomersAutocompleteAsync(searchText);
+
+                if (token.IsCancellationRequested) return;
+
+                ShowCustomerLoading(false);
+
+                if (_customerSuggestions.Count > 0)
+                {
+                    CustomerSuggestionsListBox.ItemsSource = _customerSuggestions;
+                    CustomerSuggestionsListBox.Visibility = Visibility.Visible;
+                    CustomerNoResultsText.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    CustomerSuggestionsListBox.Visibility = Visibility.Collapsed;
+                    CustomerNoResultsText.Visibility = Visibility.Visible;
+                }
             }
-            else
+            catch (OperationCanceledException)
             {
-                CustomerSuggestionsBorder.Visibility = Visibility.Collapsed;
+                // تم الإلغاء - لا شيء للقيام به
             }
+            catch (Exception ex)
+            {
+                ShowCustomerLoading(false);
+                CustomerNoResultsText.Text = "خطأ في البحث";
+                CustomerNoResultsText.Visibility = Visibility.Visible;
+                CustomerSuggestionsListBox.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void ShowCustomerLoading(bool show)
+        {
+            CustomerLoadingText.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            CustomerSuggestionsListBox.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
+            CustomerNoResultsText.Visibility = Visibility.Collapsed;
         }
 
         private void CustomerNameTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(CustomerNameTextBox.Text))
+            if (!string.IsNullOrEmpty(CustomerNameTextBox.Text) && _customerSuggestions.Count > 0)
             {
-                CustomerNameTextBox_TextChanged(sender, null);
+                CustomerSuggestionsPopup.IsOpen = true;
             }
         }
 
         private void CustomerNameTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            var focusedElement = FocusManager.GetFocusedElement(this);
-            if (focusedElement != CustomerSuggestionsListBox && focusedElement != CustomerNameTextBox)
+            // تأخير الإغلاق للسماح بالنقر على العناصر
+            Task.Delay(200).ContinueWith(_ =>
             {
-                Task.Delay(150).ContinueWith(_ =>
+                Dispatcher.Invoke(() =>
                 {
-                    Dispatcher.Invoke(() =>
+                    if (!CustomerSuggestionsListBox.IsMouseOver && !CustomerNameTextBox.IsFocused)
                     {
-                        if (!CustomerSuggestionsListBox.IsMouseOver && !CustomerNameTextBox.IsFocused)
-                        {
-                            CustomerSuggestionsBorder.Visibility = Visibility.Collapsed;
-                        }
-                    });
+                        CustomerSuggestionsPopup.IsOpen = false;
+                    }
                 });
-            }
+            });
         }
 
         private void CustomerNameTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (CustomerSuggestionsBorder.Visibility != Visibility.Visible)
-                return;
+            if (!CustomerSuggestionsPopup.IsOpen) return;
 
-            if (e.Key == Key.Down)
+            switch (e.Key)
             {
-                if (CustomerSuggestionsListBox.Items.Count > 0)
-                {
-                    CustomerSuggestionsListBox.Focus();
-                    if (CustomerSuggestionsListBox.SelectedIndex < CustomerSuggestionsListBox.Items.Count - 1)
-                        CustomerSuggestionsListBox.SelectedIndex++;
-                    else
-                        CustomerSuggestionsListBox.SelectedIndex = 0;
+                case Key.Down:
+                    if (CustomerSuggestionsListBox.Items.Count > 0)
+                    {
+                        CustomerSuggestionsListBox.Focus();
+                        CustomerSuggestionsListBox.SelectedIndex = Math.Min(
+                            CustomerSuggestionsListBox.SelectedIndex + 1,
+                            CustomerSuggestionsListBox.Items.Count - 1);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Up)
-            {
-                if (CustomerSuggestionsListBox.Items.Count > 0)
-                {
-                    CustomerSuggestionsListBox.Focus();
-                    if (CustomerSuggestionsListBox.SelectedIndex > 0)
-                        CustomerSuggestionsListBox.SelectedIndex--;
-                    else
-                        CustomerSuggestionsListBox.SelectedIndex = CustomerSuggestionsListBox.Items.Count - 1;
+                    break;
+
+                case Key.Up:
+                    if (CustomerSuggestionsListBox.Items.Count > 0)
+                    {
+                        CustomerSuggestionsListBox.Focus();
+                        CustomerSuggestionsListBox.SelectedIndex = Math.Max(
+                            CustomerSuggestionsListBox.SelectedIndex - 1, 0);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                if (CustomerSuggestionsListBox.SelectedItem != null)
-                {
-                    SelectCustomerSuggestion(CustomerSuggestionsListBox.SelectedItem.ToString());
+                    break;
+
+                case Key.Enter:
+                    if (CustomerSuggestionsListBox.SelectedItem is CustomerAutocompleteItem selected)
+                    {
+                        SelectCustomer(selected);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Escape)
-            {
-                CustomerSuggestionsBorder.Visibility = Visibility.Collapsed;
-                e.Handled = true;
+                    break;
+
+                case Key.Escape:
+                    CustomerSuggestionsPopup.IsOpen = false;
+                    e.Handled = true;
+                    break;
             }
         }
 
-        private void CustomerSuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
+        private void CustomerSuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // لا نفعل شيء هنا - ننتظر النقر
+        }
 
         private void CustomerSuggestionsListBox_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (CustomerSuggestionsListBox.SelectedItem != null)
+            if (CustomerSuggestionsListBox.SelectedItem is CustomerAutocompleteItem selected)
             {
-                SelectCustomerSuggestion(CustomerSuggestionsListBox.SelectedItem.ToString());
+                SelectCustomer(selected);
             }
         }
 
@@ -364,115 +227,142 @@ namespace erp.Views.Orders
             e.Handled = false;
         }
 
-        private void SelectCustomerSuggestion(string selectedCustomer)
+        private void SelectCustomer(CustomerAutocompleteItem customer)
         {
-            CustomerNameTextBox.Text = selectedCustomer;
-            CustomerSuggestionsBorder.Visibility = Visibility.Collapsed;
+            _selectedCustomer = customer;
+            CustomerNameTextBox.Text = customer.fullname;
+            CustomerSuggestionsPopup.IsOpen = false;
             CustomerNameTextBox.Focus();
+            CustomerNameTextBox.CaretIndex = CustomerNameTextBox.Text.Length;
+            UpdatePlaceholders();
         }
 
-        // ================== Sales Rep AutoComplete Logic ==================
-        private void SalesRepNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        #endregion
+
+        #region === Sales Rep Autocomplete ===
+
+        private async void SalesRepNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (SalesRepNameTextBox == null || string.IsNullOrEmpty(SalesRepNameTextBox.Text))
+            UpdatePlaceholders();
+            ClearError(SalesRepErrorText, SalesRepInputWrapper);
+
+            var searchText = SalesRepNameTextBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(searchText))
             {
-                SalesRepSuggestionsBorder.Visibility = Visibility.Collapsed;
+                SalesRepSuggestionsPopup.IsOpen = false;
+                _selectedSalesRep = null;
                 return;
             }
 
-            var searchText = SalesRepNameTextBox.Text.Trim();
-            var filtered = _allSalesReps
-                .Where(s => s.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(s =>
-                {
-                    if (s.Equals(searchText, StringComparison.OrdinalIgnoreCase))
-                        return 0;
-                    if (s.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
-                        return 1;
-                    return 2;
-                })
-                .ThenBy(s => s.Length)
-                .Take(10)
-                .ToList();
+            // إلغاء البحث السابق
+            _salesRepSearchCts?.Cancel();
+            _salesRepSearchCts = new CancellationTokenSource();
+            var token = _salesRepSearchCts.Token;
 
-            if (filtered.Count > 0)
+            try
             {
-                SalesRepSuggestionsListBox.ItemsSource = filtered;
-                SalesRepSuggestionsBorder.Visibility = Visibility.Visible;
+                ShowSalesRepLoading(true);
+                SalesRepSuggestionsPopup.IsOpen = true;
+
+                await Task.Delay(SearchDebounceMs, token);
+                if (token.IsCancellationRequested) return;
+
+                _salesRepSuggestions = await _ordersService.GetSalesRepAutocompleteAsync(searchText);
+
+                if (token.IsCancellationRequested) return;
+
+                ShowSalesRepLoading(false);
+
+                if (_salesRepSuggestions.Count > 0)
+                {
+                    SalesRepSuggestionsListBox.ItemsSource = _salesRepSuggestions;
+                    SalesRepSuggestionsListBox.Visibility = Visibility.Visible;
+                    SalesRepNoResultsText.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    SalesRepSuggestionsListBox.Visibility = Visibility.Collapsed;
+                    SalesRepNoResultsText.Visibility = Visibility.Visible;
+                }
             }
-            else
+            catch (OperationCanceledException) { }
+            catch
             {
-                SalesRepSuggestionsBorder.Visibility = Visibility.Collapsed;
+                ShowSalesRepLoading(false);
+                SalesRepNoResultsText.Text = "خطأ في البحث";
+                SalesRepNoResultsText.Visibility = Visibility.Visible;
+                SalesRepSuggestionsListBox.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void ShowSalesRepLoading(bool show)
+        {
+            SalesRepLoadingText.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            SalesRepSuggestionsListBox.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
+            SalesRepNoResultsText.Visibility = Visibility.Collapsed;
         }
 
         private void SalesRepNameTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(SalesRepNameTextBox.Text))
+            if (!string.IsNullOrEmpty(SalesRepNameTextBox.Text) && _salesRepSuggestions.Count > 0)
             {
-                SalesRepNameTextBox_TextChanged(sender, null);
+                SalesRepSuggestionsPopup.IsOpen = true;
             }
         }
 
         private void SalesRepNameTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            var focusedElement = FocusManager.GetFocusedElement(this);
-            if (focusedElement != SalesRepSuggestionsListBox && focusedElement != SalesRepNameTextBox)
+            Task.Delay(200).ContinueWith(_ =>
             {
-                Task.Delay(150).ContinueWith(_ =>
+                Dispatcher.Invoke(() =>
                 {
-                    Dispatcher.Invoke(() =>
+                    if (!SalesRepSuggestionsListBox.IsMouseOver && !SalesRepNameTextBox.IsFocused)
                     {
-                        if (!SalesRepSuggestionsListBox.IsMouseOver && !SalesRepNameTextBox.IsFocused)
-                        {
-                            SalesRepSuggestionsBorder.Visibility = Visibility.Collapsed;
-                        }
-                    });
+                        SalesRepSuggestionsPopup.IsOpen = false;
+                    }
                 });
-            }
+            });
         }
 
         private void SalesRepNameTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (SalesRepSuggestionsBorder.Visibility != Visibility.Visible)
-                return;
+            if (!SalesRepSuggestionsPopup.IsOpen) return;
 
-            if (e.Key == Key.Down)
+            switch (e.Key)
             {
-                if (SalesRepSuggestionsListBox.Items.Count > 0)
-                {
-                    SalesRepSuggestionsListBox.Focus();
-                    if (SalesRepSuggestionsListBox.SelectedIndex < SalesRepSuggestionsListBox.Items.Count - 1)
-                        SalesRepSuggestionsListBox.SelectedIndex++;
-                    else
-                        SalesRepSuggestionsListBox.SelectedIndex = 0;
+                case Key.Down:
+                    if (SalesRepSuggestionsListBox.Items.Count > 0)
+                    {
+                        SalesRepSuggestionsListBox.Focus();
+                        SalesRepSuggestionsListBox.SelectedIndex = Math.Min(
+                            SalesRepSuggestionsListBox.SelectedIndex + 1,
+                            SalesRepSuggestionsListBox.Items.Count - 1);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Up)
-            {
-                if (SalesRepSuggestionsListBox.Items.Count > 0)
-                {
-                    SalesRepSuggestionsListBox.Focus();
-                    if (SalesRepSuggestionsListBox.SelectedIndex > 0)
-                        SalesRepSuggestionsListBox.SelectedIndex--;
-                    else
-                        SalesRepSuggestionsListBox.SelectedIndex = SalesRepSuggestionsListBox.Items.Count - 1;
+                    break;
+
+                case Key.Up:
+                    if (SalesRepSuggestionsListBox.Items.Count > 0)
+                    {
+                        SalesRepSuggestionsListBox.Focus();
+                        SalesRepSuggestionsListBox.SelectedIndex = Math.Max(
+                            SalesRepSuggestionsListBox.SelectedIndex - 1, 0);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                if (SalesRepSuggestionsListBox.SelectedItem != null)
-                {
-                    SelectSalesRepSuggestion(SalesRepSuggestionsListBox.SelectedItem.ToString());
+                    break;
+
+                case Key.Enter:
+                    if (SalesRepSuggestionsListBox.SelectedItem is SalesRepAutocompleteItem selected)
+                    {
+                        SelectSalesRep(selected);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Escape)
-            {
-                SalesRepSuggestionsBorder.Visibility = Visibility.Collapsed;
-                e.Handled = true;
+                    break;
+
+                case Key.Escape:
+                    SalesRepSuggestionsPopup.IsOpen = false;
+                    e.Handled = true;
+                    break;
             }
         }
 
@@ -480,9 +370,9 @@ namespace erp.Views.Orders
 
         private void SalesRepSuggestionsListBox_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (SalesRepSuggestionsListBox.SelectedItem != null)
+            if (SalesRepSuggestionsListBox.SelectedItem is SalesRepAutocompleteItem selected)
             {
-                SelectSalesRepSuggestion(SalesRepSuggestionsListBox.SelectedItem.ToString());
+                SelectSalesRep(selected);
             }
         }
 
@@ -491,11 +381,461 @@ namespace erp.Views.Orders
             e.Handled = false;
         }
 
-        private void SelectSalesRepSuggestion(string selectedSalesRep)
+        private void SelectSalesRep(SalesRepAutocompleteItem salesRep)
         {
-            SalesRepNameTextBox.Text = selectedSalesRep;
-            SalesRepSuggestionsBorder.Visibility = Visibility.Collapsed;
+            _selectedSalesRep = salesRep;
+            SalesRepNameTextBox.Text = salesRep.fullname;
+            SalesRepSuggestionsPopup.IsOpen = false;
             SalesRepNameTextBox.Focus();
+            SalesRepNameTextBox.CaretIndex = SalesRepNameTextBox.Text.Length;
+            UpdatePlaceholders();
+        }
+
+        #endregion
+
+        #region === Product Autocomplete ===
+
+        private async void ProductNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is not TextBox textBox) return;
+            if (textBox.Tag is not OrderItemViewModel item) return;
+
+            _currentProductTextBox = textBox;
+            _currentProductItem = item;
+
+            var searchText = textBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                ProductSuggestionsPopup.IsOpen = false;
+                return;
+            }
+
+            // إلغاء البحث السابق
+            _productSearchCts?.Cancel();
+            _productSearchCts = new CancellationTokenSource();
+            var token = _productSearchCts.Token;
+
+            try
+            {
+                // تحديد موقع الـ Popup
+                ProductSuggestionsPopup.PlacementTarget = textBox;
+                ShowProductLoading(true);
+                ProductSuggestionsPopup.IsOpen = true;
+
+                await Task.Delay(SearchDebounceMs, token);
+                if (token.IsCancellationRequested) return;
+
+                _productSuggestions = await _ordersService.GetProductsAutocompleteAsync(searchText);
+
+                if (token.IsCancellationRequested) return;
+
+                ShowProductLoading(false);
+
+                if (_productSuggestions.Count > 0)
+                {
+                    ProductSuggestionsListBox.ItemsSource = _productSuggestions;
+                    ProductSuggestionsListBox.Visibility = Visibility.Visible;
+                    ProductNoResultsText.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    ProductSuggestionsListBox.Visibility = Visibility.Collapsed;
+                    ProductNoResultsText.Visibility = Visibility.Visible;
+                }
+            }
+            catch (OperationCanceledException) { }
+            catch
+            {
+                ShowProductLoading(false);
+                ProductNoResultsText.Text = "خطأ في البحث";
+                ProductNoResultsText.Visibility = Visibility.Visible;
+                ProductSuggestionsListBox.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void ShowProductLoading(bool show)
+        {
+            ProductLoadingText.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            ProductSuggestionsListBox.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
+            ProductNoResultsText.Visibility = Visibility.Collapsed;
+        }
+
+        private void ProductNameTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox && textBox.Tag is OrderItemViewModel item)
+            {
+                _currentProductTextBox = textBox;
+                _currentProductItem = item;
+            }
+        }
+
+        private void ProductNameTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            Task.Delay(200).ContinueWith(_ =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (!ProductSuggestionsListBox.IsMouseOver)
+                    {
+                        ProductSuggestionsPopup.IsOpen = false;
+                    }
+                });
+            });
+        }
+
+        private void ProductSuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ProductSuggestionsListBox.SelectedItem is ProductAutocompleteItem selected)
+            {
+                if (_currentProductItem != null)
+                {
+                    _currentProductItem.productname = selected.name;
+                }
+
+                if (_currentProductTextBox != null)
+                {
+                    _currentProductTextBox.Text = selected.name;
+                    _currentProductTextBox.CaretIndex = _currentProductTextBox.Text.Length;
+                }
+
+                ProductSuggestionsPopup.IsOpen = false;
+            }
+        }
+
+        #endregion
+
+        #region === Input Validation ===
+
+        private void CommissionTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is not TextBox textBox) return;
+
+            var newText = textBox.Text.Insert(textBox.SelectionStart, e.Text);
+            var isValid = newText.All(c => char.IsDigit(c) || c == '.' || c == ',');
+
+            if (isValid)
+            {
+                var dotCount = newText.Count(c => c == '.' || c == ',');
+                if (dotCount > 1)
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            e.Handled = !isValid;
+        }
+
+        private void PhoneNumberTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !e.Text.All(char.IsDigit);
+        }
+
+        private void QuantityTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !e.Text.All(char.IsDigit);
+        }
+
+        #endregion
+
+        #region === Items Management ===
+
+        private void AddItem_Click(object sender, RoutedEventArgs e)
+        {
+            _items.Add(new OrderItemViewModel());
+            UpdateItemsCount();
+            ClearError(ProductsErrorText, null);
+        }
+
+        private void RemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is OrderItemViewModel item)
+            {
+                _items.Remove(item);
+                UpdateItemsCount();
+            }
+        }
+
+        private void UpdateItemsCount()
+        {
+            ItemsCountBadge.Text = _items.Count.ToString();
+        }
+
+        #endregion
+
+        #region === Form Actions ===
+
+        private async void ConfirmOrder_Click(object sender, RoutedEventArgs e)
+        {
+            // إعادة تعيين حالة الأخطاء
+            ClearAllErrors();
+
+            // التحقق من صحة البيانات
+            if (!ValidateForm())
+            {
+                return;
+            }
+
+            try
+            {
+                // إظهار حالة التحميل
+                SetLoading(true);
+                SetStatus("جاري إنشاء الطلب...", StatusType.Loading);
+
+                // التحقق من نسبة العمولة
+                var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "0";
+                if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
+                {
+                    ShowError(CommissionErrorText, CommissionTextBox.Parent as Border, "نسبة العمولة غير صحيحة");
+                    SetLoading(false);
+                    return;
+                }
+
+                // تجميع البيانات
+                var validItems = _items
+                    .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.quantity > 0)
+                    .Select(i => new CreateOrderItemDto
+                    {
+                        productname = i.productname.Trim(),
+                        quantity = i.quantity
+                    })
+                    .ToList();
+
+                var request = new CreateOrderRequestDto
+                {
+                    customername = CustomerNameTextBox.Text.Trim(),
+                    salesrepname = SalesRepNameTextBox.Text.Trim(),
+                    phonenumber = PhoneNumberTextBox.Text?.Trim() ?? "",
+                    items = validItems
+                };
+
+                // إرسال الطلب
+                await _ordersService.CreateOrderAsync(request, commission);
+
+                // نجاح!
+                SetLoading(false);
+                SetStatus("تم إنشاء الطلب بنجاح! ✅", StatusType.Success);
+
+                MessageBox.Show(
+                    "تم إنشاء الطلب وتأكيده بنجاح ✅",
+                    "نجاح",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                ClearForm();
+            }
+            catch (Exception ex)
+            {
+                SetLoading(false);
+                SetStatus($"فشل في إنشاء الطلب", StatusType.Error);
+
+                MessageBox.Show(
+                    $"حدث خطأ أثناء إنشاء الطلب:\n{ex.Message}",
+                    "خطأ",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private bool ValidateForm()
+        {
+            var isValid = true;
+
+            // التحقق من اسم العميل
+            var customerName = CustomerNameTextBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(customerName))
+            {
+                ShowError(CustomerErrorText, CustomerInputWrapper, "من فضلك أدخل اسم العميل");
+                isValid = false;
+            }
+            else
+            {
+                // التحقق من أن الاسم ثلاثي (3 كلمات أو أكثر)
+                var nameParts = customerName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (nameParts.Length < 3)
+                {
+                    ShowError(CustomerErrorText, CustomerInputWrapper, "اسم العميل يجب أن يكون ثلاثياً على الأقل (3 أسماء)");
+                    isValid = false;
+                }
+            }
+
+            // التحقق من اسم المندوب
+            var salesRepName = SalesRepNameTextBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(salesRepName))
+            {
+                ShowError(SalesRepErrorText, SalesRepInputWrapper, "من فضلك أدخل اسم المندوب");
+                isValid = false;
+            }
+
+            // التحقق من نسبة العمولة
+            var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "";
+            if (string.IsNullOrWhiteSpace(commissionText))
+            {
+                ShowError(CommissionErrorText, null, "من فضلك أدخل نسبة العمولة");
+                isValid = false;
+            }
+            else if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
+            {
+                ShowError(CommissionErrorText, null, "نسبة العمولة غير صحيحة. يرجى إدخال قيمة رقمية");
+                isValid = false;
+            }
+            else if (commission < 0 || commission > 100)
+            {
+                ShowError(CommissionErrorText, null, "نسبة العمولة يجب أن تكون بين 0 و 100");
+                isValid = false;
+            }
+
+            // التحقق من وجود منتج واحد على الأقل
+            var validItems = _items
+                .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.quantity > 0)
+                .ToList();
+
+            if (validItems.Count == 0)
+            {
+                ShowError(ProductsErrorText, null, "من فضلك أضف منتجاً واحداً على الأقل مع تحديد الكمية");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        private void ClearForm_Click(object sender, RoutedEventArgs e)
+        {
+            ClearForm();
+            SetStatus("تم مسح النموذج", StatusType.Info);
+        }
+
+        private void ClearForm()
+        {
+            CustomerNameTextBox.Clear();
+            SalesRepNameTextBox.Clear();
+            CommissionTextBox.Text = "1.75";
+            PhoneNumberTextBox.Clear();
+
+            _selectedCustomer = null;
+            _selectedSalesRep = null;
+
+            _items.Clear();
+            _items.Add(new OrderItemViewModel());
+            UpdateItemsCount();
+            UpdatePlaceholders();
+            ClearAllErrors();
+        }
+
+        #endregion
+
+        #region === Error Handling ===
+
+        private void ShowError(TextBlock errorTextBlock, Border? inputWrapper, string message)
+        {
+            errorTextBlock.Text = message;
+            errorTextBlock.Visibility = Visibility.Visible;
+
+            if (inputWrapper != null)
+            {
+                inputWrapper.Background = new LinearGradientBrush(
+                    Color.FromRgb(254, 202, 202), // #FECACA
+                    Color.FromRgb(252, 165, 165), // #FCA5A5
+                    45);
+            }
+        }
+
+        private void ClearError(TextBlock errorTextBlock, Border? inputWrapper)
+        {
+            errorTextBlock.Visibility = Visibility.Collapsed;
+
+            if (inputWrapper != null)
+            {
+                inputWrapper.Background = new LinearGradientBrush(
+                    Color.FromRgb(229, 231, 235), // #E5E7EB
+                    Color.FromRgb(209, 213, 219), // #D1D5DB
+                    45);
+            }
+        }
+
+        private void ClearAllErrors()
+        {
+            ClearError(CustomerErrorText, CustomerInputWrapper);
+            ClearError(SalesRepErrorText, SalesRepInputWrapper);
+            ClearError(CommissionErrorText, null);
+            ClearError(ProductsErrorText, null);
+        }
+
+        #endregion
+
+        #region === UI Helpers ===
+
+        private enum StatusType { Info, Loading, Success, Error }
+
+        private void SetStatus(string message, StatusType type)
+        {
+            StatusMessage.Text = message;
+            StatusIcon.Visibility = Visibility.Visible;
+
+            switch (type)
+            {
+                case StatusType.Info:
+                    StatusIcon.Text = "ℹ️";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128)); // Gray
+                    break;
+                case StatusType.Loading:
+                    StatusIcon.Text = "⏳";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(79, 70, 229)); // Indigo
+                    break;
+                case StatusType.Success:
+                    StatusIcon.Text = "✅";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(16, 185, 129)); // Green
+                    break;
+                case StatusType.Error:
+                    StatusIcon.Text = "❌";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(239, 68, 68)); // Red
+                    break;
+            }
+        }
+
+        private void SetLoading(bool isLoading)
+        {
+            LoadingOverlay.Visibility = isLoading ? Visibility.Visible : Visibility.Collapsed;
+            ConfirmButton.IsEnabled = !isLoading;
+            ClearButton.IsEnabled = !isLoading;
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// ViewModel للمنتج في قائمة الطلب
+    /// </summary>
+    public class OrderItemViewModel : INotifyPropertyChanged
+    {
+        private string _productname = "";
+        private int _quantity = 1;
+
+        public string productname
+        {
+            get => _productname;
+            set
+            {
+                _productname = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int quantity
+        {
+            get => _quantity;
+            set
+            {
+                _quantity = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

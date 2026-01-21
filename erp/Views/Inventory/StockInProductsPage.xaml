@@ -140,11 +140,12 @@
                             BorderBrush="{StaticResource SoftBorderBrush}">
 
                         <DataGrid x:Name="ProductsGrid"
-                                  Style="{StaticResource StockDataGridStyle}"
-                                  AutoGenerateColumns="False"
-                                  Height="260">
+                              Style="{StaticResource StockDataGridStyle}"
+                              AutoGenerateColumns="False"
+                              Height="260"
+                              CanUserAddRows="False">
 
-                        <DataGrid.Columns>
+                            <DataGrid.Columns>
                             <DataGridTemplateColumn Header="اسم المنتج" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -176,10 +177,10 @@
                     <!-- Global Popup for Product Suggestions in DataGrid -->
                     <Popup x:Name="ProductSuggestionsPopup"
                            Placement="Bottom"
-                           PlacementTarget="{Binding ElementName=ProductsGrid}"
-                           StaysOpen="False"
+                           StaysOpen="True"
                            AllowsTransparency="True"
-                           PopupAnimation="Fade">
+                           PopupAnimation="Fade">   
+
                         <Border Background="White"
                                 CornerRadius="8"
                                 BorderBrush="#DDD"
