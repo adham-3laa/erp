@@ -175,8 +175,8 @@
                     <Border Style="{StaticResource GlowInputInner}">
                         <TextBox Height="40"
                                  Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding SalesRepId, UpdateSourceTrigger=PropertyChanged}"
-                                 materialDesign:HintAssist.Hint="رقم المندوب (SalesRep ID)"
+                                 Text="{Binding SalesRepName, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="اسم المندوب"
                                  materialDesign:HintAssist.Foreground="#6B7280"/>
                     </Border>
                 </Border>

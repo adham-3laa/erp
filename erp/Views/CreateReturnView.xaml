@@ -12,32 +12,26 @@
 
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-        <Style x:Key="ModernTextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10,0"/>
+        <Style x:Key="ModernTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="12,10"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="White"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="6">
-                            <ScrollViewer x:Name="PART_ContentHost"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="materialDesign:TextFieldAssist.TextFieldCornerRadius" Value="6"/>
+            <Setter Property="materialDesign:TextFieldAssist.HasClearButton" Value="True"/>
+            <Setter Property="materialDesign:HintAssist.IsFloating" Value="False"/>
         </Style>
 
         <Style x:Key="ActionButton" TargetType="Button">
             <Setter Property="Background" Value="#4F46E5"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="Padding" Value="24,10"/>
+            <Setter Property="Margin" Value="0,5"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -87,25 +81,40 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyVis"/>
     </Page.Resources>
 
     <Grid Margin="30">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Status Messages -->
             <RowDefinition Height="Auto"/> <!-- Toggle -->
             <RowDefinition Height="*"/>    <!-- Content -->
             <RowDefinition Height="Auto"/> <!-- Footer -->
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
             <Button Content="⬅ رجوع" Click="Back_Click" HorizontalAlignment="Left" Background="Transparent" Foreground="#6B7280" BorderThickness="0"/>
             <TextBlock Text="إدارة المرتجعات" FontSize="28" FontWeight="Bold" Foreground="#111827" Margin="0,5,0,0"/>
             <TextBlock Text="قم باختيار نوع العملية وإدخال البيانات المطلوبة" FontSize="14" Foreground="#6B7280" Margin="0,5,0,0"/>
         </StackPanel>
+        
+        <!-- Status Message Block -->
+        <Border Grid.Row="1" Margin="0,0,0,20" CornerRadius="6" Padding="15"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyVis}, FallbackValue=Collapsed}">
+            <Border.Style>
+                 <Style TargetType="Border">
+                     <Setter Property="Background" Value="#FEE2E2"/>
+                     <Setter Property="BorderBrush" Value="#EF4444"/>
+                     <Setter Property="BorderThickness" Value="1"/>
+                 </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" FontWeight="SemiBold" TextWrapping="Wrap"/>
+        </Border>
 
         <!-- Toggle (Customer vs Supplier) -->
-        <Border Grid.Row="1" HorizontalAlignment="Left" CornerRadius="6" BorderBrush="#E5E7EB" BorderThickness="1" Background="White" Margin="0,0,0,20">
+        <Border Grid.Row="2" HorizontalAlignment="Left" CornerRadius="6" BorderBrush="#E5E7EB" BorderThickness="1" Background="White" Margin="0,0,0,20">
             <StackPanel Orientation="Horizontal">
                 <RadioButton Content="إرجاع من عميل" IsChecked="{Binding IsCustomerReturn}" Style="{StaticResource SegmentRadioButton}" GroupName="ReturnType"/>
                 <RadioButton Content="إرجاع لمورد" IsChecked="{Binding IsSupplierReturn}" Style="{StaticResource SegmentRadioButton}" GroupName="ReturnType"/>
@@ -113,7 +122,7 @@
         </Border>
 
         <!-- Main Content Area -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             
             <!-- CUSTOMER RETURN PANEL -->
             <Grid Visibility="{Binding IsCustomerReturn, Converter={StaticResource BoolToVis}}">
@@ -232,20 +241,20 @@
                         <TextBlock Grid.Column="1" Text="الكمية" FontSize="12" Foreground="Gray" Margin="10,0,0,0"/>
                         <TextBlock Grid.Column="2" Text="السبب" FontSize="12" Foreground="Gray" Margin="10,0,0,0"/>
 
-                        <StackPanel Grid.Row="1" Margin="0,5,0,0">
+                        <StackPanel Grid.Row="1" Margin="10,10,10,0">
                             <!-- Product Autocomplete Logic could be added here similar to Supplier, but trying simpel ComboBox for now as per VM -->
                             <ComboBox IsEditable="True"
                                       ItemsSource="{Binding ProductSuggestions}"
                                       Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}"
                                       StaysOpenOnEdit="True"
-                                      Height="40"
+                                      Height="45"
                                       Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
                         </StackPanel>
 
-                        <TextBox Grid.Row="1" Grid.Column="1" Margin="10,5,0,0" Text="{Binding CurrentSupplierItem.Quantity, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBox}"/>
-                        <TextBox Grid.Row="1" Grid.Column="2" Margin="10,5,0,0" Text="{Binding CurrentSupplierItem.Reason, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBox}"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="10,10,0,0" Text="{Binding CurrentSupplierItem.Quantity, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBox}" Height="45"/>
+                        <TextBox Grid.Row="1" Grid.Column="2" Margin="10,10,0,0" Text="{Binding CurrentSupplierItem.Reason, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernTextBox}" Height="45"/>
                         
-                        <Button Grid.Row="1" Grid.Column="3" Content="إضافة" Command="{Binding AddSupplierItemCommand}" Style="{StaticResource ActionButton}" Margin="10,5,0,0" Background="#10B981" BorderBrush="#10B981"/>
+                        <Button Grid.Row="1" Grid.Column="3" Content="إضافة" Command="{Binding AddSupplierItemCommand}" Style="{StaticResource ActionButton}" Margin="10,10,0,0" Background="#10B981" BorderBrush="#10B981" Height="45"/>
                     </Grid>
                 </Border>
 
@@ -275,7 +284,7 @@
         </Grid>
 
         <!-- Footer / Submit -->
-        <Border Grid.Row="3" Margin="0,20,0,0" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" Padding="0,20,0,0">
+        <Border Grid.Row="4" Margin="0,20,0,0" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" Padding="0,20,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" VerticalAlignment="Center" Margin="0,0,20,0" FontWeight="SemiBold"/>
                 <Button Command="{Binding SubmitReturnCommand}" Height="45" Width="200" Style="{StaticResource ActionButton}">
@@ -291,7 +300,7 @@
         </Border>
 
         <!-- Loading Overlay -->
-        <Grid Grid.RowSpan="4" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" Background="#80FFFFFF">
+        <Grid Grid.RowSpan="5" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" Background="#80FFFFFF">
             <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" Width="50" Height="50" Foreground="#4F46E5"/>
         </Grid>
     </Grid>

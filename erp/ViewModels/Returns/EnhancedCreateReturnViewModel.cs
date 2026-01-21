@@ -63,7 +63,7 @@ namespace erp.ViewModels.Returns
             get => _currentStep;
             set
             {
-                if (_currentStep != value && value >= 1 && value <= 4)
+                if (_currentStep != value && value >= 1 && value <= 3)
                 {
                     _currentStep = value;
                     OnPropertyChanged();
@@ -78,15 +78,14 @@ namespace erp.ViewModels.Returns
         }
 
         public bool CanGoBack => CurrentStep > 1 && !IsBusy;
-        public bool CanGoNext => ValidateCurrentStep() && !IsBusy && CurrentStep < 4;
-        public bool CanSubmit => CurrentStep == 4 && ValidateAllSteps() && !IsBusy;
+        public bool CanGoNext => ValidateCurrentStep() && !IsBusy && CurrentStep < 3;
+        public bool CanSubmit => CurrentStep == 3 && ValidateAllSteps() && !IsBusy;
 
         public string CurrentStepTitle => CurrentStep switch
         {
             1 => IsCustomerReturn ? "الخطوة ١: إدخال رقم الطلب" : "الخطوة ١: اختيار المورد",
-            2 => "الخطوة ٢: اختيار المنتجات",
-            3 => "الخطوة ٣: تحديد الكميات والأسباب",
-            4 => "الخطوة ٤: مراجعة وتأكيد",
+            2 => "الخطوة ٢: اختيار المنتجات وتحديد الكميات",
+            3 => "الخطوة ٣: مراجعة وتأكيد",
             _ => ""
         };
 
@@ -95,9 +94,8 @@ namespace erp.ViewModels.Returns
             1 => IsCustomerReturn 
                 ? "أدخل رقم الطلب للبحث عن المنتجات المتاحة للإرجاع" 
                 : "اختر اسم المورد الذي ستقوم بإرجاع المنتجات إليه",
-            2 => "حدد المنتجات التي تريد إرجاعها من القائمة",
-            3 => "حدد الكمية المراد إرجاعها واكتب سبب الإرجاع لكل منتج",
-            4 => "راجع بيانات الإرجاع بعناية ثم اضغط تأكيد",
+            2 => "حدد المنتجات، الكميات، وسبب الإرجاع",
+            3 => "راجع بيانات الإرجاع بعناية ثم اضغط تأكيد",
             _ => ""
         };
         #endregion
@@ -315,8 +313,7 @@ namespace erp.ViewModels.Returns
             {
                 1 => ValidateStep1(),
                 2 => ValidateStep2(),
-                3 => ValidateStep3(),
-                4 => ValidateAllSteps(),
+                3 => ValidateAllSteps(),
                 _ => false
             };
         }
@@ -337,19 +334,9 @@ namespace erp.ViewModels.Returns
         {
             if (IsCustomerReturn)
             {
-                return OrderItems.Any(i => i.IsSelected);
-            }
-            else
-            {
-                return SupplierReturnItems.Count > 0;
-            }
-        }
-
-        private bool ValidateStep3()
-        {
-            if (IsCustomerReturn)
-            {
                 var selected = OrderItems.Where(i => i.IsSelected).ToList();
+                if (selected.Count == 0) return false;
+
                 return selected.All(i => 
                     i.ReturnQuantity > 0 && 
                     i.ReturnQuantity <= i.Dto.Quantity && 
@@ -357,6 +344,8 @@ namespace erp.ViewModels.Returns
             }
             else
             {
+                if (SupplierReturnItems.Count == 0) return false;
+
                 return SupplierReturnItems.All(i => 
                     i.Quantity > 0 && 
                     !string.IsNullOrWhiteSpace(i.ProductName) &&
@@ -366,7 +355,7 @@ namespace erp.ViewModels.Returns
 
         private bool ValidateAllSteps()
         {
-            return ValidateStep1() && ValidateStep2() && ValidateStep3();
+            return ValidateStep1() && ValidateStep2();
         }
         #endregion
 
@@ -407,9 +396,8 @@ namespace erp.ViewModels.Returns
             {
                 1 when IsCustomerReturn => "يرجى إدخال رقم الطلب وجلب المنتجات أولاً",
                 1 when IsSupplierReturn => "يرجى إدخال اسم المورد",
-                2 when IsCustomerReturn => "يرجى اختيار منتج واحد على الأقل للإرجاع",
-                2 when IsSupplierReturn => "يرجى إضافة منتج واحد على الأقل للإرجاع",
-                3 => "يرجى إكمال بيانات الكمية والسبب لجميع المنتجات المحددة",
+                2 when IsCustomerReturn => "يرجى اختيار منتج واحد على الأقل وتحديد الكمية والسبب",
+                2 when IsSupplierReturn => "يرجى إضافة منتج واحد على الأقل مع الكمية والسبب",
                 _ => "يرجى إكمال جميع البيانات المطلوبة"
             };
             SetStatus(message, StatusType.Warning);

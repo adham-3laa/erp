@@ -56,11 +56,13 @@
         <!-- Modern TextBox -->
         <!-- Modern TextBox (Based on Material Design) -->
         <Style x:Key="ModernTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
-            <Setter Property="Height" Value="48"/>
-            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="10,0"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1E293B"/>
             <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="materialDesign:TextFieldAssist.TextFieldCornerRadius" Value="8"/>
             <Setter Property="materialDesign:TextFieldAssist.HasClearButton" Value="True"/>
             <Setter Property="materialDesign:HintAssist.IsFloating" Value="False"/>
@@ -272,10 +274,10 @@
         </Border>
 
         <!-- ==================== STEP INDICATOR ==================== -->
+        <!-- ==================== STEP INDICATOR ==================== -->
         <Border Grid.Row="2" Style="{StaticResource ModernCard}" Margin="0,0,0,24" Padding="20,16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -297,9 +299,6 @@
                                     <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                         <Setter Property="Background" Value="#10B981"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                        <Setter Property="Background" Value="#10B981"/>
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
@@ -316,9 +315,6 @@
                                             <Setter Property="Foreground" Value="White"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="3">
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
                                             <Setter Property="Foreground" Value="White"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -354,9 +350,6 @@
                                 <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                     <Setter Property="Background" Value="#10B981"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                    <Setter Property="Background" Value="#10B981"/>
-                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
@@ -375,9 +368,6 @@
                                     <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                         <Setter Property="Background" Value="#10B981"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                        <Setter Property="Background" Value="#10B981"/>
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
@@ -391,9 +381,6 @@
                                             <Setter Property="Foreground" Value="White"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="3">
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
                                             <Setter Property="Foreground" Value="White"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -426,9 +413,6 @@
                                 <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                     <Setter Property="Background" Value="#10B981"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                    <Setter Property="Background" Value="#10B981"/>
-                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
@@ -444,9 +428,6 @@
                                     <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                         <Setter Property="Background" Value="#4F46E5"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                        <Setter Property="Background" Value="#10B981"/>
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
@@ -457,66 +438,6 @@
                                     <Setter Property="Foreground" Value="#94A3B8"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="3">
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Border>
-                    <TextBlock FontSize="12" HorizontalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#94A3B8"/>
-                                <Setter Property="Text" Value="الكمية والسبب"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
-                                        <Setter Property="Foreground" Value="#4F46E5"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </StackPanel>
-
-                <!-- Connector Line 3-4 -->
-                <Border Grid.Column="2" Height="3" VerticalAlignment="Top" Margin="60,18,-60,0" CornerRadius="1.5">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="#E2E8F0"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                    <Setter Property="Background" Value="#10B981"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                </Border>
-
-                <!-- Step 4 -->
-                <StackPanel Grid.Column="3" HorizontalAlignment="Center">
-                    <Border Width="40" Height="40" CornerRadius="20" Margin="0,0,0,8">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Background" Value="#E2E8F0"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
-                                        <Setter Property="Background" Value="#4F46E5"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <TextBlock Text="٤" FontSize="16" FontWeight="Bold" 
-                                   HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="#94A3B8"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
                                             <Setter Property="Foreground" Value="White"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -530,7 +451,7 @@
                                 <Setter Property="Foreground" Value="#94A3B8"/>
                                 <Setter Property="Text" Value="مراجعة وتأكيد"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                         <Setter Property="Foreground" Value="#4F46E5"/>
                                         <Setter Property="FontWeight" Value="SemiBold"/>
                                     </DataTrigger>
@@ -583,10 +504,10 @@
 
                 <!-- Step Content -->
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                    <Grid>
+                    <StackPanel>
                         
                         <!-- ===== STEP 1: CUSTOMER - ORDER CODE ===== -->
-                        <StackPanel Visibility="{Binding IsCustomerReturn, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -646,7 +567,7 @@
                             </StackPanel.Style>
                             
                             <TextBlock Text="اسم المورد" FontSize="13" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,8"/>
-                            <Grid MaxWidth="500" HorizontalAlignment="Right">
+                            <Grid MaxWidth="500" HorizontalAlignment="Left">
                                 <TextBox x:Name="SupplierNameBox" 
                                          Text="{Binding SupplierName, UpdateSourceTrigger=PropertyChanged}" 
                                          Style="{StaticResource ModernTextBox}"
@@ -685,6 +606,7 @@
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding IsCustomerReturn}" Value="True"/>
+                                                <Condition Binding="{Binding CurrentStep}" Value="2"/>
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="Visibility" Value="Visible"/>
                                         </MultiDataTrigger>
@@ -696,16 +618,13 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Only show in step 2 or 3 -->
+                            <!-- Only show in step 2 -->
                             <Grid Grid.Row="0">
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentStep}" Value="2">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -739,16 +658,14 @@
                                       BorderBrush="#E2E8F0"
                                       GridLinesVisibility="Horizontal"
                                       HorizontalGridLinesBrush="#F1F5F9"
-                                      RowHeight="56"
+                                      RowHeight="60"
                                       HeadersVisibility="Column">
                                 <DataGrid.Style>
                                     <Style TargetType="DataGrid">
                                         <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Setter Property="Margin" Value="0,0,0,24"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentStep}" Value="2">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -764,7 +681,7 @@
                                     </Style>
                                     <Style TargetType="DataGridCell">
                                         <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                        <Setter Property="Padding" Value="12"/>
+                                        <Setter Property="Padding" Value="8"/>
                                         <Setter Property="BorderThickness" Value="0"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
@@ -776,36 +693,49 @@
                                             </Setter.Value>
                                         </Setter>
                                     </Style>
+                                    <Style x:Key="DataGridTextElement" TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Margin" Value="4,0"/>
+                                    </Style>
                                 </DataGrid.Resources>
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Width="60">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" 
-                                                          HorizontalAlignment="Center"/>
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Binding="{Binding Dto.Productname}" Header="المنتج" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Binding="{Binding Dto.Quantity}" Header="الكمية المشتراة" IsReadOnly="True" Width="120"/>
-                                    <DataGridTemplateColumn Header="كمية الإرجاع" Width="130">
+                                    <DataGridTextColumn Binding="{Binding Dto.Productname}" Header="المنتج" IsReadOnly="True" Width="2*" ElementStyle="{StaticResource DataGridTextElement}"/>
+                                    <DataGridTextColumn Binding="{Binding Dto.Quantity}" Header="الكمية المشتراة" IsReadOnly="True" Width="120" ElementStyle="{StaticResource DataGridTextElement}"/>
+                                    <DataGridTemplateColumn Header="كمية الإرجاع" Width="140">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}" 
                                                          Style="{StaticResource ModernTextBox}" 
-                                                         Height="36" 
+                                                         Height="40" 
+                                                         Padding="0"
+                                                         VerticalContentAlignment="Center"
                                                          TextAlignment="Center"
-                                                         IsEnabled="{Binding IsSelected}"/>
+                                                         IsEnabled="{Binding IsSelected}"
+                                                         Background="White"
+                                                         Foreground="Black"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="سبب الإرجاع" Width="2*">
+                                    <DataGridTemplateColumn Header="سبب الإرجاع" Width="3*">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}" 
                                                          Style="{StaticResource ModernTextBox}" 
-                                                         Height="36"
+                                                         Height="40"
+                                                         Padding="8,0"
+                                                         VerticalContentAlignment="Center"
                                                          IsEnabled="{Binding IsSelected}"
+                                                         Background="White"
+                                                         Foreground="Black"
                                                          materialDesign:HintAssist.Hint="اكتب السبب..."/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
@@ -816,13 +746,14 @@
 
                         <!-- ===== STEP 2 & 3: SUPPLIER - ADD ITEMS ===== -->
                         <Grid>
-                            <Grid.Style>
+                             <Grid.Style>
                                 <Style TargetType="Grid">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding IsSupplierReturn}" Value="True"/>
+                                                <Condition Binding="{Binding CurrentStep}" Value="2"/>
                                             </MultiDataTrigger.Conditions>
                                             <Setter Property="Visibility" Value="Visible"/>
                                         </MultiDataTrigger>
@@ -841,9 +772,6 @@
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentStep}" Value="2">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -926,11 +854,9 @@
                                 <DataGrid.Style>
                                     <Style TargetType="DataGrid">
                                         <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Setter Property="Margin" Value="0,0,0,24"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CurrentStep}" Value="2">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -960,7 +886,7 @@
                                 <Style TargetType="Grid">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                             <Setter Property="Visibility" Value="Visible"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -1070,7 +996,7 @@
                             </StackPanel>
                         </Grid>
 
-                    </Grid>
+                    </StackPanel>
                 </ScrollViewer>
 
             </Grid>
@@ -1094,7 +1020,7 @@
 
                 <!-- Next / Submit Buttons -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <!-- Next Button (Steps 1-3) -->
+                    <!-- Next Button (Steps 1-2) -->
                     <Button Content="الخطوة التالية ➡"
                             Command="{Binding NextStepCommand}"
                             Margin="16,0,0,0">
@@ -1102,7 +1028,7 @@
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
                                 <Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                    <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsSuccess}" Value="True">
@@ -1114,7 +1040,7 @@
                     </Button>
 
 
-                    <!-- Submit Button (Step 4) -->
+                    <!-- Submit Button (Step 3) -->
                     <Button Content="✓ تأكيد عملية الإرجاع"
                             Command="{Binding SubmitReturnCommand}"
                             Margin="16,0,0,0">
@@ -1124,7 +1050,7 @@
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding CurrentStep}" Value="4"/>
+                                            <Condition Binding="{Binding CurrentStep}" Value="3"/>
                                             <Condition Binding="{Binding IsSuccess}" Value="False"/>
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible"/>

@@ -1,4 +1,5 @@
 ﻿using erp.DTOS;
+using erp.DTOS.Reports;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -45,13 +46,43 @@ namespace erp.Services
             );
         }
 
-        public async Task<CommissionReportResponseDto?> GetCommissionsAsync(string salesRepId)
+        public async Task<CommissionReportResponseDto?> GetCommissionsAsync(string salesRepName)
         {
-            if (string.IsNullOrWhiteSpace(salesRepId))
-                throw new ArgumentException("SalesRepId is required");
+            if (string.IsNullOrWhiteSpace(salesRepName))
+                throw new ArgumentException("SalesRepName is required");
 
             return await _api.GetAsync<CommissionReportResponseDto>(
-                $"api/Reports/commissions?salesRepId={salesRepId}"
+                $"api/Reports/commissions?salesRepName={Uri.EscapeDataString(salesRepName)}"
+            );
+        }
+
+        public async Task<CustomerReportDto?> GetCustomerReportAsync(string customerName)
+        {
+            if (string.IsNullOrWhiteSpace(customerName))
+                throw new ArgumentException("Customer name is required");
+
+            return await _api.GetAsync<CustomerReportDto>(
+                $"api/Reports/customer-report?customerName={Uri.EscapeDataString(customerName)}"
+            );
+        }
+
+        public async Task<SalesRepReportDto?> GetSalesRepReportAsync(string salesRepName)
+        {
+            if (string.IsNullOrWhiteSpace(salesRepName))
+                throw new ArgumentException("Sales representative name is required");
+
+            return await _api.GetAsync<SalesRepReportDto>(
+                $"api/Reports/sales-rep-report?salesRepName={Uri.EscapeDataString(salesRepName)}"
+            );
+        }
+
+        public async Task<SupplierReportDto?> GetSupplierReportAsync(string supplierName)
+        {
+            if (string.IsNullOrWhiteSpace(supplierName))
+                throw new ArgumentException("Supplier name is required");
+
+            return await _api.GetAsync<SupplierReportDto>(
+                $"api/Reports/supplier-report?supplierName={Uri.EscapeDataString(supplierName)}"
             );
         }
 

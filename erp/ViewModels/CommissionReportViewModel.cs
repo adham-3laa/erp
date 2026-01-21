@@ -33,11 +33,11 @@ namespace erp.ViewModels.Reports
             }
         }
 
-        private string _salesRepId;
-        public string SalesRepId
+        private string _salesRepName;
+        public string SalesRepName
         {
-            get => _salesRepId;
-            set => SetProperty(ref _salesRepId, value);
+            get => _salesRepName;
+            set => SetProperty(ref _salesRepName, value);
         }
 
         public ObservableCollection<CommissionReportItemDto> Items { get; } = new();
@@ -65,9 +65,9 @@ namespace erp.ViewModels.Reports
         private async Task LoadReportAsync()
         {
             // ✅ لو فاضي، ما نعتبرهاش بحث (علشان NoData ما يظهرش)
-            if (string.IsNullOrWhiteSpace(SalesRepId))
+            if (string.IsNullOrWhiteSpace(SalesRepName))
             {
-                MessageBox.Show("من فضلك أدخل SalesRep ID");
+                MessageBox.Show("من فضلك أدخل اسم مندوب المبيعات");
                 return;
             }
 
@@ -82,7 +82,7 @@ namespace erp.ViewModels.Reports
                 OnPropertyChanged(nameof(NoData));
                 OnPropertyChanged(nameof(HasData));
 
-                var response = await _reportService.GetCommissionsAsync(SalesRepId);
+                var response = await _reportService.GetCommissionsAsync(SalesRepName);
 
                 if (response?.Value != null)
                 {
