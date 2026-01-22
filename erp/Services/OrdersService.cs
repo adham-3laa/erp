@@ -28,6 +28,12 @@ namespace erp.Services
         public string name { get; set; } = "";
     }
 
+    public class SupplierAutocompleteItem
+    {
+        public int usernumber { get; set; }
+        public string fullname { get; set; } = "";
+    }
+
     public class AutocompleteResponse<T>
     {
         public int statusCode { get; set; }
@@ -99,6 +105,26 @@ namespace erp.Services
 
                 var res = await _api.GetAsync<AutocompleteResponse<ProductAutocompleteItem>>(
                     $"{BaseUrl}/api/Inventory/autocomplete?term={Uri.EscapeDataString(term)}");
+
+                return res?.value ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
+        /// <summary>
+        /// البحث عن الموردين بالاسم (Autocomplete)
+        /// </summary>
+        public async Task<List<SupplierAutocompleteItem>> GetSuppliersAutocompleteAsync(string term)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(term)) return new();
+
+                var res = await _api.GetAsync<AutocompleteResponse<SupplierAutocompleteItem>>(
+                    $"{BaseUrl}/api/Orders/Supplier/autocomplete?term={Uri.EscapeDataString(term)}");
 
                 return res?.value ?? new();
             }
