@@ -140,6 +140,17 @@ namespace erp.Views.Inventory
         {
             bool isValid = int.TryParse(QuantityTextBox.Text, out int quantity) && quantity >= 0;
             SetFieldValidationState(QuantityInputWrapper, QuantityErrorText, isValid);
+            
+            // Show warning when quantity is 0 (out of stock)
+            if (isValid && quantity == 0)
+            {
+                ZeroStockWarning.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ZeroStockWarning.Visibility = Visibility.Collapsed;
+            }
+            
             return isValid;
         }
 

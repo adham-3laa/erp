@@ -398,6 +398,10 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="الكمية المتاحة" Style="{StaticResource FieldTitleStyle}" Margin="0"/>
                             <TextBlock Style="{StaticResource RequiredIndicatorStyle}"/>
+                            <TextBlock Text="(يمكن إدخال 0 عند نفاد المخزون)" 
+                                       Foreground="#9CA3AF" 
+                                       FontSize="12" 
+                                       Margin="8,16,0,0"/>
                         </StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -423,10 +427,27 @@
                                     </Grid>
                                 </Border>
                             </Border>
+                            <!-- Zero Stock Warning -->
+                            <Border x:Name="ZeroStockWarning" 
+                                    Grid.Column="1" 
+                                    Background="#FEF3C7" 
+                                    CornerRadius="8" 
+                                    Padding="10,8" 
+                                    Margin="12,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚠️" FontSize="14" Margin="0,0,6,0"/>
+                                    <TextBlock Text="المنتج نفد من المخزون" 
+                                               FontSize="12" 
+                                               Foreground="#92400E"
+                                               FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
                         </Grid>
                         <TextBlock x:Name="QuantityErrorText" 
                                    Style="{StaticResource ErrorMessageStyle}"
-                                   Text="⚠️ الكمية غير صالحة"/>
+                                   Text="⚠️ يجب إدخال رقم صحيح (0 أو أكثر)"/>
 
                         <!-- Category Field -->
                         <StackPanel Orientation="Horizontal">

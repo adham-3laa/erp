@@ -134,7 +134,7 @@ namespace erp.Services
                 SalePrice = Convert.ToInt32(p.SalePrice),
                 BuyPrice = Convert.ToInt32(p.BuyPrice),
 
-                Quantity = p.Quantity > 0 ? p.Quantity : 1,
+                Quantity = p.Quantity,  // السماح بالكمية 0 (نفاد المخزون)
                 SKU = string.IsNullOrWhiteSpace(p.SKU) ? "N/A" : p.SKU,
 
                 // ✅ عرض اسم الصنف بدل الكود
@@ -256,8 +256,8 @@ namespace erp.Services
             if (product.SalePrice <= 0)
                 throw new Exception("سعر البيع غير صالح");
 
-            if (product.Quantity <= 0)
-                throw new Exception("الكمية غير صالحة");
+            if (product.Quantity < 0)
+                throw new Exception("الكمية غير صالحة (يجب أن تكون 0 أو أكثر)");
 
             if (string.IsNullOrWhiteSpace(product.SKU))
                 product.SKU = "N/A";
