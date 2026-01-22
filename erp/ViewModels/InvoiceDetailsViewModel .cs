@@ -246,18 +246,26 @@ namespace erp.ViewModels.Invoices
                     return;
                 }
 
+                // FETCH PRODUCT MAP
+                var productMap = await GetProductLookupMapAsync();
+
                 // Map API response to display rows
                 foreach (var product in products)
                 {
-                    OrderItems.Add(new InvoiceOrderItemRow
+                    var row = new InvoiceOrderItemRow
                     {
                         ProductId = product.ProductId,
                         ProductName = product.ProductName ?? "",
-                        CategoryName = "غير محدد", // Not provided by API
+                        CategoryName = "غير محدد", // Will be enriched
                         Quantity = product.Quantity,
                         UnitPrice = product.BuyPrice,
                         Total = product.TotalPrice
-                    });
+                    };
+
+                    // Enrich with product catalog data (Category, etc.)
+                    EnrichRowWithProductData(row, productMap);
+
+                    OrderItems.Add(row);
                 }
             }
             catch
@@ -345,21 +353,29 @@ namespace erp.ViewModels.Invoices
                     return;
                 }
 
+                // FETCH PRODUCT MAP FOR CATEGORY DETAILS
+                var productMap = await GetProductLookupMapAsync();
+
                 // ═══════════════════════════════════════════════════════════════
                 // MAP API RESPONSE TO DISPLAY ROWS
                 // Render the returned product list exactly as received
                 // ═══════════════════════════════════════════════════════════════
                 foreach (var product in products)
                 {
-                    OrderItems.Add(new InvoiceOrderItemRow
+                    var row = new InvoiceOrderItemRow
                     {
                         ProductId = product.ProductId,
                         ProductName = product.ProductName ?? "",
-                        CategoryName = "مرتجع مورد", // Mark as supplier return
+                        CategoryName = "مرتجع مورد", // Initial value
                         Quantity = product.Quantity,
                         UnitPrice = product.BuyPrice,
                         Total = product.TotalPrice
-                    });
+                    };
+
+                    // Enrich with product catalog data (gets real Category)
+                    EnrichRowWithProductData(row, productMap);
+
+                    OrderItems.Add(row);
                 }
 
                 // Debug: Log success
