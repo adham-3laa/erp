@@ -48,7 +48,7 @@ namespace erp.Services
             var response = await _client.PostAsync("api/Expenses", content);
 
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                throw new Exception("Unauthorized");
+                throw new Exception("جلسة العمل انتهت، يرجى تسجيل الدخول مرة أخرى");
 
             response.EnsureSuccessStatusCode();
 
@@ -67,7 +67,7 @@ namespace erp.Services
             var response = await _client.GetAsync("api/Expenses/GetAll");
 
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                throw new Exception("Unauthorized");
+                throw new Exception("جلسة العمل انتهت، يرجى تسجيل الدخول مرة أخرى");
 
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
@@ -86,7 +86,7 @@ namespace erp.Services
             var response = await _client.GetAsync("api/Expenses/myexpenses");
 
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                throw new Exception("Unauthorized");
+                throw new Exception("جلسة العمل انتهت، يرجى تسجيل الدخول مرة أخرى");
 
             response.EnsureSuccessStatusCode();
 
@@ -122,7 +122,7 @@ namespace erp.Services
             var response = await _client.GetAsync($"api/Expenses/ByAccountant?accountantUserId={accountantUserId}");
 
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                throw new Exception("Unauthorized");
+                throw new Exception("جلسة العمل انتهت، يرجى تسجيل الدخول مرة أخرى");
 
             response.EnsureSuccessStatusCode();
 
