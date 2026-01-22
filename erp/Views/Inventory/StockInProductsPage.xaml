@@ -7,20 +7,43 @@
     <!-- ================= Resources ================= -->
     <Page.Resources>
 
+        <!-- Animated Glow Effect -->
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="16"
+                          BlurRadius="22"
                           ShadowDepth="0"
-                          Opacity="0.30"/>
+                          Opacity="0.35"/>
 
-        <!-- Main Card -->
+        <DropShadowEffect x:Key="SuggestionsShadow"
+                          Color="#000000"
+                          BlurRadius="16"
+                          ShadowDepth="4"
+                          Opacity="0.15"/>
+
+        <!-- Main Card with Gradient Border -->
         <Style x:Key="StockCardStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="CornerRadius" Value="22"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource SoftBorderBrush}"/>
-            <Setter Property="Padding" Value="24"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                        <GradientStop Color="{StaticResource Purple600}" Offset="0.5"/>
+                        <GradientStop Color="{StaticResource Indigo600}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Padding" Value="32"/>
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <!-- Section Header Style -->
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
         </Style>
 
         <!-- Field title -->
@@ -28,199 +51,644 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-            <Setter Property="Margin" Value="0,14,0,6"/>
+            <Setter Property="Margin" Value="0,16,0,8"/>
         </Style>
 
-        <!-- TextBox (safe) -->
-        <Style x:Key="StockTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="10"/>
+        <!-- Required Indicator -->
+        <Style x:Key="RequiredIndicatorStyle" TargetType="TextBlock">
+            <Setter Property="Text" Value="*"/>
+            <Setter Property="Foreground" Value="#EF4444"/>
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+        </Style>
+
+        <!-- Input Wrapper with Gradient Border -->
+        <Style x:Key="InputWrapperStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#E5E7EB" Offset="0"/>
+                        <GradientStop Color="#D1D5DB" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Input Inner Style -->
+        <Style x:Key="InputInnerStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+
+        <!-- TextBox style -->
+        <Style x:Key="StockTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}"/>
         </Style>
 
-        <!-- DataGrid -->
-        <Style x:Key="StockDataGridStyle" TargetType="DataGrid">
-            <Setter Property="RowHeight" Value="44"/>
+        <!-- Error Message Style -->
+        <Style x:Key="ErrorMessageStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#EF4444"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="4,4,0,0"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
+
+        <!-- Suggestions ListBox Style -->
+        <Style x:Key="SuggestionsListStyle" TargetType="ListBox">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+
+        <!-- Suggestion Item Style -->
+        <Style x:Key="SuggestionItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F3F4F6"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EEF2FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary Action Button -->
+        <Style x:Key="PrimaryActionButton" TargetType="Button">
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="MinWidth" Value="160"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="14"
+                                Padding="24,12">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                                    <GradientStop Color="{StaticResource Purple700}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect Color="{StaticResource Indigo700}"
+                                                  BlurRadius="12"
+                                                  ShadowDepth="4"
+                                                  Opacity="0.3"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource Indigo600}" Offset="0"/>
+                                            <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Secondary Action Button -->
+        <Style x:Key="SecondaryActionButton" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="14"
+                                Padding="24,12"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F5F3FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Add Product Button Style -->
+        <Style x:Key="AddProductButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinWidth" Value="120"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="CanUserAddRows" Value="True"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#10B981"/>
+            <Setter Property="Background" Value="#ECFDF5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#10B981"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="10"
+                                Padding="16,8"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#D1FAE5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Remove Button Style -->
+        <Style x:Key="RemoveButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="#FEE2E2"/>
+            <Setter Property="Foreground" Value="#DC2626"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="8"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#FECACA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Badge Style -->
+        <Style x:Key="CountBadgeStyle" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                        <GradientStop Color="{StaticResource Purple700}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="MinWidth" Value="24"/>
+        </Style>
+
+        <!-- Info Section Style -->
+        <Style x:Key="InfoSectionStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F0F9FF"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
         </Style>
 
     </Page.Resources>
 
     <!-- ================= Layout ================= -->
     <Grid Margin="28">
-        <Border Style="{StaticResource StockCardStyle}"
-                Width="720"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ================= Header ================= -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
             <StackPanel>
+                <TextBlock FontSize="28" FontWeight="Bold">
+                    <TextBlock.Text>📦 تحديث كمية المخزون</TextBlock.Text>
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                            <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                </TextBlock>
+                <TextBlock Text="زيادة كمية المنتجات الموجودة في المخزون"
+                           FontSize="14"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           Margin="0,6,0,0"/>
+            </StackPanel>
 
-                <!-- ================= Header ================= -->
-                <Grid Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+            <Button Grid.Column="1"
+                    Content="← رجوع"
+                    Style="{StaticResource SecondaryActionButton}"
+                    Click="Back_Click"/>
+        </Grid>
 
-                    <Button Content="⬅ رجوع"
-                            Width="110"
-                            Height="40"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Click="Back_Click"/>
+        <!-- ================= Main Card ================= -->
+        <Border Grid.Row="1"
+                Style="{StaticResource StockCardStyle}"
+                MaxWidth="850"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top">
 
-                    <TextBlock Grid.Column="1"
-                               Text="تحديث كمية المنتجات"
-                               FontSize="26"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource TextDarkBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
 
-                <!-- ================= Supplier ================= -->
-                <TextBlock Text="اسم المورد"
-                           Style="{StaticResource FieldTitleStyle}"/>
-
-                <Grid>
-                    <Border CornerRadius="10"
-                            BorderThickness="1"
-                            BorderBrush="{StaticResource SoftBorderBrush}">
-                        <TextBox x:Name="SupplierNameTextBox"
-                                 Style="{StaticResource StockTextBoxStyle}"
-                                 TextChanged="SupplierNameTextBox_TextChanged"
-                                 GotFocus="SupplierNameTextBox_GotFocus"
-                                 LostFocus="SupplierNameTextBox_LostFocus"
-                                 KeyDown="SupplierNameTextBox_KeyDown"/>
+                    <!-- ===== Info Banner ===== -->
+                    <Border Style="{StaticResource InfoSectionStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💡" FontSize="18" Margin="0,0,12,0"/>
+                            <TextBlock Text="ملاحظة: يجب أن تكون المنتجات موجودة مسبقاً في النظام. استخدم البحث التلقائي لاختيار المنتجات."
+                                       FontSize="13"
+                                       Foreground="#0369A1"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Border>
 
-                    <!-- Suggestions Popup for Supplier -->
-                    <Border x:Name="SupplierSuggestionsBorder"
-                            Background="White"
-                            CornerRadius="8"
-                            BorderBrush="#DDD"
-                            BorderThickness="1"
-                            Margin="0,42,0,0"
-                            Visibility="Collapsed"
-                            MaxHeight="200">
-                        <Border.Effect>
-                            <DropShadowEffect Color="#40000000"
-                                              BlurRadius="8"
-                                              ShadowDepth="2"
-                                              Opacity="0.3"/>
-                        </Border.Effect>
-                        <ListBox x:Name="SupplierSuggestionsListBox"
-                                 BorderThickness="0"
-                                 SelectionChanged="SupplierSuggestionsListBox_SelectionChanged"
-                                 MouseLeftButtonUp="SupplierSuggestionsListBox_MouseLeftButtonUp"
-                                 PreviewMouseDown="SupplierSuggestionsListBox_PreviewMouseDown">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Padding="10"
-                                               Cursor="Hand"
-                                               Text="{Binding}"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                    <!-- ===== Supplier Section ===== -->
+                    <Border Background="#F8FAFC"
+                            CornerRadius="12"
+                            Padding="20"
+                            Margin="0,0,0,20">
+                        
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="🏭" FontSize="18" Margin="0,0,8,0"/>
+                                <TextBlock Text="بيانات المورد" Style="{StaticResource SectionHeaderStyle}"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="اسم المورد" Style="{StaticResource FieldTitleStyle}" Margin="0"/>
+                                <TextBlock Style="{StaticResource RequiredIndicatorStyle}"/>
+                            </StackPanel>
+                            
+                            <Grid>
+                                <Border x:Name="SupplierInputWrapper" Style="{StaticResource InputWrapperStyle}">
+                                    <Border Style="{StaticResource InputInnerStyle}">
+                                        <Grid>
+                                            <TextBox x:Name="SupplierNameTextBox"
+                                                     Style="{StaticResource StockTextBoxStyle}"
+                                                     TextChanged="SupplierNameTextBox_TextChanged"
+                                                     GotFocus="SupplierNameTextBox_GotFocus"
+                                                     LostFocus="SupplierNameTextBox_LostFocus"
+                                                     KeyDown="SupplierNameTextBox_KeyDown"/>
+                                            <TextBlock x:Name="SupplierPlaceholder"
+                                                       Text="ابحث باسم المورد..."
+                                                       Foreground="#9CA3AF"
+                                                       VerticalAlignment="Center"
+                                                       Margin="14,0,0,0"
+                                                       IsHitTestVisible="False"
+                                                       FontSize="14"/>
+                                        </Grid>
+                                    </Border>
+                                </Border>
+
+                                <!-- Suggestions Popup for Supplier -->
+                                <Popup x:Name="SupplierSuggestionsPopup"
+                                       PlacementTarget="{Binding ElementName=SupplierInputWrapper}"
+                                       Placement="Bottom"
+                                       StaysOpen="False"
+                                       AllowsTransparency="True"
+                                       PopupAnimation="Fade">
+                                    <Border Background="White"
+                                            CornerRadius="12"
+                                            BorderBrush="#E5E7EB"
+                                            BorderThickness="1"
+                                            MinWidth="400"
+                                            MaxHeight="250"
+                                            Effect="{StaticResource SuggestionsShadow}">
+                                        <Grid>
+                                            <TextBlock x:Name="SupplierLoadingText"
+                                                       Text="جاري البحث..."
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontStyle="Italic"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="12"
+                                                       Visibility="Collapsed"/>
+                                            <TextBlock x:Name="SupplierNoResultsText"
+                                                       Text="لا توجد نتائج"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="12"
+                                                       Visibility="Collapsed"/>
+                                            <ListBox x:Name="SupplierSuggestionsListBox"
+                                                     Style="{StaticResource SuggestionsListStyle}"
+                                                     ItemContainerStyle="{StaticResource SuggestionItemStyle}"
+                                                     SelectionChanged="SupplierSuggestionsListBox_SelectionChanged"
+                                                     MouseLeftButtonUp="SupplierSuggestionsListBox_MouseLeftButtonUp"
+                                                     PreviewMouseDown="SupplierSuggestionsListBox_PreviewMouseDown">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="🏭" Margin="0,0,8,0"/>
+                                                            <TextBlock Text="{Binding fullname}"
+                                                                       FontSize="14"
+                                                                       Foreground="{StaticResource TextDarkBrush}"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </Grid>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                            <TextBlock x:Name="SupplierErrorText" Style="{StaticResource ErrorMessageStyle}"/>
+                        </StackPanel>
                     </Border>
-                </Grid>
 
-                <!-- ================= Products ================= -->
-                <TextBlock Text="المنتجات"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Margin="0,28,0,10"/>
+                    <!-- ===== Products Section ===== -->
+                    <Border Background="#F8FAFC"
+                            CornerRadius="12"
+                            Padding="20"
+                            Margin="0,0,0,20">
+                        
+                        <StackPanel>
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📦" FontSize="18" Margin="0,0,8,0"/>
+                                    <TextBlock Text="المنتجات" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
+                                    <Border Style="{StaticResource CountBadgeStyle}" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock x:Name="ItemsCountBadge"
+                                                   Text="0"
+                                                   Foreground="White"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
 
-                <Grid>
-                    <Border CornerRadius="12"
-                            BorderThickness="1"
-                            BorderBrush="{StaticResource SoftBorderBrush}">
+                                <Button Grid.Column="1"
+                                        Content="+ إضافة منتج"
+                                        Style="{StaticResource AddProductButtonStyle}"
+                                        Click="AddProduct_Click"/>
+                            </Grid>
 
-                        <DataGrid x:Name="ProductsGrid"
-                              Style="{StaticResource StockDataGridStyle}"
-                              AutoGenerateColumns="False"
-                              Height="260"
-                              CanUserAddRows="False">
+                            <!-- Products List -->
+                            <Border CornerRadius="12"
+                                    BorderThickness="1"
+                                    BorderBrush="#E5E7EB"
+                                    Background="White"
+                                    MaxHeight="320">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl x:Name="ProductsItemsControl">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="#F3F4F6"
+                                                        BorderThickness="0,0,0,1"
+                                                        Padding="16,12">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
 
-                            <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="اسم المنتج" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="6"
-                                                BorderThickness="1"
-                                                BorderBrush="#E5E7EB"
-                                                Margin="2">
-                                            <TextBox Text="{Binding productname, UpdateSourceTrigger=PropertyChanged}"
-                                                     BorderThickness="0"
-                                                     Background="Transparent"
-                                                     Padding="8"
-                                                     FontSize="14"
-                                                     TextChanged="ProductNameCell_TextChanged"
-                                                     GotFocus="ProductNameCell_GotFocus"
-                                                     LostFocus="ProductNameCell_LostFocus"
-                                                     KeyDown="ProductNameCell_KeyDown"/>
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+                                                        <!-- Product Name with Autocomplete -->
+                                                        <Grid Grid.Column="0" Margin="0,0,12,0">
+                                                            <Border CornerRadius="8"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="#E5E7EB"
+                                                                    Background="White">
+                                                                <Grid>
+                                                                    <TextBox Text="{Binding productname, UpdateSourceTrigger=PropertyChanged}"
+                                                                             BorderThickness="0"
+                                                                             Padding="12,10"
+                                                                             FontSize="14"
+                                                                             Background="Transparent"
+                                                                             Tag="{Binding}"
+                                                                             TextChanged="ProductNameTextBox_TextChanged"
+                                                                             GotFocus="ProductNameTextBox_GotFocus"
+                                                                             LostFocus="ProductNameTextBox_LostFocus"/>
+                                                                </Grid>
+                                                            </Border>
+                                                        </Grid>
 
-                            <DataGridTextColumn Header="الكمية"
-                                                Binding="{Binding quantity}"
-                                                Width="140"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Border>
+                                                        <!-- Quantity -->
+                                                        <Grid Grid.Column="1" Margin="0,0,12,0">
+                                                            <Border CornerRadius="8"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="#E5E7EB"
+                                                                    Background="White">
+                                                                <TextBox Text="{Binding quantity, UpdateSourceTrigger=PropertyChanged}"
+                                                                         BorderThickness="0"
+                                                                         Padding="12,10"
+                                                                         FontSize="14"
+                                                                         Background="Transparent"
+                                                                         TextAlignment="Center"
+                                                                         FlowDirection="LeftToRight"
+                                                                         PreviewTextInput="QuantityTextBox_PreviewTextInput"/>
+                                                            </Border>
+                                                        </Grid>
 
-                    <!-- Global Popup for Product Suggestions in DataGrid -->
+                                                        <!-- Remove Button -->
+                                                        <Button Grid.Column="2"
+                                                                Content="✕"
+                                                                Style="{StaticResource RemoveButtonStyle}"
+                                                                Click="RemoveProduct_Click"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+
+                            <!-- Hint -->
+                            <TextBlock Text="💡 ابدأ بكتابة اسم المنتج للبحث التلقائي - يجب اختيار منتج موجود"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       FontSize="12"
+                                       Margin="4,8,0,0"/>
+                            <TextBlock x:Name="ProductsErrorText" Style="{StaticResource ErrorMessageStyle}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Product Suggestions Popup (Global) -->
                     <Popup x:Name="ProductSuggestionsPopup"
                            Placement="Bottom"
-                           StaysOpen="True"
+                           StaysOpen="False"
                            AllowsTransparency="True"
-                           PopupAnimation="Fade">   
-
+                           PopupAnimation="Fade">
                         <Border Background="White"
-                                CornerRadius="8"
-                                BorderBrush="#DDD"
+                                CornerRadius="12"
+                                BorderBrush="#E5E7EB"
                                 BorderThickness="1"
+                                MinWidth="300"
                                 MaxHeight="200"
-                                MinWidth="200">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#40000000"
-                                                  BlurRadius="8"
-                                                  ShadowDepth="2"
-                                                  Opacity="0.3"/>
-                            </Border.Effect>
-                            <ListBox x:Name="ProductSuggestionsPopupListBox"
-                                     BorderThickness="0"
-                                     MouseLeftButtonUp="ProductSuggestionsPopupListBox_MouseLeftButtonUp"
-                                     PreviewMouseDown="ProductSuggestionsPopupListBox_PreviewMouseDown">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Padding="10"
-                                                   Cursor="Hand"
-                                                   Text="{Binding}"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                                Effect="{StaticResource SuggestionsShadow}">
+                            <Grid>
+                                <TextBlock x:Name="ProductLoadingText"
+                                           Text="جاري البحث..."
+                                           Foreground="{StaticResource TextMutedBrush}"
+                                           FontStyle="Italic"
+                                           HorizontalAlignment="Center"
+                                           Margin="12"
+                                           Visibility="Collapsed"/>
+                                <TextBlock x:Name="ProductNoResultsText"
+                                           Text="لا توجد نتائج - تأكد أن المنتج موجود"
+                                           Foreground="#EF4444"
+                                           HorizontalAlignment="Center"
+                                           Margin="12"
+                                           Visibility="Collapsed"/>
+                                <ListBox x:Name="ProductSuggestionsListBox"
+                                         Style="{StaticResource SuggestionsListStyle}"
+                                         ItemContainerStyle="{StaticResource SuggestionItemStyle}"
+                                         SelectionChanged="ProductSuggestionsListBox_SelectionChanged">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="📦" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding name}"
+                                                           FontSize="14"
+                                                           Foreground="{StaticResource TextDarkBrush}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
                         </Border>
                     </Popup>
-                </Grid>
 
-                <!-- ================= Action ================= -->
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            Margin="0,28,0,0">
+                    <!-- ===== Actions ===== -->
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Button Content="تنفيذ التحديث"
-                            Width="180"
-                            Height="44"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Click="Execute_Click"/>
+                        <!-- Status Message -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="StatusIcon" FontSize="16" Margin="0,0,8,0" Visibility="Collapsed"/>
+                            <TextBlock x:Name="StatusMessage"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                x:Name="ClearButton"
+                                Content="🔄 مسح الكل"
+                                Style="{StaticResource SecondaryActionButton}"
+                                Height="50"
+                                Margin="0,0,16,0"
+                                Click="ClearAll_Click"/>
+
+                        <Button Grid.Column="2"
+                                x:Name="ExecuteButton"
+                                Content="✅ تنفيذ التحديث"
+                                Style="{StaticResource PrimaryActionButton}"
+                                Click="Execute_Click"/>
+                    </Grid>
+
                 </StackPanel>
+            </ScrollViewer>
+        </Border>
 
+        <!-- Loading Overlay -->
+        <Border x:Name="LoadingOverlay"
+                Grid.RowSpan="2"
+                Background="#99FFFFFF"
+                Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <Border Width="60"
+                        Height="60"
+                        CornerRadius="30"
+                        Background="White"
+                        Effect="{StaticResource SuggestionsShadow}">
+                    <TextBlock Text="⏳"
+                               FontSize="28"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock x:Name="LoadingText"
+                           Text="جاري تحديث المخزون..."
+                           FontSize="16"
+                           Foreground="{StaticResource TextDarkBrush}"
+                           Margin="0,16,0,0"/>
             </StackPanel>
         </Border>
     </Grid>

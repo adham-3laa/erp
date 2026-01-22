@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,260 +13,180 @@ namespace erp.Views.Inventory
 {
     public partial class InventoryCheckPage : Page
     {
-        private readonly InventoryService _service = new();
+        private readonly InventoryService _inventoryService = new();
+        private readonly OrdersService _ordersService;
 
-        // ✅ قائمة أسماء المنتجات
-        private List<string> _allProducts = new List<string>();
+        // Autocomplete suggestions
+        private List<ProductAutocompleteItem> _productSuggestions = new();
+
+        // Debounce timer
+        private CancellationTokenSource? _productSearchCts;
+
+        // المنتج المحدد
+        private ProductAutocompleteItem? _selectedProduct;
+
+        // ثابت لوقت التأخير في البحث (بالمللي ثانية)
+        private const int SearchDebounceMs = 300;
 
         public InventoryCheckPage()
         {
             InitializeComponent();
-            Loaded += InventoryCheckPage_Loaded;
+            _ordersService = new OrdersService(App.Api);
+            UpdatePlaceholders();
         }
 
-        private async void InventoryCheckPage_Loaded(object sender, RoutedEventArgs e)
+        #region === Placeholders ===
+
+        private void UpdatePlaceholders()
         {
-            await LoadAllProductsAsync();
+            if (ProductPlaceholder != null)
+                ProductPlaceholder.Visibility = string.IsNullOrEmpty(ProductNameTextBox?.Text)
+                    ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private async Task LoadAllProductsAsync()
-        {
-            try
-            {
-                var products = await _service.GetAllProductsLookupAsync();
-                _allProducts = products
-                    .Where(p => !string.IsNullOrWhiteSpace(p.ProductName))
-                    .Select(p => p.ProductName.Trim())
-                    .Distinct()
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"خطأ في تحميل قائمة المنتجات: {ex.Message}", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
+        #endregion
 
-        private async void Adjust_Click(object sender, RoutedEventArgs e)
-        {
-            ResultCard.Visibility = Visibility.Collapsed;
+        #region === Product Autocomplete ===
 
-            // ===== Validation =====
-            if (string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
+        private async void ProductNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdatePlaceholders();
+            ClearError(ProductErrorText, ProductInputWrapper);
+
+            var searchText = ProductNameTextBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(searchText))
             {
-                ShowResultError("اسم المنتج مطلوب");
+                ProductSuggestionsPopup.IsOpen = false;
+                _selectedProduct = null;
                 return;
             }
 
-            if (!int.TryParse(ActualQuantityTextBox.Text, out int actualQty) || actualQty < 0)
-            {
-                ShowResultError("الكمية الفعلية غير صحيحة");
-                return;
-            }
-
-            bool updateStock = UpdateYesRadio.IsChecked == true;
+            // إلغاء البحث السابق
+            _productSearchCts?.Cancel();
+            _productSearchCts = new CancellationTokenSource();
+            var token = _productSearchCts.Token;
 
             try
             {
-                var result = await _service.AdjustInventoryByNameAsync(
-                    ProductNameTextBox.Text.Trim(),
-                    actualQty,
-                    updateStock);
+                ShowProductLoading(true);
+                ProductSuggestionsPopup.IsOpen = true;
 
-                ResultCard.Visibility = Visibility.Visible;
+                await Task.Delay(SearchDebounceMs, token);
+                if (token.IsCancellationRequested) return;
 
-                // ===== Determine system quantity correctly =====
-                int systemQty = updateStock
-                    ? result.oldquantity          // بعد التحديث الحقيقي
-                    : result.systemquantity;      // Preview فقط
+                // البحث من الـ API
+                _productSuggestions = await _ordersService.GetProductsAutocompleteAsync(searchText);
 
-                // ===== Display quantities =====
-                if (updateStock)
+                if (token.IsCancellationRequested) return;
+
+                ShowProductLoading(false);
+
+                if (_productSuggestions.Count > 0)
                 {
-                    OldQuantityText.Text = $"الكمية القديمة: {result.oldquantity}";
-                    NewQuantityText.Text = $"الكمية الجديدة: {result.newquantity}";
+                    ProductSuggestionsListBox.ItemsSource = _productSuggestions;
+                    ProductSuggestionsListBox.Visibility = Visibility.Visible;
+                    ProductNoResultsText.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    OldQuantityText.Text = $"الكمية المسجلة في النظام: {result.systemquantity}";
-                    NewQuantityText.Text = $"الكمية الفعلية: {actualQty}";
-                }
-
-                FinancialImpactText.Text = result.financialimpact;
-
-                // ===== Correct result logic =====
-                if (actualQty < systemQty)
-                {
-                    ResultTitleText.Text = "❌ نتيجة الجرد: نقص";
-                    ResultMessageText.Text =
-                        $"في نقص {systemQty - actualQty}";
-
-                    ResultCard.BorderBrush = Brushes.Red;
-                    ResultTitleText.Foreground = Brushes.Red;
-                }
-                else if (actualQty > systemQty)
-                {
-                    ResultTitleText.Text = "✅ نتيجة الجرد: زيادة";
-                    ResultMessageText.Text =
-                        $"في زيادة {actualQty - systemQty}";
-
-                    ResultCard.BorderBrush = Brushes.Green;
-                    ResultTitleText.Foreground = Brushes.Green;
-                }
-                else
-                {
-                    ResultTitleText.Text = "✔ نتيجة الجرد: متطابق";
-                    ResultMessageText.Text =
-                        "لا يوجد فرق بين الكمية الفعلية والمخزنة";
-
-                    ResultCard.BorderBrush = Brushes.Gray;
-                    ResultTitleText.Foreground = Brushes.Gray;
-                }
-
-                // ===== Preview note =====
-                if (!updateStock)
-                {
-                    ResultMessageText.Text += "\n(لم يتم تحديث المخزون)";
+                    ProductSuggestionsListBox.Visibility = Visibility.Collapsed;
+                    ProductNoResultsText.Visibility = Visibility.Visible;
                 }
             }
-            catch (Exception ex)
+            catch (OperationCanceledException) { }
+            catch
             {
-                ShowResultError("خطأ أثناء الجرد:\n" + ex.Message);
+                ShowProductLoading(false);
+                ProductNoResultsText.Text = "خطأ في البحث";
+                ProductNoResultsText.Visibility = Visibility.Visible;
+                ProductSuggestionsListBox.Visibility = Visibility.Collapsed;
             }
         }
 
-        private void ShowResultError(string message)
+        private void ShowProductLoading(bool show)
         {
-            ResultCard.Visibility = Visibility.Visible;
-
-            ResultTitleText.Text = "خطأ";
-            ResultMessageText.Text = message;
-
-            OldQuantityText.Text = "";
-            NewQuantityText.Text = "";
-            FinancialImpactText.Text = "";
-
-            ResultCard.BorderBrush = Brushes.DarkRed;
-            ResultTitleText.Foreground = Brushes.DarkRed;
-        }
-
-        private void Back_Click(object sender, RoutedEventArgs e)
-        {
-            if (NavigationService?.CanGoBack == true)
-                NavigationService.GoBack();
-        }
-
-        // ================== Product AutoComplete Logic ==================
-        private void ProductNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (ProductNameTextBox == null || string.IsNullOrEmpty(ProductNameTextBox.Text))
-            {
-                ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
-                return;
-            }
-
-            var searchText = ProductNameTextBox.Text.Trim();
-            var filtered = _allProducts
-                .Where(p => p.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(p =>
-                {
-                    if (p.Equals(searchText, StringComparison.OrdinalIgnoreCase))
-                        return 0;
-                    if (p.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
-                        return 1;
-                    return 2;
-                })
-                .ThenBy(p => p.Length)
-                .Take(10)
-                .ToList();
-
-            if (filtered.Count > 0)
-            {
-                ProductSuggestionsListBox.ItemsSource = filtered;
-                ProductSuggestionsBorder.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
-            }
+            ProductLoadingText.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            ProductSuggestionsListBox.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
+            ProductNoResultsText.Visibility = Visibility.Collapsed;
         }
 
         private void ProductNameTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(ProductNameTextBox.Text))
+            if (!string.IsNullOrEmpty(ProductNameTextBox.Text) && _productSuggestions.Count > 0)
             {
-                ProductNameTextBox_TextChanged(sender, null);
+                ProductSuggestionsPopup.IsOpen = true;
             }
         }
 
         private void ProductNameTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            var focusedElement = FocusManager.GetFocusedElement(this);
-            if (focusedElement != ProductSuggestionsListBox && focusedElement != ProductNameTextBox)
+            Task.Delay(200).ContinueWith(_ =>
             {
-                Task.Delay(150).ContinueWith(_ =>
+                Dispatcher.Invoke(() =>
                 {
-                    Dispatcher.Invoke(() =>
+                    if (!ProductSuggestionsListBox.IsMouseOver && !ProductNameTextBox.IsFocused)
                     {
-                        if (!ProductSuggestionsListBox.IsMouseOver && !ProductNameTextBox.IsFocused)
-                        {
-                            ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
-                        }
-                    });
+                        ProductSuggestionsPopup.IsOpen = false;
+                    }
                 });
-            }
+            });
         }
 
         private void ProductNameTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (ProductSuggestionsBorder.Visibility != Visibility.Visible)
-                return;
+            if (!ProductSuggestionsPopup.IsOpen) return;
 
-            if (e.Key == Key.Down)
+            switch (e.Key)
             {
-                if (ProductSuggestionsListBox.Items.Count > 0)
-                {
-                    ProductSuggestionsListBox.Focus();
-                    if (ProductSuggestionsListBox.SelectedIndex < ProductSuggestionsListBox.Items.Count - 1)
-                        ProductSuggestionsListBox.SelectedIndex++;
-                    else
-                        ProductSuggestionsListBox.SelectedIndex = 0;
+                case Key.Down:
+                    if (ProductSuggestionsListBox.Items.Count > 0)
+                    {
+                        ProductSuggestionsListBox.Focus();
+                        ProductSuggestionsListBox.SelectedIndex = Math.Min(
+                            ProductSuggestionsListBox.SelectedIndex + 1,
+                            ProductSuggestionsListBox.Items.Count - 1);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Up)
-            {
-                if (ProductSuggestionsListBox.Items.Count > 0)
-                {
-                    ProductSuggestionsListBox.Focus();
-                    if (ProductSuggestionsListBox.SelectedIndex > 0)
-                        ProductSuggestionsListBox.SelectedIndex--;
-                    else
-                        ProductSuggestionsListBox.SelectedIndex = ProductSuggestionsListBox.Items.Count - 1;
+                    break;
+
+                case Key.Up:
+                    if (ProductSuggestionsListBox.Items.Count > 0)
+                    {
+                        ProductSuggestionsListBox.Focus();
+                        ProductSuggestionsListBox.SelectedIndex = Math.Max(
+                            ProductSuggestionsListBox.SelectedIndex - 1, 0);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                if (ProductSuggestionsListBox.SelectedItem != null)
-                {
-                    SelectProductSuggestion(ProductSuggestionsListBox.SelectedItem.ToString());
+                    break;
+
+                case Key.Enter:
+                    if (ProductSuggestionsListBox.SelectedItem is ProductAutocompleteItem selected)
+                    {
+                        SelectProduct(selected);
+                    }
                     e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Escape)
-            {
-                ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
-                e.Handled = true;
+                    break;
+
+                case Key.Escape:
+                    ProductSuggestionsPopup.IsOpen = false;
+                    e.Handled = true;
+                    break;
             }
         }
 
-        private void ProductSuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
+        private void ProductSuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ProductSuggestionsListBox.SelectedItem is ProductAutocompleteItem selected)
+            {
+                SelectProduct(selected);
+            }
+        }
 
         private void ProductSuggestionsListBox_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (ProductSuggestionsListBox.SelectedItem != null)
+            if (ProductSuggestionsListBox.SelectedItem is ProductAutocompleteItem selected)
             {
-                SelectProductSuggestion(ProductSuggestionsListBox.SelectedItem.ToString());
+                SelectProduct(selected);
             }
         }
 
@@ -274,11 +195,306 @@ namespace erp.Views.Inventory
             e.Handled = false;
         }
 
-        private void SelectProductSuggestion(string selectedProduct)
+        private void SelectProduct(ProductAutocompleteItem product)
         {
-            ProductNameTextBox.Text = selectedProduct;
-            ProductSuggestionsBorder.Visibility = Visibility.Collapsed;
+            _selectedProduct = product;
+            ProductNameTextBox.Text = product.name;
+            ProductSuggestionsPopup.IsOpen = false;
             ProductNameTextBox.Focus();
+            ProductNameTextBox.CaretIndex = ProductNameTextBox.Text.Length;
+            UpdatePlaceholders();
         }
+
+        #endregion
+
+        #region === Input Validation ===
+
+        private void QuantityTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !e.Text.All(char.IsDigit);
+        }
+
+        #endregion
+
+        #region === Execute Adjustment ===
+
+        private async void Adjust_Click(object sender, RoutedEventArgs e)
+        {
+            ClearAllErrors();
+            ResultCard.Visibility = Visibility.Collapsed;
+
+            // التحقق من اسم المنتج
+            if (string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
+            {
+                ShowError(ProductErrorText, ProductInputWrapper, "من فضلك أدخل اسم المنتج");
+                ProductNameTextBox.Focus();
+                return;
+            }
+
+            // التحقق من أن المنتج تم اختياره من القائمة
+            var productName = ProductNameTextBox.Text.Trim();
+            if (_selectedProduct == null || _selectedProduct.name.Trim() != productName)
+            {
+                ShowError(ProductErrorText, ProductInputWrapper, "يجب اختيار المنتج من القائمة المنسدلة");
+                ProductNameTextBox.Focus();
+                return;
+            }
+
+            // التحقق من الكمية
+            if (!int.TryParse(ActualQuantityTextBox.Text, out int actualQty) || actualQty < 0)
+            {
+                ShowError(QuantityErrorText, QuantityInputWrapper, "الكمية الفعلية غير صحيحة (يجب أن تكون رقم صحيح 0 أو أكبر)");
+                ActualQuantityTextBox.Focus();
+                return;
+            }
+
+            bool updateStock = UpdateYesRadio.IsChecked == true;
+
+            try
+            {
+                SetLoading(true);
+                SetStatus("جاري تنفيذ الجرد...", StatusType.Loading);
+
+                var result = await _inventoryService.AdjustInventoryByNameAsync(
+                    productName,
+                    actualQty,
+                    updateStock);
+
+                SetLoading(false);
+                SetStatus(updateStock ? "تم تحديث المخزون بنجاح!" : "تم عرض النتيجة", StatusType.Success);
+
+                // عرض النتيجة
+                DisplayResult(result, actualQty, updateStock);
+            }
+            catch (Exception ex)
+            {
+                SetLoading(false);
+                SetStatus("فشل في تنفيذ الجرد", StatusType.Error);
+                ShowResultError("حدث خطأ أثناء تنفيذ الجرد:\n" + ex.Message);
+            }
+        }
+
+        private void DisplayResult(dynamic result, int actualQty, bool updateStock)
+        {
+            ResultCard.Visibility = Visibility.Visible;
+
+            // تحديد الكمية المسجلة في النظام
+            int systemQty = updateStock ? result.oldquantity : result.systemquantity;
+
+            // عرض الكميات
+            SystemQuantityText.Text = systemQty.ToString();
+            ActualQuantityResultText.Text = actualQty.ToString();
+
+            // تحديد الفرق والنوع
+            int difference = actualQty - systemQty;
+
+            if (difference < 0)
+            {
+                // نقص
+                ResultIconText.Text = "❌";
+                ResultTitleText.Text = "نتيجة الجرد: نقص";
+                ResultTitleText.Foreground = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+                ResultSubtitleText.Text = $"يوجد نقص {Math.Abs(difference)} وحدة في المخزون";
+
+                DifferenceArrowText.Text = "📉";
+                DifferenceArrowText.Foreground = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+
+                DifferenceBadge.Background = new SolidColorBrush(Color.FromRgb(254, 226, 226));
+                DifferenceIconText.Text = "⬇️";
+                DifferenceText.Text = $"- {Math.Abs(difference)} وحدة";
+                DifferenceText.Foreground = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+
+                ResultCard.Background = new SolidColorBrush(Color.FromRgb(254, 242, 242));
+                ResultCard.BorderBrush = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+                ResultCard.BorderThickness = new Thickness(2);
+
+                SystemQuantityText.Foreground = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+                ActualQuantityResultText.Foreground = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+            }
+            else if (difference > 0)
+            {
+                // زيادة
+                ResultIconText.Text = "✅";
+                ResultTitleText.Text = "نتيجة الجرد: زيادة";
+                ResultTitleText.Foreground = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+                ResultSubtitleText.Text = $"يوجد زيادة {difference} وحدة في المخزون";
+
+                DifferenceArrowText.Text = "📈";
+                DifferenceArrowText.Foreground = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+
+                DifferenceBadge.Background = new SolidColorBrush(Color.FromRgb(220, 252, 231));
+                DifferenceIconText.Text = "⬆️";
+                DifferenceText.Text = $"+ {difference} وحدة";
+                DifferenceText.Foreground = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+
+                ResultCard.Background = new SolidColorBrush(Color.FromRgb(240, 253, 244));
+                ResultCard.BorderBrush = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+                ResultCard.BorderThickness = new Thickness(2);
+
+                SystemQuantityText.Foreground = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+                ActualQuantityResultText.Foreground = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+            }
+            else
+            {
+                // متطابق
+                ResultIconText.Text = "✔️";
+                ResultTitleText.Text = "نتيجة الجرد: متطابق";
+                ResultTitleText.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128));
+                ResultSubtitleText.Text = "الكمية الفعلية تتطابق مع المسجلة في النظام";
+
+                DifferenceArrowText.Text = "➡️";
+                DifferenceArrowText.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128));
+
+                DifferenceBadge.Background = new SolidColorBrush(Color.FromRgb(243, 244, 246));
+                DifferenceIconText.Text = "✓";
+                DifferenceText.Text = "لا يوجد فرق";
+                DifferenceText.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128));
+
+                ResultCard.Background = new SolidColorBrush(Color.FromRgb(249, 250, 251));
+                ResultCard.BorderBrush = new SolidColorBrush(Color.FromRgb(156, 163, 175));
+                ResultCard.BorderThickness = new Thickness(2);
+
+                SystemQuantityText.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128));
+                ActualQuantityResultText.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128));
+            }
+
+            // الأثر المالي
+            FinancialImpactText.Text = result.financialimpact ?? "لا يوجد";
+
+            // ملاحظة التحديث
+            if (updateStock)
+            {
+                UpdateNoteText.Text = "✅ تم تحديث الكمية في النظام";
+            }
+            else
+            {
+                UpdateNoteText.Text = "⚠️ هذه معاينة فقط - لم يتم تحديث المخزون";
+            }
+
+            // Scroll to result
+            ResultCard.BringIntoView();
+        }
+
+        private void ShowResultError(string message)
+        {
+            ResultCard.Visibility = Visibility.Visible;
+
+            ResultIconText.Text = "❌";
+            ResultTitleText.Text = "خطأ";
+            ResultTitleText.Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28));
+            ResultSubtitleText.Text = message;
+
+            DifferenceArrowText.Text = "";
+            SystemQuantityText.Text = "-";
+            ActualQuantityResultText.Text = "-";
+
+            DifferenceBadge.Visibility = Visibility.Collapsed;
+            FinancialImpactBorder.Visibility = Visibility.Collapsed;
+            UpdateNoteText.Text = "";
+
+            ResultCard.Background = new SolidColorBrush(Color.FromRgb(254, 226, 226));
+            ResultCard.BorderBrush = new SolidColorBrush(Color.FromRgb(185, 28, 28));
+            ResultCard.BorderThickness = new Thickness(2);
+        }
+
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            ProductNameTextBox.Clear();
+            ActualQuantityTextBox.Text = "0";
+            _selectedProduct = null;
+
+            ResultCard.Visibility = Visibility.Collapsed;
+            UpdatePlaceholders();
+            ClearAllErrors();
+            SetStatus("تم مسح النموذج", StatusType.Info);
+        }
+
+        #endregion
+
+        #region === Error Handling ===
+
+        private void ShowError(TextBlock errorTextBlock, Border? inputWrapper, string message)
+        {
+            errorTextBlock.Text = message;
+            errorTextBlock.Visibility = Visibility.Visible;
+
+            if (inputWrapper != null)
+            {
+                inputWrapper.Background = new LinearGradientBrush(
+                    Color.FromRgb(254, 202, 202),
+                    Color.FromRgb(252, 165, 165),
+                    45);
+            }
+        }
+
+        private void ClearError(TextBlock errorTextBlock, Border? inputWrapper)
+        {
+            errorTextBlock.Visibility = Visibility.Collapsed;
+
+            if (inputWrapper != null)
+            {
+                inputWrapper.Background = new LinearGradientBrush(
+                    Color.FromRgb(229, 231, 235),
+                    Color.FromRgb(209, 213, 219),
+                    45);
+            }
+        }
+
+        private void ClearAllErrors()
+        {
+            ClearError(ProductErrorText, ProductInputWrapper);
+            ClearError(QuantityErrorText, QuantityInputWrapper);
+
+            // Reset result card visibility flags
+            DifferenceBadge.Visibility = Visibility.Visible;
+            FinancialImpactBorder.Visibility = Visibility.Visible;
+        }
+
+        #endregion
+
+        #region === UI Helpers ===
+
+        private enum StatusType { Info, Loading, Success, Error }
+
+        private void SetStatus(string message, StatusType type)
+        {
+            StatusMessage.Text = message;
+            StatusIcon.Visibility = Visibility.Visible;
+
+            switch (type)
+            {
+                case StatusType.Info:
+                    StatusIcon.Text = "ℹ️";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128));
+                    break;
+                case StatusType.Loading:
+                    StatusIcon.Text = "⏳";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(79, 70, 229));
+                    break;
+                case StatusType.Success:
+                    StatusIcon.Text = "✅";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(16, 185, 129));
+                    break;
+                case StatusType.Error:
+                    StatusIcon.Text = "❌";
+                    StatusMessage.Foreground = new SolidColorBrush(Color.FromRgb(239, 68, 68));
+                    break;
+            }
+        }
+
+        private void SetLoading(bool isLoading)
+        {
+            LoadingOverlay.Visibility = isLoading ? Visibility.Visible : Visibility.Collapsed;
+            AdjustButton.IsEnabled = !isLoading;
+            ClearButton.IsEnabled = !isLoading;
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
+        #endregion
     }
 }
