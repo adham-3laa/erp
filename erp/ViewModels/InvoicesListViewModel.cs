@@ -135,10 +135,11 @@ namespace erp.ViewModels.Invoices
                 var search = RecipientQuery.ToLower();
 
                 var names = response.Items
-                    .Where(x => !string.IsNullOrWhiteSpace(x.RecipientName))
-                    .Select(x => x.RecipientName)
+                    .Where(x => !string.IsNullOrWhiteSpace(x.RecipientName) || !string.IsNullOrWhiteSpace(x.SupplierName))
+                    .Select(x => x.DisplayName)
                     .Distinct()
                     .ToList();
+
 
                 App.Current.Dispatcher.Invoke(() =>
                 {

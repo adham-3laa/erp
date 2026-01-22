@@ -167,6 +167,22 @@ namespace erp.Services
             return res.value ?? new();
         }
 
+        /// <summary>
+        /// Gets order items using the order CODE (integer).
+        /// This is the correct endpoint as per API specification.
+        /// Endpoint: GET /api/Returns/OrderItemsByOrderId?orderCode={orderCode}
+        /// </summary>
+        /// <param name="orderCode">The sequential order code (integer, e.g., 12)</param>
+        public async Task<List<OrderItemDto>> GetOrderItemsByOrderCodeAsync(int orderCode)
+        {
+            var res = await _api.GetAsync<
+                ApiResponse<List<OrderItemDto>>
+            >($"{BaseUrl}/api/Returns/OrderItemsByOrderId?orderCode={orderCode}");
+
+            return res.value ?? new();
+        }
+
+
         // ===================== Actions =====================
 
         // 🔹 اعتماد طلب

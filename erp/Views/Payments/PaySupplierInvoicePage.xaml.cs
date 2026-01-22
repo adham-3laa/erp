@@ -7,11 +7,12 @@ namespace erp.Views.Payments
 {
     public partial class PaySupplierInvoicePage : Page
     {
-        public PaySupplierInvoicePage(Guid invoiceId)
+        public PaySupplierInvoicePage(Guid invoiceId, decimal remainingAmount)
         {
             InitializeComponent();
-            DataContext = new PaySupplierInvoiceViewModel(invoiceId);
+            DataContext = new PaySupplierInvoiceViewModel(invoiceId, remainingAmount);
         }
+
 
         private void Back_Click(object sender, System.Windows.RoutedEventArgs e)
         {

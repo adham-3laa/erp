@@ -160,5 +160,38 @@ namespace erp.Services
 
             return apiResponse?.value ?? new List<InvoiceResponseDto>();
         }
+
+        // =====================================================
+        // ========= Supplier Invoice Products =================
+        // =====================================================
+
+        /// <summary>
+        /// Gets supplier invoice products by invoice code.
+        /// Endpoint: GET /api/Invoices/GetSupplierInviceProductsByInvoicCode?invoiceCode={code}
+        /// </summary>
+        /// <param name="invoiceCode">The invoice code (sequential integer)</param>
+        public async Task<List<SupplierInvoiceProductDto>> GetSupplierInvoiceProductsAsync(int invoiceCode)
+        {
+            AttachToken();
+
+            var url = $"api/Invoices/GetSupplierInviceProductsByInvoicCode?invoiceCode={invoiceCode}";
+
+            var response = await _client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error ({(int)response.StatusCode}): {err}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<SupplierInvoiceProductDto>>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return apiResponse?.value ?? new List<SupplierInvoiceProductDto>();
+        }
     }
 }
+

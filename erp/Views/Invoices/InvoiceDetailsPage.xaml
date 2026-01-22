@@ -1,241 +1,231 @@
 ﻿<Page x:Class="erp.Views.Invoices.InvoiceDetailsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      mc:Ignorable="d" 
+      FlowDirection="RightToLeft"
       Background="{StaticResource PageBgBrush}"
-      FlowDirection="RightToLeft">
+      Title="InvoiceDetailsPage">
 
     <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
-        <!-- ===== Glow (our old frame) ===== -->
-        <DropShadowEffect x:Key="PrimaryOutlineGlow"
-                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="16"
-                          ShadowDepth="0"
-                          Opacity="0.35"/>
+        <DropShadowEffect x:Key="CardShadow" Color="Black" BlurRadius="20" ShadowDepth="4" Opacity="0.05"/>
 
-        <!-- ===== Old Frame (our design) ===== -->
-        <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
-            <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
-            <Setter Property="Padding" Value="12"/>
-            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
-        </Style>
-
-        <!-- ================= DataGrid Styles (our reference) ================= -->
-
-        <Style x:Key="NiceDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="RowHeight" Value="48"/>
-            <Setter Property="CanUserResizeColumns" Value="False"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="AlternatingRowBackground" Value="#FFF6F6F6"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#FF1F2937"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="17"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-
-        <Style x:Key="NiceDataGridRowStyle" TargetType="DataGridRow">
+        <Style x:Key="DashboardCard" TargetType="Border">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFE5E7EB"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FFCBD5E1"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+            <Setter Property="Margin" Value="0,0,16,16"/>
         </Style>
 
-        <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="BorderThickness" Value="0"/>
+        <Style x:Key="LabelText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
 
-        <Style x:Key="CenteredTextColumnElementStyle" TargetType="TextBlock">
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+        <Style x:Key="ValueText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
-        <!-- Small key/value style for invoice summary -->
-        <Style x:Key="InvoiceLabelText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+        <!-- DataGrid Styles -->
+        <Style x:Key="ModernDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E5E7EB"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="RowHeight" Value="50"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
         </Style>
 
-        <Style x:Key="InvoiceValueText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+        <Style x:Key="ModernHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
         </Style>
 
+        <Style x:Key="ModernCellText" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
     </Page.Resources>
 
-    <Grid Margin="24">
+    <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Title -->
-        <TextBlock Text="تفاصيل الفاتورة"
-                   FontSize="26"
-                   FontWeight="Bold"
-                   Foreground="{StaticResource TextDarkBrush}"
-                   Margin="0,0,0,20"/>
+        <!-- 1. Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Row="1">
             <StackPanel>
-
-                <!-- ================= Invoice Summary (our frame) ================= -->
-                <Border Style="{StaticResource GlowingTableOuterBorder}"
-                        Margin="0,0,0,20">
-
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Row 0 -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="نوع الفاتورة " Style="{StaticResource InvoiceLabelText}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Invoice.Type}" Style="{StaticResource InvoiceValueText}"/>
-
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="المستلم" Style="{StaticResource InvoiceLabelText}" Margin="18,0,0,6"/>
-                        <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding Invoice.RecipientName}" Style="{StaticResource InvoiceValueText}"/>
-
-                        <!-- Row 1 -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="الإجمالي" Style="{StaticResource InvoiceLabelText}"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Invoice.Amount}" Style="{StaticResource InvoiceValueText}"/>
-
-                        <TextBlock Grid.Row="1" Grid.Column="2" Text="المدفوع" Style="{StaticResource InvoiceLabelText}" Margin="18,0,0,6"/>
-                        <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Invoice.PaidAmount}" Style="{StaticResource InvoiceValueText}"/>
-
-                        <!-- Row 2 -->
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="المتبقي" Style="{StaticResource InvoiceLabelText}"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Invoice.RemainingAmount}" Style="{StaticResource InvoiceValueText}"/>
-
-                        <TextBlock Grid.Row="2" Grid.Column="2" Text="تاريخ الاينشاء  " Style="{StaticResource InvoiceLabelText}" Margin="18,0,0,6"/>
-                        <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding Invoice.GeneratedDate}" Style="{StaticResource InvoiceValueText}"/>
-                    </Grid>
-
-                </Border>
-
-                <!-- ================= Order Items (our frame + our datagrid) ================= -->
-                <Border Style="{StaticResource GlowingTableOuterBorder}"
-                        Margin="0,0,0,20">
-
-                    <StackPanel Margin="10">
-
-                        <TextBlock Text="تفاصيل الطلب"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource TextDarkBrush}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,0,0,12"/>
-
-                        <DataGrid ItemsSource="{Binding OrderItems}"
-                                  AutoGenerateColumns="False"
-                                  IsReadOnly="True"
-                                  CanUserAddRows="False"
-                                  ColumnWidth="*"
-                                  Style="{StaticResource NiceDataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
-                                  RowStyle="{StaticResource NiceDataGridRowStyle}"
-                                  CellStyle="{StaticResource NiceDataGridCellStyle}">
-
-                            <DataGrid.Columns>
-
-                                <DataGridTextColumn Header="المنتج"
-                                                    Binding="{Binding ProductName}"
-                                                    Width="*"
-                                                    ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
-
-                                <DataGridTextColumn Header="الفئة"
-                                                    Binding="{Binding CategoryName}"
-                                                    Width="*"
-                                                    ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
-
-                                <DataGridTextColumn Header="الكمية"
-                                                    Binding="{Binding Quantity}"
-                                                    Width="*"
-                                                    ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
-
-                                <DataGridTextColumn Header="السعر"
-                                                    Binding="{Binding UnitPrice}"
-                                                    Width="*"
-                                                    ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
-
-                                <DataGridTextColumn Header="الإجمالي"
-                                                    Binding="{Binding Total}"
-                                                    Width="*"
-                                                    ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
-
-                            </DataGrid.Columns>
-
-                        </DataGrid>
-
-                    </StackPanel>
-                </Border>
-
-                <!-- ================= Buttons (same logic) ================= -->
-                <StackPanel Orientation="Horizontal">
-
-                    <Button Content="💰 دفع"
-                            Width="160"
-                            Margin="0,0,12,0"
-                            Click="Pay_Click">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonStyle}">
-                                <Setter Property="IsEnabled" Value="True"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Invoice.RemainingAmount}" Value="0">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <Button Content="⬅ رجوع"
-                            Width="140"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Click="Back_Click"/>
+                <TextBlock Text="تفاصيل الفاتورة" FontSize="28" FontWeight="Bold" Foreground="#111827"/>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <TextBlock Text="رقم الفاتورة: " Foreground="#6B7280" FontSize="16"/>
+                    <TextBlock Text="{Binding Invoice.code}" Foreground="#4F46E5" FontSize="16" FontWeight="SemiBold"/>
                 </StackPanel>
-
             </StackPanel>
-        </ScrollViewer>
+
+            <Button Grid.Column="1" Content="العودة" Click="Back_Click" Background="White" Foreground="#374151" Padding="16,8" BorderThickness="1" BorderBrush="#D1D5DB">
+                 <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+
+        <!-- 2. Cards -->
+        <Grid Grid.Row="1" Margin="0,0,-16,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Metadata -->
+            <Border Grid.Column="0" Style="{StaticResource DashboardCard}">
+                <StackPanel>
+                    <TextBlock Text="البيانات العامة" FontWeight="Bold" FontSize="15" Margin="0,0,0,16" Foreground="#4F46E5"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <StackPanel>
+                             <TextBlock Text="التاريخ" Style="{StaticResource LabelText}"/>
+                             <TextBlock Text="{Binding Invoice.GeneratedDate, StringFormat=yyyy-MM-dd}" Style="{StaticResource ValueText}"/>
+                        </StackPanel>
+                         <StackPanel Grid.Column="1">
+                             <TextBlock Text="النوع" Style="{StaticResource LabelText}"/>
+                             <TextBlock Text="{Binding Invoice.TypeDisplayName}" Style="{StaticResource ValueText}"/>
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Margin="0,12,0,0">
+                         <TextBlock Text="الطرف الثاني" Style="{StaticResource LabelText}"/>
+                         <TextBlock Text="{Binding Invoice.DisplayName}" Style="{StaticResource ValueText}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Order Ref -->
+            <Border Grid.Column="1" Style="{StaticResource DashboardCard}">
+                <StackPanel>
+                    <TextBlock Text="مرجع الطلب" FontWeight="Bold" FontSize="15" Margin="0,0,0,16" Foreground="#4F46E5"/>
+                    <StackPanel>
+                         <TextBlock Text="رقم الطلب (الكود)" Style="{StaticResource LabelText}"/>
+                         <TextBlock Text="{Binding Invoice.OrderCode}" Style="{StaticResource ValueText}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Financials -->
+            <Border Grid.Column="2" Style="{StaticResource DashboardCard}" Background="#F3F4F6">
+                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="المالية" FontWeight="Bold" FontSize="15" Margin="0,0,0,16" Foreground="#059669"/>
+                    
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="الإجمالي" Style="{StaticResource LabelText}"/>
+                            <TextBlock Text="{Binding Invoice.Amount, StringFormat=N2}" FontSize="18" FontWeight="Bold" Foreground="#111827"/>
+                            
+                            <TextBlock Text="المدفوع" Style="{StaticResource LabelText}" Margin="0,8,0,4"/>
+                            <TextBlock Text="{Binding Invoice.PaidAmount, StringFormat=N2}" FontSize="14" FontWeight="Bold" Foreground="#059669"/>
+                        </StackPanel>
+                        
+                        <Border Grid.Column="1" Width="1" Background="#D1D5DB" Margin="16,4"/>
+
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                             <TextBlock Text="المتبقي" Foreground="#EF4444" FontSize="14" HorizontalAlignment="Center"/>
+                             <TextBlock Text="{Binding Invoice.RemainingAmount, StringFormat=N2}" FontSize="24" FontWeight="Bold" Foreground="#EF4444" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                 </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 3. Grid -->
+        <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="0">
+             <Border.Effect><DropShadowEffect Color="Black" BlurRadius="20" ShadowDepth="4" Opacity="0.05"/></Border.Effect>
+             <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="20,16">
+                     <TextBlock Text="المنتجات" FontWeight="Bold" FontSize="16" Foreground="#374151"/>
+                </Border>
+
+                <DataGrid Grid.Row="1" ItemsSource="{Binding OrderItems}" Style="{StaticResource ModernDataGridStyle}" ColumnHeaderStyle="{StaticResource ModernHeaderStyle}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="المنتج" Binding="{Binding ProductName}" Width="2*" ElementStyle="{StaticResource ModernCellText}"/>
+                        <DataGridTextColumn Header="الفئة" Binding="{Binding CategoryName}" Width="*" ElementStyle="{StaticResource ModernCellText}"/>
+                        <DataGridTextColumn Header="السعر" Binding="{Binding UnitPrice, StringFormat=N2}" Width="*" ElementStyle="{StaticResource ModernCellText}"/>
+                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="*" ElementStyle="{StaticResource ModernCellText}"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding Total, StringFormat=N2}" Width="*" FontWeight="Bold" ElementStyle="{StaticResource ModernCellText}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                 <!-- Loader -->
+                 <Grid Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                      <Border Background="#80FFFFFF"/>
+                      <TextBlock Text="جاري التحميل..." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4F46E5" FontWeight="Bold"/>
+                 </Grid>
+                 
+                 <!-- Error -->
+                 <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                            Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+             </Grid>
+        </Border>
+
+        <!-- 4. Pay Button -->
+        <Border Grid.Row="3" Margin="0,24,0,0" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" Padding="0,24,0,0">
+            <Button Click="Pay_Click" Content="دفع المستحقات" Background="#4F46E5" Foreground="White" Width="200" Height="48" FontWeight="Bold" FontSize="16">
+                <Button.Template>
+                     <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                             <Trigger Property="IsMouseOver" Value="True">
+                                 <Setter Property="Opacity" Value="0.9"/>
+                             </Trigger>
+                             <Trigger Property="IsEnabled" Value="False">
+                                 <Setter Property="Opacity" Value="0.5"/>
+                             </Trigger>
+                        </ControlTemplate.Triggers>
+                     </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Border>
+
     </Grid>
 </Page>
