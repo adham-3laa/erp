@@ -242,6 +242,19 @@ namespace erp.Views.Inventory
                 return;
             }
 
+            // رسالة تأكيد قبل الحفظ
+            var confirmResult = MessageBox.Show(
+                $"هل أنت متأكد من حفظ التعديلات على المنتج \"{NameTextBox.Text.Trim()}\"؟",
+                "✅ تأكيد الحفظ",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question,
+                MessageBoxResult.No);
+
+            if (confirmResult != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
             try
             {
                 SetLoadingState(true);
