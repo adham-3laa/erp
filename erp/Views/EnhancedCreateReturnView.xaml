@@ -1045,7 +1045,7 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="عدد المنتجات:" FontWeight="SemiBold" Foreground="#64748B"/>
                                                 <TextBlock Grid.Column="1" Foreground="#0F172A">
-                                                    <Run Text="{Binding SupplierReturnItems.Count, Mode=OneWay}"/>
+                                                    <Run Text="{Binding SelectedSupplierInvoiceItemsCount, Mode=OneWay}"/>
                                                     <Run Text="منتج"/>
                                                 </TextBlock>
                                             </Grid>
