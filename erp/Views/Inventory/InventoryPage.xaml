@@ -8,20 +8,34 @@
     <!-- ================= Styles ================= -->
     <Page.Resources>
 
-        <!-- Shadow -->
+        <!-- Gradient Shadow -->
         <DropShadowEffect x:Key="PrimaryOutlineGlow"
                           Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                          BlurRadius="14"
+                          BlurRadius="18"
                           ShadowDepth="0"
-                          Opacity="0.25"/>
+                          Opacity="0.30"/>
 
-        <!-- Table Card -->
+        <DropShadowEffect x:Key="CardShadow"
+                          Color="#000000"
+                          BlurRadius="20"
+                          ShadowDepth="4"
+                          Opacity="0.08"/>
+
+        <!-- Table Card with Gradient Border -->
         <Style x:Key="GlowingTableOuterBorder" TargetType="Border">
-            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="CornerRadius" Value="18"/>
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource SoftBorderBrush}"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                        <GradientStop Color="{StaticResource Purple600}" Offset="0.5"/>
+                        <GradientStop Color="{StaticResource Indigo600}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Padding" Value="0"/>
             <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
         </Style>
 
@@ -29,47 +43,250 @@
         <Style x:Key="NiceDataGridStyle" TargetType="DataGrid">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="RowHeight" Value="46"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E5E7EB"/>
+            <Setter Property="RowHeight" Value="50"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
             <Setter Property="CanUserResizeColumns" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#FAFBFC"/>
         </Style>
 
-        <!-- Header -->
+        <!-- Header with Gradient -->
         <Style x:Key="NiceDataGridHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                        <GradientStop Color="{StaticResource Purple700}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="14,12"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="48"/>
         </Style>
 
         <!-- Cell -->
         <Style x:Key="NiceDataGridCellStyle" TargetType="DataGridCell">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Padding" Value="10,8"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EEF2FF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
-        <!-- Text inside TextColumn -->
+        <!-- Row with Hover -->
+        <Style x:Key="NiceDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F5F3FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EEF2FF"/>
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="#FAFBFC"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Centered Text -->
         <Style x:Key="CenteredTextStyle" TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
         </Style>
 
-        <!-- Delete Button -->
-        <Style x:Key="DeleteHoverRedButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#DC2626"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Width" Value="30"/>
-            <Setter Property="Height" Value="30"/>
+        <!-- Edit Button -->
+        <Style x:Key="EditButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ToolTip" Value="تعديل المنتج"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="8"
+                                Background="#EEF2FF"
+                                Padding="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource Indigo600}" Offset="0"/>
+                                            <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Delete Button -->
+        <Style x:Key="DeleteButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ToolTip" Value="حذف المنتج"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="8"
+                                Background="#FEE2E2"
+                                Padding="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#DC2626"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pagination Button -->
+        <Style x:Key="PaginationButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinWidth" Value="110"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="10"
+                                Padding="16,8"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F5F3FF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Refresh Button -->
+        <Style x:Key="RefreshButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="MinWidth" Value="130"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="12"
+                                Padding="18,10">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                                    <GradientStop Color="{StaticResource Purple700}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect Color="{StaticResource Indigo700}"
+                                                  BlurRadius="10"
+                                                  ShadowDepth="3"
+                                                  Opacity="0.25"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource Indigo600}" Offset="0"/>
+                                            <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Error Banner -->
+        <Style x:Key="ErrorBannerStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FEF2F2"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
+
+        <!-- Empty State -->
+        <Style x:Key="EmptyStateStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="40"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
         </Style>
 
     </Page.Resources>
@@ -79,8 +296,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -89,195 +306,347 @@
                                Grid.Row="0"/>
 
         <!-- ================= Header + Search ================= -->
-        <Grid Grid.Row="1" Margin="0,16,0,0">
+        <Grid Grid.Row="1" Margin="0,20,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Title -->
-            <TextBlock Text="المخزون"
-                       FontSize="26"
-                       FontWeight="Bold"
-                       VerticalAlignment="Center"/>
+            <!-- Title with Gradient -->
+            <StackPanel>
+                <TextBlock FontSize="28" FontWeight="Bold">
+                    <TextBlock.Text>📦 إدارة المخزون</TextBlock.Text>
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                            <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                </TextBlock>
+                <TextBlock x:Name="ProductCountText"
+                           Text="جاري تحميل البيانات..."
+                           FontSize="14"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
 
-            <!-- Search Box (WPF Placeholder Safe) -->
+            <!-- Search Box -->
             <Border Grid.Column="1"
-                    Width="320"
-                    Height="42"
-                    CornerRadius="10"
-                    BorderBrush="{StaticResource SoftBorderBrush}"
-                    BorderThickness="1"
-                    HorizontalAlignment="Center">
+                    Width="380"
+                    Height="46"
+                    CornerRadius="12"
+                    HorizontalAlignment="Center"
+                    Padding="2">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#E5E7EB" Offset="0"/>
+                        <GradientStop Color="#D1D5DB" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border CornerRadius="10" Background="White">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="46"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="40"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Icon -->
-                    <TextBlock Text="🔍"
-                               FontSize="18"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"/>
-
-                    <!-- TextBox + Placeholder -->
-                    <Grid Grid.Column="1">
-
-                        <TextBox x:Name="SearchTextBox"
-                                 BorderThickness="0"
-                                 Background="Transparent"
-                                 Padding="4"
-                                 FontSize="14"
-                                 VerticalContentAlignment="Center"
-                                 TextChanged="SearchTextBox_TextChanged"/>
-
-                        <!-- Placeholder -->
-                        <TextBlock Text="ابحث باسم المنتج"
-                                   Foreground="#9CA3AF"
-                                   Margin="6,0,0,0"
+                        <!-- Search Icon -->
+                        <TextBlock Text="🔍"
+                                   FontSize="18"
                                    VerticalAlignment="Center"
-                                   IsHitTestVisible="False">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                                   HorizontalAlignment="Center"/>
 
+                        <!-- TextBox + Placeholder -->
+                        <Grid Grid.Column="1">
+                            <TextBox x:Name="SearchTextBox"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Padding="4"
+                                     FontSize="14"
+                                     VerticalContentAlignment="Center"
+                                     TextChanged="SearchTextBox_TextChanged"/>
+
+                            <!-- Placeholder -->
+                            <TextBlock Text="ابحث باسم المنتج أو الكود..."
+                                       Foreground="#9CA3AF"
+                                       Margin="6,0,0,0"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Clear Button -->
+                        <Button x:Name="ClearSearchBtn"
+                                Grid.Column="2"
+                                Content="✕"
+                                Width="32"
+                                Height="32"
+                                Margin="4"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#9CA3AF"
+                                FontSize="14"
+                                Cursor="Hand"
+                                Click="ClearSearch_Click"
+                                Visibility="Collapsed"/>
                     </Grid>
-                </Grid>
+                </Border>
             </Border>
 
-            <!-- Refresh -->
+            <!-- Refresh Button -->
             <Button Grid.Column="2"
                     Content="🔄 تحديث"
-                    Width="120"
-                    Style="{StaticResource DarkButtonStyle}"
+                    Style="{StaticResource RefreshButtonStyle}"
                     Click="RefreshButton_Click"/>
         </Grid>
 
-        <!-- ================= Table ================= -->
-        <Border Grid.Row="2"
-                Margin="0,20,0,0"
-                Style="{StaticResource GlowingTableOuterBorder}">
+        <!-- ================= Error Banner ================= -->
+        <Border x:Name="ErrorBanner"
+                Grid.Row="2"
+                Style="{StaticResource ErrorBannerStyle}"
+                Margin="0,16,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <DataGrid x:Name="ProductsDataGrid"
-              AutoGenerateColumns="False"
-              IsReadOnly="True"
-              Style="{StaticResource NiceDataGridStyle}"
-              ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
-              CellStyle="{StaticResource NiceDataGridCellStyle}"
-              ScrollViewer.VerticalScrollBarVisibility="Disabled"
-              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-              VerticalAlignment="Top"
-              RowDetailsVisibilityMode="Collapsed" 
-               EnableRowVirtualization="False">    
-
-
-                <DataGrid.Columns>
-
-                    <DataGridTextColumn Header="رقم المنتج"
-                                        Binding="{Binding code}"
-                                        Width="200"
-                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
-
-                    <DataGridTextColumn Header="اسم المنتج"
-                                        Binding="{Binding Name}"
-                                        Width="*"
-                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
-
-                    <DataGridTextColumn Header="سعر البيع"
-                                        Binding="{Binding SalePrice}"
-                                        Width="100"
-                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
-
-                    <DataGridTextColumn Header="سعر الشراء"
-                                        Binding="{Binding BuyPrice}"
-                                        Width="100"
-                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
-
-                    <DataGridTextColumn Header="الكمية"
-                                        Binding="{Binding Quantity}"
-                                        Width="80"
-                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
-
-                    <DataGridTextColumn Header="SKU"
-                                        Binding="{Binding SKU}"
-                                        Width="120"
-                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
-
-                    <DataGridTextColumn Header="الصنف"
-                                        Binding="{Binding Category}"
-                                        Width="150"
-                                        ElementStyle="{StaticResource CenteredTextStyle}"/>
-
-                    <!-- Edit -->
-                    <DataGridTemplateColumn Header="تعديل" Width="70">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="✏"
-                                        Width="30"
-                                        Height="30"
-                                        Click="EditProduct_Click"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-
-                    <!-- Delete -->
-                    <DataGridTemplateColumn Header="حذف" Width="70">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="🗑"
-                                        Style="{StaticResource DeleteHoverRedButtonStyle}"
-                                        Click="DeleteProduct_Click"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-
-                </DataGrid.Columns>
-            </DataGrid>
+                <TextBlock Text="❌" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="ErrorText"
+                           Grid.Column="1"
+                           FontSize="14"
+                           Foreground="#DC2626"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"/>
+                <Button Grid.Column="2"
+                        Content="✕"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="#DC2626"
+                        FontSize="16"
+                        Cursor="Hand"
+                        Click="CloseError_Click"/>
+            </Grid>
         </Border>
 
+        <!-- ================= Table Section ================= -->
+        <Grid Grid.Row="3" Margin="0,20,0,0">
+
+            <!-- Loading Overlay -->
+            <Border x:Name="LoadingOverlay"
+                    Background="#99FFFFFF"
+                    CornerRadius="18"
+                    Visibility="Collapsed"
+                    Panel.ZIndex="100">
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Border Width="60"
+                            Height="60"
+                            CornerRadius="30"
+                            Background="White"
+                            Effect="{StaticResource CardShadow}">
+                        <TextBlock Text="⏳"
+                                   FontSize="28"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="جاري تحميل البيانات..."
+                               FontSize="16"
+                               Foreground="{StaticResource TextDarkBrush}"
+                               Margin="0,16,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Empty State -->
+            <Border x:Name="EmptyState"
+                    Style="{StaticResource EmptyStateStyle}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="📭" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                    <TextBlock x:Name="EmptyStateTitle"
+                               Text="لا توجد منتجات"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextDarkBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="EmptyStateSubtitle"
+                               Text="ابدأ بإضافة منتجات جديدة للمخزون"
+                               FontSize="14"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Table Card -->
+            <Border x:Name="TableCard"
+                    Style="{StaticResource GlowingTableOuterBorder}">
+                <DataGrid x:Name="ProductsDataGrid"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Style="{StaticResource NiceDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource NiceDataGridHeaderStyle}"
+                          CellStyle="{StaticResource NiceDataGridCellStyle}"
+                          RowStyle="{StaticResource NiceDataGridRowStyle}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          VerticalAlignment="Top"
+                          AlternationCount="2"
+                          EnableRowVirtualization="True">
+
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="الكود"
+                                            Binding="{Binding code}"
+                                            Width="80"
+                                            ElementStyle="{StaticResource CenteredTextStyle}"/>
+
+                        <DataGridTextColumn Header="اسم المنتج"
+                                            Binding="{Binding Name}"
+                                            Width="*"
+                                            ElementStyle="{StaticResource CenteredTextStyle}"/>
+
+                        <DataGridTextColumn Header="التصنيف"
+                                            Binding="{Binding Category}"
+                                            Width="130"
+                                            ElementStyle="{StaticResource CenteredTextStyle}"/>
+
+                        <DataGridTextColumn Header="سعر البيع"
+                                            Binding="{Binding SalePrice, StringFormat={}{0:N0} ج.م}"
+                                            Width="110"
+                                            ElementStyle="{StaticResource CenteredTextStyle}"/>
+
+                        <DataGridTextColumn Header="سعر الشراء"
+                                            Binding="{Binding BuyPrice, StringFormat={}{0:N0} ج.م}"
+                                            Width="110"
+                                            ElementStyle="{StaticResource CenteredTextStyle}"/>
+
+                        <!-- Quantity with Color Badge -->
+                        <DataGridTemplateColumn Header="الكمية" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="8"
+                                            Padding="10,5"
+                                            HorizontalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#ECFDF5"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Quantity}" Value="0">
+                                                        <Setter Property="Background" Value="#FEE2E2"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Quantity}"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#059669"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Quantity}" Value="0">
+                                                            <Setter Property="Foreground" Value="#DC2626"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="SKU"
+                                            Binding="{Binding SKU}"
+                                            Width="100"
+                                            ElementStyle="{StaticResource CenteredTextStyle}"/>
+
+                        <!-- Edit Button -->
+                        <DataGridTemplateColumn Header="تعديل" Width="65">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="✏️"
+                                            Style="{StaticResource EditButtonStyle}"
+                                            Click="EditProduct_Click"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Delete Button -->
+                        <DataGridTemplateColumn Header="حذف" Width="65">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="🗑️"
+                                            Style="{StaticResource DeleteButtonStyle}"
+                                            Click="DeleteProduct_Click"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+
         <!-- ================= Pagination ================= -->
-        <StackPanel Grid.Row="3"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Margin="0,16,0,0">
+        <Border Grid.Row="4"
+                Background="White"
+                CornerRadius="14"
+                Padding="20,14"
+                Margin="0,20,0,0"
+                Effect="{StaticResource CardShadow}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <Button Content="التالي"
-            Width="100"
-            Margin="0,0,10,0"
-            Click="NextPage_Click"/>
+                <!-- Previous Button -->
+                <Button x:Name="PrevButton"
+                        Content="→ السابق"
+                        Style="{StaticResource PaginationButtonStyle}"
+                        Click="PrevPage_Click"/>
 
-            <TextBlock x:Name="PageTextBlock"
-               Margin="10,0"
-               VerticalAlignment="Center"
-               FontWeight="SemiBold"/>
+                <!-- Page Info -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock x:Name="PageTextBlock"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextDarkBrush}"/>
+                    <TextBlock x:Name="TotalItemsText"
+                               FontSize="14"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Margin="16,0,0,0"/>
+                </StackPanel>
 
-            <Button Content="السابق"
-            Width="100"
-            Margin="10,0,0,0"
-            Click="PrevPage_Click"/>
-        </StackPanel>
+                <!-- Next Button -->
+                <Button x:Name="NextButton"
+                        Grid.Column="2"
+                        Content="التالي ←"
+                        Style="{StaticResource PaginationButtonStyle}"
+                        Click="NextPage_Click"/>
+            </Grid>
+        </Border>
 
-
-        <!-- ================= Error ================= -->
-        <TextBlock x:Name="ErrorTextBlock"
-                   Grid.Row="4"
-                   Foreground="Red"
-                   Visibility="Collapsed"
-                   HorizontalAlignment="Center"
-                   Margin="0,10,0,0"/>
     </Grid>
 </Page>
