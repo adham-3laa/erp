@@ -25,6 +25,12 @@ namespace erp.ViewModels
         public ObservableCollection<InvoiceResponseDto> Invoices { get; }
             = new();
 
+        // ==================== Statistics Properties ====================
+        public decimal TotalAmount => Invoices.Sum(i => i.Amount);
+        public decimal TotalPaid => Invoices.Sum(i => i.PaidAmount);
+        public decimal TotalRemaining => Invoices.Sum(i => i.RemainingAmount);
+        public bool HasNoInvoices => Invoices.Count == 0;
+
         public RelayCommand PrintAllCommand { get; }
         public RelayCommand BackCommand { get; }
         public RelayCommand<InvoiceResponseDto> PrintSingleCommand { get; }
@@ -39,7 +45,8 @@ namespace erp.ViewModels
             _invoicePrintService =
                 new InvoicePrintService(
                     new OrdersService(App.Api),
-                    new InventoryService()
+                    new InventoryService(),
+                    _invoiceService
                 );
 
             BackCommand = new RelayCommand(
@@ -86,8 +93,17 @@ namespace erp.ViewModels
                         break;
                 }
 
-                foreach (var invoice in list)
+                // ✅ Sort by GeneratedDate DESC (newest first) - ERP-grade invoice register requirement
+                var sortedList = list.OrderByDescending(i => i.GeneratedDate).ToList();
+                
+                foreach (var invoice in sortedList)
                     Invoices.Add(invoice);
+
+                // ✅ Notify UI to update statistics cards
+                OnPropertyChanged(nameof(TotalAmount));
+                OnPropertyChanged(nameof(TotalPaid));
+                OnPropertyChanged(nameof(TotalRemaining));
+                OnPropertyChanged(nameof(HasNoInvoices));
             }
             catch
             {

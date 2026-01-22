@@ -17,16 +17,18 @@ namespace erp.Services
     {
         private readonly OrdersService _ordersService;
         private readonly InventoryService _inventoryService;
+        private readonly InvoiceService _invoiceService;
 
-        // ✅ Categories client
         private readonly HttpClient _categoriesClient;
 
         public InvoicePrintService(
             OrdersService ordersService,
-            InventoryService inventoryService)
+            InventoryService inventoryService,
+            InvoiceService invoiceService)
         {
             _ordersService = ordersService;
             _inventoryService = inventoryService;
+            _invoiceService = invoiceService;
 
             _categoriesClient = new HttpClient
             {
@@ -45,36 +47,68 @@ namespace erp.Services
             // ============== SUPPLIER INVOICE =====================
             // =====================================================
             // في SupplierInvoice الـ API بيرجع items داخل الفاتورة نفسها (مش OrderId)
-            if (string.Equals(invoice.Type, "SupplierInvoice", StringComparison.OrdinalIgnoreCase))
+            // لو مش موجودة، بنجيبها من endpoint GetSupplierInviceProductsByInvoicCode
+            if (invoice.InvoiceTypeParsed == Enums.InvoiceType.SupplierInvoice)
             {
-                if (invoice.Items == null || invoice.Items.Count == 0)
-                    return null;
-
                 var printable = new PrintableInvoiceDto
                 {
                     InvoiceId = invoice.Id,
+                    InvoiceCode = invoice.code, // ✅ Sequential invoice number for printing
                     InvoiceDate = invoice.GeneratedDate,
-                    CustomerName = invoice.RecipientName ?? user.Fullname,
+                    CustomerName = invoice.SupplierName ?? invoice.RecipientName ?? user.Fullname,
                     CustomerEmail = user.Email,
-                    OrderId = invoice.OrderId?.ToString() ?? "",
+                    OrderId = invoice.code.ToString(), // ✅ Use Invoice Code as reference for Supplier Invoices
                     PaidAmount = invoice.PaidAmount,
                     RemainingAmount = invoice.RemainingAmount
                 };
 
-                foreach (var it in invoice.Items)
+                // ✅ لو Items موجودة في الفاتورة مباشرة
+                if (invoice.Items != null && invoice.Items.Count > 0)
                 {
-                    if (it == null) continue;
-
-                    printable.Items.Add(new PrintableInvoiceItemDto
+                    foreach (var it in invoice.Items)
                     {
-                        ProductName = it.ProductName ?? "-",
-                        Quantity = it.Quantity,
-                        UnitPrice = it.UnitPrice,
-                        CategoryName = it.CategoryName ?? "غير محدد"
-                    });
+                        if (it == null) continue;
+
+                        printable.Items.Add(new PrintableInvoiceItemDto
+                        {
+                            ProductName = it.ProductName ?? "-",
+                            Quantity = it.Quantity,
+                            UnitPrice = it.UnitPrice,
+                            CategoryName = it.CategoryName ?? "غير محدد"
+                        });
+                    }
+                }
+                else
+                {
+                    // ✅ جلب المنتجات من API باستخدام invoice code
+                    try
+                    {
+                        // Use injected service instead of creating new one
+                        var supplierProducts = await _invoiceService.GetSupplierInvoiceProductsAsync(invoice.code);
+
+                        foreach (var sp in supplierProducts)
+                        {
+                            if (sp == null) continue;
+
+                            printable.Items.Add(new PrintableInvoiceItemDto
+                            {
+                                ProductName = sp.ProductName ?? "-",
+                                Quantity = (int)sp.Quantity,
+                                UnitPrice = sp.BuyPrice,
+                                CategoryName = "غير محدد"
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error but allow printing partial invoice if needed
+                        System.Diagnostics.Debug.WriteLine($"Failed to load supplier products: {ex.Message}");
+                    }
                 }
 
-                return printable.Items.Any() ? printable : null;
+                // Return printable even if items are empty, so we can at least print the header
+                // But the caller expects items generally. Let's return what we have.
+                return printable;
             }
 
             // =====================================================
@@ -149,6 +183,7 @@ namespace erp.Services
             var printableCustomer = new PrintableInvoiceDto
             {
                 InvoiceId = invoice.Id,
+                InvoiceCode = invoice.code, // ✅ Sequential invoice number for printing
                 InvoiceDate = invoice.GeneratedDate,
                 CustomerName = invoice.RecipientName ?? user.Fullname,
                 CustomerEmail = user.Email,

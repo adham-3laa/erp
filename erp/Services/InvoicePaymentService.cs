@@ -33,8 +33,22 @@ namespace erp.Services
         }
 
         // ================= Payed Amount From Customer / Supplier =================
+        
+        /// <summary>
+        /// Pays an invoice by OrderId.
+        /// 
+        /// CRITICAL: The targetType parameter determines which invoice type is being paid:
+        /// - "Customer" → CustomerInvoice
+        /// - "SalesRep" → CommissionInvoice
+        /// - "Return"   → ReturnInvoice (customer returns)
+        /// 
+        /// The backend API uses this to locate and update the correct invoice record.
+        /// </summary>
+        /// <param name="targetType">Customer, SalesRep, or Return</param>
+        /// <param name="orderId">The Order GUID</param>
+        /// <param name="paidAmount">Amount being paid</param>
         public async Task<PaidAmountResponseDto> PayedAmountFromCustomerByOrderID(
-    string targetType,   // Customer | SalesRep
+    string targetType,   // Customer | SalesRep | Return
     string orderId,
     decimal paidAmount)
         {
@@ -47,15 +61,24 @@ namespace erp.Services
                 $"&orderId={orderId}" +
                 $"&PayiedAmount={paidAmount}";
 
+            // Debug: Log the exact API call being made
+            System.Diagnostics.Debug.WriteLine(
+                $"[InvoicePaymentService] Payment request: PUT {url}");
+
             var response = await _client.PutAsync(url, null);
 
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine(
+                    $"[InvoicePaymentService] Payment FAILED: {response.StatusCode} - {error}");
                 throw new Exception(error);
             }
 
             var json = await response.Content.ReadAsStringAsync();
+            
+            System.Diagnostics.Debug.WriteLine(
+                $"[InvoicePaymentService] Payment SUCCESS: {json}");
 
             return JsonSerializer.Deserialize<PaidAmountResponseDto>(
                 json,

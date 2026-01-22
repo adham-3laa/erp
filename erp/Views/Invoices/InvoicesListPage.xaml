@@ -141,7 +141,6 @@
                     </Border>
                 </StackPanel>
 
-                <!-- 🧾 نوع الفاتورة -->
                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,12">
                     <TextBlock Text="نوع الفاتورة" Foreground="{StaticResource TextMutedBrush}"/>
                     <Border Style="{StaticResource GlowInputFrame}">
@@ -152,6 +151,7 @@
                                 <sys:String>فواتير العمولات</sys:String>
                                 <sys:String>فواتير الموردين</sys:String>
                                 <sys:String>فواتير المرتجعات</sys:String>
+                                <sys:String>فواتير مرتجعات الموردين</sys:String>
                             </ComboBox>
                         </Border>
                     </Border>

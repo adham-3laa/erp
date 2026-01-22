@@ -71,6 +71,7 @@ namespace erp.ViewModels.Invoices
                     "فواتير العمولات" => "CommissionInvoice",
                     "فواتير الموردين" => "SupplierInvoice",
                     "فواتير المرتجعات" => "ReturnInvoice",
+                    "فواتير مرتجعات الموردين" => "SupplierReturnInvoice",
                     _ => null
                 };
 
@@ -264,7 +265,10 @@ namespace erp.ViewModels.Invoices
                 if (response?.Items == null)
                     return;
 
-                foreach (var invoice in response.Items)
+                // ✅ Sort by GeneratedDate DESC (newest first) - ERP-grade invoice register requirement
+                var sortedItems = response.Items.OrderByDescending(i => i.GeneratedDate);
+                
+                foreach (var invoice in sortedItems)
                     Invoices.Add(invoice);
 
                 HasNextPage = (Page * PageSize) < response.TotalItems;

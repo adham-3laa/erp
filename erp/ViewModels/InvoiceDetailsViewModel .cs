@@ -87,6 +87,20 @@ namespace erp.ViewModels.Invoices
         /// <summary>
         /// Loads invoice details based on the invoice type.
         /// This method implements the core rule: Order-based vs Code-based loading.
+        /// 
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// LOADING STRATEGIES BY INVOICE TYPE:
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// 
+        /// ┌───────────────────────┬────────────────────────────────────────────────────┐
+        /// │ Invoice Type          │ Loading Method                                     │
+        /// ├───────────────────────┼────────────────────────────────────────────────────┤
+        /// │ CustomerInvoice       │ LoadOrderBasedInvoiceItemsAsync (uses OrderCode)   │
+        /// │ CommissionInvoice     │ LoadOrderBasedInvoiceItemsAsync (uses OrderCode)   │
+        /// │ ReturnInvoice         │ LoadOrderBasedInvoiceItemsAsync (uses OrderCode)   │
+        /// │ SupplierInvoice       │ LoadSupplierInvoiceItemsAsync (uses InvoiceCode)   │
+        /// │ SupplierReturnInvoice │ LoadSupplierReturnInvoiceItemsAsync (InvoiceCode)  │
+        /// └───────────────────────┴────────────────────────────────────────────────────┘
         /// </summary>
         private async Task LoadAsync()
         {
@@ -102,7 +116,19 @@ namespace erp.ViewModels.Invoices
                 var invoiceType = Invoice.InvoiceTypeParsed;
 
                 // ═══════════════════════════════════════════════════════════════
-                // STRATEGY A: SUPPLIER INVOICE (uses InvoiceCode / embedded Items)
+                // STRATEGY A: SUPPLIER RETURN INVOICE (MANDATORY ENDPOINT)
+                // Endpoint: GET /api/Returns/GetAllProductsInSpecificReturnSupplierInvoice
+                // Parameter: invoiceCode ONLY
+                // ⚠️ DO NOT use OrderId, CustomerId, or SalesRepId
+                // ═══════════════════════════════════════════════════════════════
+                if (invoiceType.IsSupplierReturn())
+                {
+                    await LoadSupplierReturnInvoiceItemsAsync();
+                    return;
+                }
+
+                // ═══════════════════════════════════════════════════════════════
+                // STRATEGY B: SUPPLIER INVOICE (uses InvoiceCode / embedded Items)
                 // ═══════════════════════════════════════════════════════════════
                 if (invoiceType == InvoiceType.SupplierInvoice)
                 {
@@ -111,8 +137,8 @@ namespace erp.ViewModels.Invoices
                 }
 
                 // ═══════════════════════════════════════════════════════════════
-                // STRATEGY B: ORDER-BASED INVOICES (Customer, Commission, Return)
-                // Single source of truth: OrderId
+                // STRATEGY C: ORDER-BASED INVOICES (Customer, Commission, Return)
+                // Single source of truth: OrderCode
                 // ═══════════════════════════════════════════════════════════════
                 if (invoiceType.UsesOrderId())
                 {
@@ -135,6 +161,7 @@ namespace erp.ViewModels.Invoices
             }
         }
 
+
         /// <summary>
         /// Refreshes the invoice header data (Amounts, Payments) from the API.
         /// Useful after returning from a payment page.
@@ -148,14 +175,12 @@ namespace erp.ViewModels.Invoices
                 IsLoading = true;
 
                 // Determine the correct filters to find this specific invoice again
-                string? typeFilter = null;
+                // Determine the correct filters to find this specific invoice again
+                // We use the ToApiString() extension to get the correct API value for any invoice type
+                string typeFilter = Invoice.InvoiceTypeParsed.ToApiString();
                 
-                // If it's a SupplierInvoice, explicitly ask for them, 
-                // otherwise the API might default to Customer invoices
-                if (Invoice.InvoiceTypeParsed == InvoiceType.SupplierInvoice)
-                {
-                    typeFilter = "SupplierInvoice";
-                }
+                // Fallback for Unknown types (shouldn't happen for valid invoices)
+                if (string.IsNullOrEmpty(typeFilter)) typeFilter = null;
 
                 // Use the code for search as it acts as a unique human-readable ID
                 var searchCode = Invoice.code.ToString();
@@ -263,6 +288,90 @@ namespace erp.ViewModels.Invoices
                     UnitPrice = item.UnitPrice,
                     Total = item.UnitPrice * item.Quantity
                 });
+            }
+        }
+
+
+        /// <summary>
+        /// Loads items for Supplier Return Invoice.
+        /// 
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// MANDATORY ENDPOINT (Single Source of Truth):
+        /// GET /api/Returns/GetAllProductsInSpecificReturnSupplierInvoice?invoiceCode={code}
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// 
+        /// This method handles the specialized loading of Supplier Return Invoice details.
+        /// 
+        /// ⚠️ MANDATORY CONSTRAINTS:
+        /// - Use invoiceCode ONLY (integer)
+        /// - Do NOT use OrderId, CustomerId, or SalesRepId
+        /// - Do NOT infer data from normal supplier invoices
+        /// - Do NOT mix this logic with customer or sales return invoices
+        /// 
+        /// Each returned item represents:
+        /// - Product returned to supplier
+        /// - Quantity returned
+        /// - Buy price at time of return
+        /// - Total price (quantity × buyPrice)
+        /// 
+        /// This is an ERP-critical financial and inventory document.
+        /// Returns affect both inventory counts and supplier accounting.
+        /// </summary>
+        private async Task LoadSupplierReturnInvoiceItemsAsync()
+        {
+            // ═══════════════════════════════════════════════════════════════
+            // VALIDATION: InvoiceCode is MANDATORY
+            // ═══════════════════════════════════════════════════════════════
+            if (Invoice.code <= 0)
+            {
+                ErrorMessage = "فاتورة مرتجع المورد لا تحتوي على كود الفاتورة (InvoiceCode). لا يمكن تحميل العناصر.";
+                return;
+            }
+
+            var invoiceCode = Invoice.code;
+
+            try
+            {
+                // ═══════════════════════════════════════════════════════════════
+                // CALL MANDATORY ENDPOINT
+                // Endpoint: GET /api/Returns/GetAllProductsInSpecificReturnSupplierInvoice
+                // Parameter: invoiceCode={invoiceCode}
+                // ═══════════════════════════════════════════════════════════════
+                var products = await _invoiceService.GetSupplierReturnInvoiceProductsAsync(invoiceCode);
+
+                if (products == null || products.Count == 0)
+                {
+                    ErrorMessage = "لم يتم العثور على منتجات مرتجعة لهذه الفاتورة";
+                    return;
+                }
+
+                // ═══════════════════════════════════════════════════════════════
+                // MAP API RESPONSE TO DISPLAY ROWS
+                // Render the returned product list exactly as received
+                // ═══════════════════════════════════════════════════════════════
+                foreach (var product in products)
+                {
+                    OrderItems.Add(new InvoiceOrderItemRow
+                    {
+                        ProductId = product.ProductId,
+                        ProductName = product.ProductName ?? "",
+                        CategoryName = "مرتجع مورد", // Mark as supplier return
+                        Quantity = product.Quantity,
+                        UnitPrice = product.BuyPrice,
+                        Total = product.TotalPrice
+                    });
+                }
+
+                // Debug: Log success
+                System.Diagnostics.Debug.WriteLine(
+                    $"[InvoiceDetailsVM] Loaded {products.Count} products for SupplierReturnInvoice code={invoiceCode}");
+            }
+            catch (Exception ex)
+            {
+                // No fallback - this is the ONLY source of truth
+                ErrorMessage = $"فشل في جلب عناصر فاتورة مرتجع المورد: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine(
+                    $"[InvoiceDetailsVM] ERROR loading SupplierReturnInvoice: {ex.Message}");
             }
         }
 

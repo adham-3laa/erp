@@ -7,6 +7,13 @@ namespace erp.DTOS.InvoicesDTOS
     public class PrintableInvoiceDto
     {
         public Guid InvoiceId { get; set; }
+        
+        /// <summary>
+        /// Sequential invoice code for display in printed documents.
+        /// This is the human-readable invoice number.
+        /// </summary>
+        public int InvoiceCode { get; set; }
+        
         public DateTime InvoiceDate { get; set; }
 
         public string CustomerName { get; set; }
