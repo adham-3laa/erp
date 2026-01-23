@@ -143,16 +143,6 @@
                         Style="{StaticResource DarkButtonStyle}" 
                         Width="120" 
                         Margin="16,0"/>
-                
-                <Button Grid.Column="3" 
-                        Content="🖨️ طباعة" 
-                        Command="{Binding PrintReportCommand}"
-                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Page}}"
-                        Style="{StaticResource MaterialDesignOutlinedButton}" 
-                        Width="100" 
-                        Margin="8,0,0,0" 
-                        IsEnabled="{Binding HasData}"
-                        ToolTip="طباعة التقرير"/>
             </Grid>
         </Border>
 

@@ -583,12 +583,18 @@ namespace erp.Views.Orders
                 SetStatus("جاري إنشاء الطلب...", StatusType.Loading);
 
                 // التحقق من نسبة العمولة
-                var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "0";
-                if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
+                // التحقق من نسبة العمولة
+                var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "";
+                double commission = 0;
+
+                if (!string.IsNullOrWhiteSpace(commissionText))
                 {
-                    ShowError(CommissionErrorText, CommissionTextBox.Parent as Border, "نسبة العمولة غير صحيحة");
-                    SetLoading(false);
-                    return;
+                    if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out commission))
+                    {
+                        ShowError(CommissionErrorText, CommissionTextBox.Parent as Border, "نسبة العمولة غير صحيحة");
+                        SetLoading(false);
+                        return;
+                    }
                 }
 
                 // تجميع البيانات
@@ -659,30 +665,24 @@ namespace erp.Views.Orders
                 }
             }
 
-            // التحقق من اسم المندوب
-            var salesRepName = SalesRepNameTextBox.Text?.Trim();
-            if (string.IsNullOrWhiteSpace(salesRepName))
-            {
-                ShowError(SalesRepErrorText, SalesRepInputWrapper, "من فضلك أدخل اسم المندوب");
-                isValid = false;
-            }
+
 
             // التحقق من نسبة العمولة
+            // التحقق من نسبة العمولة (اختياري)
             var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "";
-            if (string.IsNullOrWhiteSpace(commissionText))
+            
+            if (!string.IsNullOrWhiteSpace(commissionText))
             {
-                ShowError(CommissionErrorText, null, "من فضلك أدخل نسبة العمولة");
-                isValid = false;
-            }
-            else if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
-            {
-                ShowError(CommissionErrorText, null, "نسبة العمولة غير صحيحة. يرجى إدخال قيمة رقمية");
-                isValid = false;
-            }
-            else if (commission < 0 || commission > 100)
-            {
-                ShowError(CommissionErrorText, null, "نسبة العمولة يجب أن تكون بين 0 و 100");
-                isValid = false;
+                if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
+                {
+                    ShowError(CommissionErrorText, null, "نسبة العمولة غير صحيحة. يرجى إدخال قيمة رقمية");
+                    isValid = false;
+                }
+                else if (commission < 0 || commission > 100)
+                {
+                    ShowError(CommissionErrorText, null, "نسبة العمولة يجب أن تكون بين 0 و 100");
+                    isValid = false;
+                }
             }
 
             // التحقق من وجود منتج واحد على الأقل

@@ -440,8 +440,7 @@
 
                             <!-- Sales Rep Name Field -->
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <TextBlock Text="اسم المندوب" Style="{StaticResource FieldTitleStyle}" Margin="0"/>
-                                <TextBlock Style="{StaticResource RequiredIndicatorStyle}"/>
+                                <TextBlock Text="اسم المندوب (اختياري)" Style="{StaticResource FieldTitleStyle}" Margin="0"/>
                             </StackPanel>
                             
                             <Grid>
@@ -523,10 +522,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="نسبة العمولة (%)" Style="{StaticResource FieldTitleStyle}" Margin="0"/>
-                                        <TextBlock Style="{StaticResource RequiredIndicatorStyle}"/>
-                                    </StackPanel>
+                                    <TextBlock Text="نسبة العمولة (%) (اختياري)" Style="{StaticResource FieldTitleStyle}"/>
                                     <Border Style="{StaticResource InputWrapperStyle}">
                                         <Border Style="{StaticResource InputInnerStyle}">
                                             <TextBox x:Name="CommissionTextBox"
@@ -582,12 +578,6 @@
                                     </Border>
                                 </StackPanel>
 
-                                <Button Grid.Column="1"
-                                        Content="+ إضافة منتج"
-                                        Style="{StaticResource SecondaryActionButton}"
-                                        Height="40"
-                                        MinWidth="140"
-                                        Click="AddItem_Click"/>
                             </Grid>
 
                             <Border CornerRadius="12"
@@ -657,6 +647,13 @@
                                     </ItemsControl>
                                 </ScrollViewer>
                             </Border>
+
+                            <Button Content="+ إضافة منتج جديد"
+                                  Style="{StaticResource SecondaryActionButton}"
+                                  Height="50"
+                                  HorizontalAlignment="Stretch"
+                                  Margin="0,16,0,0"
+                                  Click="AddItem_Click"/>
                             
                             <!-- Products Hint -->
                             <TextBlock Text="💡 ابدأ بكتابة اسم المنتج للبحث التلقائي"
