@@ -232,7 +232,8 @@ namespace erp.Views.Inventory
                 {
                     _currentSource = new List<Product>();
                     ProductsDataGrid.ItemsSource = null;
-                    ShowEmptyState("لا توجد نتائج", $"لم يتم العثور على منتجات تطابق \"{searchText}\"");
+                    ShowEmptyState("❌ المنتج غير موجود", $"لا يوجد منتج باسم \"{searchText}\" في المخزون.\nتأكد من كتابة الاسم بشكل صحيح أو أضف المنتج للمخزون.");
+                    ShowError($"⚠️ لم يتم العثور على منتج باسم \"{searchText}\"");
                     PageTextBlock.Text = "";
                     TotalItemsText.Text = "";
                     ProductCountText.Text = "0 منتج";
@@ -283,6 +284,19 @@ namespace erp.Views.Inventory
         {
             if (sender is Button btn && btn.DataContext is Product product)
             {
+                // التحقق من أن كمية المنتج تساوي صفر قبل السماح بالحذف
+                if (product.Quantity > 0)
+                {
+                    MessageBox.Show(
+                        $"❌ لا يمكن حذف المنتج \"{product.Name}\"\n\n" +
+                        $"⚠️ الكمية الحالية: {product.Quantity} قطعة\n\n" +
+                        "يجب أن تكون كمية المنتج 0 قبل الحذف.\n",
+                        "⚠️ تنبيه - لا يمكن الحذف",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
                 var result = MessageBox.Show(
                     $"هل أنت متأكد من حذف المنتج \"{product.Name}\"؟\n\nهذا الإجراء لا يمكن التراجع عنه.",
                     "تأكيد الحذف",
