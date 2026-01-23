@@ -314,8 +314,8 @@
                                             Width="*"
                                             ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
-                        <DataGridTextColumn Header="المستلم"
-                                            Binding="{Binding RecipientName}"
+                        <DataGridTextColumn Header="العميل / المورد"
+                                            Binding="{Binding DisplayName}"
                                             Width="*"
                                             ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
@@ -323,6 +323,7 @@
                                             Binding="{Binding Type}"
                                             Width="*"
                                             ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
+
                         
                         <DataGridTextColumn Header="المدفوع"
                                             Binding="{Binding PaidAmount, StringFormat=N2}"

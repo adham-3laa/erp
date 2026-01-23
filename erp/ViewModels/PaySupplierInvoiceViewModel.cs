@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace erp.ViewModels.Invoices
 {
@@ -12,11 +13,19 @@ namespace erp.ViewModels.Invoices
         private readonly InvoiceService _service;
         private readonly Guid _invoiceId;
 
-        public PaySupplierInvoiceViewModel(Guid invoiceId)
+        public PaySupplierInvoiceViewModel(Guid invoiceId, decimal remainingAmount)
         {
             _invoiceId = invoiceId;
+            RemainingAmount = remainingAmount;
             _service = new InvoiceService();
             PayCommand = new RelayCommand(async () => await Pay(), CanPay);
+        }
+
+        private decimal _remainingAmount;
+        public decimal RemainingAmount
+        {
+            get => _remainingAmount;
+            set { _remainingAmount = value; OnPropertyChanged(); }
         }
 
         private decimal _paidAmount;
@@ -29,6 +38,13 @@ namespace erp.ViewModels.Invoices
                 OnPropertyChanged();
                 PayCommand.NotifyCanExecuteChanged();
             }
+        }
+
+        private string _successMessage;
+        public string SuccessMessage
+        {
+            get => _successMessage;
+            set { _successMessage = value; OnPropertyChanged(); }
         }
 
         private string _errorMessage;
@@ -54,28 +70,45 @@ namespace erp.ViewModels.Invoices
 
         private bool CanPay()
         {
-            return !IsBusy && PaidAmount > 0;
+            return !IsBusy && PaidAmount > 0 && PaidAmount <= RemainingAmount;
         }
 
         private async Task Pay()
         {
+            if (!erp.Views.Shared.ThemedDialog.ShowConfirmation(null, "تأكيد الدفع", $"هل أنت متأكد من دفع مبلغ {PaidAmount:N2} للمورد؟", "نعم", "لا"))
+            {
+                return;
+            }
+
             try
             {
                 IsBusy = true;
                 ErrorMessage = null;
+                SuccessMessage = null;
 
                 if (PaidAmount <= 0)
                 {
-                    ErrorMessage = "أدخل مبلغ صحيح";
+                    ErrorMessage = "أدخل مبلغ صحيح أكبر من صفر";
                     return;
                 }
 
+                if (PaidAmount > RemainingAmount)
+                {
+                    ErrorMessage = "المبلغ المدخل أكبر من المبلغ المتبقي";
+                    return;
+                }
+
+                // Call API
                 await _service.PaySupplierInvoice(_invoiceId, PaidAmount);
+                
+                // Update UI locally
+                RemainingAmount -= PaidAmount;
+                SuccessMessage = "تمت عملية الدفع للمورد بنجاح";
                 PaidAmount = 0;
             }
             catch (Exception ex)
             {
-                ErrorMessage = ex.Message;
+                ErrorMessage = $"فشل الدفع: {ex.Message}";
             }
             finally
             {

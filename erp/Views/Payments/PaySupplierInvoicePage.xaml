@@ -1,83 +1,160 @@
 ﻿<Page x:Class="erp.Views.Payments.PaySupplierInvoicePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      FlowDirection="RightToLeft"
       Background="{StaticResource PageBgBrush}"
-      FlowDirection="RightToLeft">
+      Title="PaySupplierInvoicePage">
 
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <DropShadowEffect x:Key="CardShadow" Color="Black" BlurRadius="20" ShadowDepth="4" Opacity="0.05"/>
 
-        <!-- ================= Header ================= -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <Style x:Key="ModernCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="40"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+        </Style>
 
-            <TextBlock Text="دفع فاتورة مورد"
-                       FontSize="26"
-                       FontWeight="Bold"
-                       Foreground="{StaticResource TextDarkBrush}"/>
+        <Style x:Key="InputTextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
-            <Button Grid.Column="1"
-                    Content="رجوع"
-                    Width="120"
-                    Style="{StaticResource DarkButtonStyle}"
-                    Click="Back_Click"/>
-        </Grid>
+    <Grid>
+        <!-- Center the card on the page -->
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="480">
+            <StackPanel>
+                <TextBlock Text="دفع فاتورة مورد" 
+                           FontSize="24" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,24" 
+                           HorizontalAlignment="Center" 
+                           Foreground="#1F2937"/>
+                
+                <Border Style="{StaticResource ModernCard}">
+                    <StackPanel>
+                        <!-- Header Balance -->
+                        <TextBlock Text="إجمالي المبلغ المستحق (للمورد)" 
+                                   Foreground="#6B7280" 
+                                   FontSize="14" 
+                                   HorizontalAlignment="Center"/>
+                        
+                        <TextBlock Text="{Binding RemainingAmount, StringFormat=N2}" 
+                                   Foreground="#EF4444" 
+                                   FontSize="42" 
+                                   FontWeight="ExtraBold" 
+                                   HorizontalAlignment="Center" 
+                                   Margin="0,4,0,32"/>
 
-        <!-- ================= Card ================= -->
-        <Border Grid.Row="1"
-                Margin="0,24,0,0"
-                Style="{StaticResource CardStyle}"
-                Width="520"
-                HorizontalAlignment="Center">
+                        <!-- Input Section -->
+                        <TextBlock Text="أدخل المبلغ المراد دفعه" 
+                                   FontWeight="SemiBold" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#374151"/>
+                        
+                        <TextBox Style="{StaticResource InputTextBox}" 
+                                 Text="{Binding PaidAmount, UpdateSourceTrigger=PropertyChanged}"/>
 
-            <StackPanel Margin="24">
+                        <!-- Messages Area -->
+                        <StackPanel Margin="0,16,0,0">
+                            <!-- Error -->
+                            <TextBlock Text="{Binding ErrorMessage}" 
+                                       Foreground="#DC2626" 
+                                       FontWeight="Medium"
+                                       TextWrapping="Wrap" 
+                                       Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"/>
+                            
+                            <!-- Success -->
+                            <StackPanel Orientation="Horizontal" 
+                                        HorizontalAlignment="Center" 
+                                        Visibility="{Binding SuccessMessage, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="✓ " Foreground="#059669" FontSize="16" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding SuccessMessage}" Foreground="#059669" FontWeight="Bold"/>
+                            </StackPanel>
+                        </StackPanel>
 
-                <!-- Amount -->
-                <TextBlock Text="المبلغ المدفوع"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource TextMutedBrush}"
-                           Margin="0,0,0,6"/>
+                        <!-- Actions -->
+                        <Button Command="{Binding PayCommand}" 
+                                Content="تأكيد الدفع للمورد" 
+                                Background="#4F46E5" 
+                                Foreground="White" 
+                                Height="52" 
+                                Margin="0,24,0,12" 
+                                FontWeight="Bold" 
+                                FontSize="16"
+                                Cursor="Hand"
+                                BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.9"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                            <Setter Property="Background" Value="#9CA3AF"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
 
-                <Border Style="{StaticResource GlowInputFrame}">
-                    <Border Style="{StaticResource GlowInputInner}">
-                        <TextBox Style="{StaticResource GlowTextBox}"
-                                 Text="{Binding PaidAmount,
-                                 UpdateSourceTrigger=PropertyChanged}"/>
-                    </Border>
+                        <Button Click="Back_Click" 
+                                Content="إلغاء والعودة" 
+                                Background="Transparent" 
+                                Foreground="#6B7280" 
+                                BorderThickness="0" 
+                                Cursor="Hand"
+                                FontSize="14">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="Transparent">
+                                        <TextBlock Text="{TemplateBinding Content}" 
+                                                   Foreground="{TemplateBinding Foreground}" 
+                                                   HorizontalAlignment="Center" 
+                                                   TextDecorations="Underline"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Loading Indicator (Using IsBusy for this VM) -->
+                        <ProgressBar IsIndeterminate="True" 
+                                     Height="4" 
+                                     Margin="0,24,0,0" 
+                                     Foreground="#4F46E5"
+                                     Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </StackPanel>
                 </Border>
-
-                <!-- Error Message -->
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#DC2626"
-                           Margin="0,12,0,0"
-                           Visibility="{Binding ErrorMessage,
-                               Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-
-
-
-
-                <!-- Actions -->
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            Margin="0,28,0,0">
-
-                    <Button Content="💰 تنفيذ الدفع"
-                            Width="160"
-                            Margin="0,0,12,0"
-                            Style="{StaticResource DarkButtonStyle}"
-                            Command="{Binding PayCommand}"
-                            IsEnabled="{Binding IsLoading,
-                                Converter={StaticResource InverseBooleanConverter}}"/>
-
-                </StackPanel>
-
             </StackPanel>
-        </Border>
+        </Grid>
     </Grid>
 </Page>
