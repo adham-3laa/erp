@@ -80,7 +80,7 @@ namespace erp.Printing
                     // ===== Data Rows =====
                     foreach (var inv in _invoices)
                     {
-                        table.Cell().Padding(5).Text(inv.Id.ToString());
+                        table.Cell().Padding(5).Text(inv.code.ToString());
                         table.Cell().Padding(5).Text(inv.GeneratedDate.ToString("yyyy-MM-dd"));
                         table.Cell().Padding(5).Text(inv.Amount.ToString("N2"));
                         table.Cell().Padding(5).Text(inv.PaidAmount.ToString("N2"));

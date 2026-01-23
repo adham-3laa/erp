@@ -11,7 +11,18 @@ namespace erp.Views.Payments
         public PayInvoiceByOrderPage(InvoiceResponseDto invoice)
         {
             InitializeComponent();
-            DataContext = new PayInvoiceByOrderViewModel(invoice);
+
+            // ✅ استخدام ViewModel مخصص للمرتجعات (Use Enum for safer check)
+            if (invoice.InvoiceTypeParsed == erp.Enums.InvoiceType.ReturnInvoice)
+            {
+                // يمكن إزالة هذا السطر بعد التأكد من العمل
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Loading PayReturnInvoiceViewModel for invoice {invoice.code}");
+                DataContext = new PayReturnInvoiceViewModel(invoice);
+            }
+            else
+            {
+                DataContext = new PayInvoiceByOrderViewModel(invoice);
+            }
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)

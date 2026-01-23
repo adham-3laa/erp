@@ -3,39 +3,62 @@ namespace erp.Enums
     /// <summary>
     /// Defines the invoice types in the ERP system.
     /// 
-    /// CRITICAL DESIGN RULE:
-    /// =====================
-    /// • CustomerInvoice, CommissionInvoice, ReturnInvoice → USE OrderId to load items
-    /// • SupplierInvoice → USE InvoiceCode (or embedded Items) to load items
+    /// ═══════════════════════════════════════════════════════════════════════════════
+    /// CRITICAL DESIGN RULE - INVOICE DETAILS LOADING STRATEGY:
+    /// ═══════════════════════════════════════════════════════════════════════════════
     /// 
-    /// This enum should be the SINGLE source of truth for invoice type classification.
+    /// ┌───────────────────────┬────────────────────────────────────────────────────┐
+    /// │ Invoice Type          │ Items Loading Strategy                             │
+    /// ├───────────────────────┼────────────────────────────────────────────────────┤
+    /// │ CustomerInvoice       │ OrderId/OrderCode → GetOrderItemsByOrderCode       │
+    /// │ CommissionInvoice     │ OrderId/OrderCode → GetOrderItemsByOrderCode       │
+    /// │ ReturnInvoice         │ OrderId/OrderCode → GetOrderItemsByOrderCode       │
+    /// │ SupplierInvoice       │ InvoiceCode → GetSupplierInviceProductsByInvoicCode│
+    /// │ SupplierReturnInvoice │ InvoiceCode → GetAllProductsInSpecificReturn...    │
+    /// └───────────────────────┴────────────────────────────────────────────────────┘
+    /// 
+    /// This enum is the SINGLE source of truth for invoice type classification.
+    /// ═══════════════════════════════════════════════════════════════════════════════
     /// </summary>
     public enum InvoiceType
     {
         /// <summary>
         /// فاتورة عميل - Customer Invoice
-        /// Items loaded via: OrderId → Order Items
+        /// Items loaded via: OrderId/OrderCode → Order Items
         /// </summary>
         CustomerInvoice,
 
         /// <summary>
         /// فاتورة عمولة - Commission/Sales Rep Invoice
-        /// Items loaded via: OrderId → Order Items
+        /// Items loaded via: OrderId/OrderCode → Order Items
         /// </summary>
         CommissionInvoice,
 
         /// <summary>
-        /// فاتورة مرتجع - Return Invoice
-        /// Items loaded via: OrderId → Order Items (returned items)
+        /// فاتورة مرتجع - Return Invoice (Customer Return)
+        /// Items loaded via: OrderId/OrderCode → Order Items (returned items)
         /// </summary>
         ReturnInvoice,
 
         /// <summary>
         /// فاتورة مورد - Supplier Invoice
-        /// Items loaded via: InvoiceCode or embedded Items (NOT OrderId)
-        /// This is the ONLY exception that doesn't use OrderId.
+        /// Items loaded via: InvoiceCode (or embedded Items) 
+        /// Endpoint: GET /api/Invoices/GetSupplierInviceProductsByInvoicCode
         /// </summary>
         SupplierInvoice,
+
+        /// <summary>
+        /// فاتورة مرتجع مورد - Supplier Return Invoice
+        /// Items loaded via: InvoiceCode ONLY
+        /// Endpoint: GET /api/Returns/GetAllProductsInSpecificReturnSupplierInvoice?invoiceCode={code}
+        /// 
+        /// ═══════════════════════════════════════════════════════════════════
+        /// MANDATORY RULE: This invoice type MUST use the dedicated endpoint
+        /// and ONLY the invoiceCode parameter. Do NOT use OrderId, CustomerId,
+        /// or SalesRepId. This is an ERP-critical financial document.
+        /// ═══════════════════════════════════════════════════════════════════
+        /// </summary>
+        SupplierReturnInvoice,
 
         /// <summary>
         /// Unknown or unsupported invoice type
@@ -49,11 +72,11 @@ namespace erp.Enums
     public static class InvoiceTypeExtensions
     {
         /// <summary>
-        /// Determines if this invoice type uses OrderId for loading items.
+        /// Determines if this invoice type uses OrderId/OrderCode for loading items.
         /// </summary>
         /// <returns>
         /// TRUE for: CustomerInvoice, CommissionInvoice, ReturnInvoice
-        /// FALSE for: SupplierInvoice, Unknown
+        /// FALSE for: SupplierInvoice, SupplierReturnInvoice, Unknown
         /// </returns>
         public static bool UsesOrderId(this InvoiceType type)
         {
@@ -63,6 +86,7 @@ namespace erp.Enums
                 InvoiceType.CommissionInvoice => true,
                 InvoiceType.ReturnInvoice => true,
                 InvoiceType.SupplierInvoice => false,
+                InvoiceType.SupplierReturnInvoice => false, // Uses InvoiceCode, NOT OrderId
                 InvoiceType.Unknown => false,
                 _ => false
             };
@@ -71,10 +95,20 @@ namespace erp.Enums
         /// <summary>
         /// Determines if this invoice type uses InvoiceCode for loading items.
         /// </summary>
-        /// <returns>TRUE only for SupplierInvoice</returns>
+        /// <returns>TRUE for: SupplierInvoice, SupplierReturnInvoice</returns>
         public static bool UsesInvoiceCode(this InvoiceType type)
         {
-            return type == InvoiceType.SupplierInvoice;
+            return type == InvoiceType.SupplierInvoice || 
+                   type == InvoiceType.SupplierReturnInvoice;
+        }
+
+        /// <summary>
+        /// Determines if this invoice type is a Supplier Return Invoice.
+        /// Used to route to the correct endpoint.
+        /// </summary>
+        public static bool IsSupplierReturn(this InvoiceType type)
+        {
+            return type == InvoiceType.SupplierReturnInvoice;
         }
 
         /// <summary>
@@ -91,6 +125,8 @@ namespace erp.Enums
                 "commissioninvoice" => InvoiceType.CommissionInvoice,
                 "returninvoice" => InvoiceType.ReturnInvoice,
                 "supplierinvoice" => InvoiceType.SupplierInvoice,
+                "supplierreturninvoice" => InvoiceType.SupplierReturnInvoice,
+                "returntoSupplierinvoice" => InvoiceType.SupplierReturnInvoice, // Alternative API naming
                 _ => InvoiceType.Unknown
             };
         }
@@ -106,6 +142,7 @@ namespace erp.Enums
                 InvoiceType.CommissionInvoice => "فاتورة عمولة",
                 InvoiceType.ReturnInvoice => "فاتورة مرتجع",
                 InvoiceType.SupplierInvoice => "فاتورة مورد",
+                InvoiceType.SupplierReturnInvoice => "فاتورة مرتجع مورد",
                 InvoiceType.Unknown => "غير محدد",
                 _ => "غير محدد"
             };
@@ -122,6 +159,7 @@ namespace erp.Enums
                 InvoiceType.CommissionInvoice => "CommissionInvoice",
                 InvoiceType.ReturnInvoice => "ReturnInvoice",
                 InvoiceType.SupplierInvoice => "SupplierInvoice",
+                InvoiceType.SupplierReturnInvoice => "SupplierReturnInvoice",
                 _ => ""
             };
         }

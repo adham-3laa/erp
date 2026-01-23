@@ -23,8 +23,55 @@ namespace erp.DTOS.InvoicesDTOS
         [JsonPropertyName("id")]
         public Guid Id { get; set; }
         
+        private int _code;
+        
         [JsonPropertyName("code")]
-        public int code { get; set; }
+        public int code 
+        { 
+            get => _code; 
+            set => _code = value; 
+        }
+        
+        /// <summary>
+        /// Alternative property name for invoice code.
+        /// Some API endpoints return "invoicecode" instead of "code".
+        /// </summary>
+        [JsonPropertyName("invoicecode")]
+        public int InvoiceCodeAlias 
+        { 
+            get => _code; 
+            set { if (_code == 0 && value > 0) _code = value; } 
+        }
+
+        [JsonPropertyName("invoicenumber")]
+        public int InvoiceNumberAlias
+        {
+            get => _code;
+            set { if (_code == 0 && value > 0) _code = value; }
+        }
+
+        // Sometimes it might come as 'invoiceid' (int) in some DTOs
+        [JsonPropertyName("invoiceid")]
+        public int InvoiceIdIntAlias
+        {
+            get => _code;
+            set { if (_code == 0 && value > 0) _code = value; }
+        }
+
+        /// <summary>
+        /// Smart display code that falls back to OrderCode if Invoice Code is missing (0).
+        /// This ensures the UI always shows a meaningful reference number.
+        /// </summary>
+        [JsonIgnore]
+        public int DisplayCode
+        {
+            get
+            {
+                if (_code > 0) return _code;
+                if (OrderCode.HasValue && OrderCode.Value > 0) return OrderCode.Value;
+                return 0;
+            }
+        }
 
         /// <summary>
         /// Raw invoice type string from API.
@@ -73,21 +120,20 @@ namespace erp.DTOS.InvoicesDTOS
         [JsonPropertyName("supplierid")]
         public string? SupplierId { get; set; }
 
-        /// <summary>
-        /// Display name - shows the appropriate name based on invoice type.
-        /// For SupplierInvoice: returns SupplierName
-        /// For other invoices: returns RecipientName
-        /// </summary>
         [JsonIgnore]
         public string DisplayName
         {
             get
             {
-                if (InvoiceTypeParsed == InvoiceType.SupplierInvoice)
-                {
-                    return !string.IsNullOrWhiteSpace(SupplierName) ? SupplierName : "غير محدد";
-                }
-                return !string.IsNullOrWhiteSpace(RecipientName) ? RecipientName : "غير محدد";
+                // API quirk: For Invoices List, the name is often in RecipientName even for suppliers.
+                // We check SupplierName first, then fall back to RecipientName.
+                if (!string.IsNullOrWhiteSpace(SupplierName))
+                    return SupplierName;
+
+                if (!string.IsNullOrWhiteSpace(RecipientName))
+                    return RecipientName;
+
+                return "غير محدد";
             }
         }
 

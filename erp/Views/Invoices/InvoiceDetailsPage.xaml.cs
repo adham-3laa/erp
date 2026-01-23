@@ -41,13 +41,19 @@ namespace erp.Views.Invoices
             if (_invoice.RemainingAmount <= 0)
                 return;
 
-            // Use type-safe enum comparison instead of string
-            if (_invoice.InvoiceTypeParsed == InvoiceType.SupplierInvoice)
+            // ═══════════════════════════════════════════════════════════════
+            // SUPPLIER INVOICE & SUPPLIER RETURN INVOICE PAYMENTS
+            // ═══════════════════════════════════════════════════════════════
+            // - SupplierInvoice: Uses GUID for payment
+            // - SupplierReturnInvoice: Uses CODE for payment (critical!)
+            // ═══════════════════════════════════════════════════════════════
+            
+            if (_invoice.InvoiceTypeParsed == InvoiceType.SupplierInvoice || 
+                _invoice.InvoiceTypeParsed.IsSupplierReturn())
             {
                 NavigationService?.Navigate(
-                    new PaySupplierInvoicePage(_invoice.Id, _invoice.RemainingAmount));
+                    new PaySupplierInvoicePage(_invoice));
                 return;
-
             }
 
             // All other invoice types (Customer, Commission, Return) use order-based payment
@@ -56,4 +62,6 @@ namespace erp.Views.Invoices
         }
     }
 }
+
+
 

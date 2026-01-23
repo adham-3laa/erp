@@ -80,13 +80,13 @@ namespace erp.ViewModels
 
             if (Amount <= 0)
             {
-                ErrorMessage = "Amount must be greater than zero.";
+                ErrorMessage = "يجب أن يكون المبلغ أكبر من صفر.";
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(Description))
             {
-                ErrorMessage = "Description is required.";
+                ErrorMessage = "الوصف مطلوب.";
                 return;
             }
 

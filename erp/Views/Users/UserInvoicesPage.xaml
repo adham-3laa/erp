@@ -1,163 +1,677 @@
 ﻿<UserControl x:Class="erp.Views.Users.UserInvoicesPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             FlowDirection="RightToLeft">
 
-    <Grid Background="{StaticResource PageBgBrush}">
+    <UserControl.Resources>
+        <!-- ==================== Converters ==================== -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- ==================== Premium Color Palette ==================== -->
+        <Color x:Key="PremiumPurple">#6366F1</Color>
+        <Color x:Key="PremiumPurpleLight">#818CF8</Color>
+        <Color x:Key="PremiumPurpleDark">#4F46E5</Color>
+        <Color x:Key="PremiumGreen">#10B981</Color>
+        <Color x:Key="PremiumRed">#EF4444</Color>
+        <Color x:Key="PremiumOrange">#F59E0B</Color>
+        <Color x:Key="CardBg">#FFFFFF</Color>
+        <Color x:Key="PageBg">#F8FAFC</Color>
+        <Color x:Key="TextPrimary">#1E293B</Color>
+        <Color x:Key="TextSecondary">#64748B</Color>
+        <Color x:Key="BorderColor">#E2E8F0</Color>
+        
+        <SolidColorBrush x:Key="PremiumPurpleBrush" Color="{StaticResource PremiumPurple}"/>
+        <SolidColorBrush x:Key="PremiumPurpleLightBrush" Color="{StaticResource PremiumPurpleLight}"/>
+        <SolidColorBrush x:Key="PremiumPurpleDarkBrush" Color="{StaticResource PremiumPurpleDark}"/>
+        <SolidColorBrush x:Key="PremiumGreenBrush" Color="{StaticResource PremiumGreen}"/>
+        <SolidColorBrush x:Key="PremiumRedBrush" Color="{StaticResource PremiumRed}"/>
+        <SolidColorBrush x:Key="PremiumOrangeBrush" Color="{StaticResource PremiumOrange}"/>
+        <SolidColorBrush x:Key="CardBgBrush" Color="{StaticResource CardBg}"/>
+        <SolidColorBrush x:Key="PageBgBrush2" Color="{StaticResource PageBg}"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
+        <SolidColorBrush x:Key="BorderColorBrush" Color="{StaticResource BorderColor}"/>
+
+        <!-- ==================== Effects ==================== -->
+        <DropShadowEffect x:Key="CardShadow" 
+                          Color="#000000" 
+                          BlurRadius="20" 
+                          ShadowDepth="4" 
+                          Opacity="0.08"
+                          Direction="270"/>
+        
+        <DropShadowEffect x:Key="ButtonGlow" 
+                          Color="{StaticResource PremiumPurple}" 
+                          BlurRadius="16" 
+                          ShadowDepth="0" 
+                          Opacity="0.4"/>
+
+        <!-- ==================== Premium Button Style ==================== -->
+        <Style x:Key="PremiumButtonStyle" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource PremiumPurple}" Offset="0"/>
+                        <GradientStop Color="{StaticResource PremiumPurpleDark}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Effect" Value="{StaticResource ButtonGlow}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.9"/>
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ==================== Ghost Button Style ==================== -->
+        <Style x:Key="GhostButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource PremiumPurpleBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PremiumPurpleBrush}"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F5F3FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ==================== Print Icon Button Style ==================== -->
+        <Style x:Key="PrintIconButtonStyle" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource PremiumPurple}" Offset="0"/>
+                        <GradientStop Color="{StaticResource PremiumPurpleDark}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Width" Value="38"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.1" ScaleY="1.1"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="border" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="{StaticResource PremiumPurple}" 
+                                                          BlurRadius="12" 
+                                                          ShadowDepth="0" 
+                                                          Opacity="0.5"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ==================== Status Pill Styles ==================== -->
+        <Style x:Key="PaidPillStyle" TargetType="Border">
+            <Setter Property="Background" Value="#DCFCE7"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        
+        <Style x:Key="UnpaidPillStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FEE2E2"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource PageBgBrush2}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ================= Header ================= -->
+        <!-- ==================== HEADER SECTION ==================== -->
         <Border Grid.Row="0"
-                Padding="16"
+                Margin="24,24,24,0"
                 Background="White"
-                CornerRadius="14"
-                Margin="16">
-
-            <Grid>
+                CornerRadius="16"
+                Effect="{StaticResource CardShadow}">
+            
+            <Grid Margin="24,20">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- User Info -->
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="{Binding User.Fullname}"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource TextDarkBrush}"/>
+                <!-- User Avatar with Gradient -->
+                <Border Grid.Column="0" 
+                        Width="56" 
+                        Height="56"
+                        CornerRadius="14"
+                        Margin="0,0,16,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{StaticResource PremiumPurple}" Offset="0"/>
+                            <GradientStop Color="{StaticResource PremiumPurpleDark}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <materialDesign:PackIcon Kind="AccountCircle"
+                                             Width="32"
+                                             Height="32"
+                                             Foreground="White"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"/>
+                </Border>
 
-                    <TextBlock Text="{Binding User.Email}"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               FontSize="13"/>
+                <!-- User Info -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding User.Fullname}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <materialDesign:PackIcon Kind="Email"
+                                                 Width="14"
+                                                 Height="14"
+                                                 Foreground="{StaticResource TextSecondaryBrush}"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,6,0"/>
+                        <TextBlock Text="{Binding User.Email}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="13"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- Print All -->
-                <Button Grid.Column="1"
+                <!-- Print All Button -->
+                <Button Grid.Column="2"
                         Command="{Binding PrintAllCommand}"
-                        Background="{StaticResource PrimaryBrush}"
-                        Foreground="White"
-                        Padding="12,6"
-                        Margin="0,0,8,0"
-                        Cursor="Hand">
+                        Style="{StaticResource PremiumButtonStyle}"
+                        Margin="0,0,12,0">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Printer"
-                                                 Width="18"
-                                                 Height="18"
-                                                 Margin="0,0,6,0"/>
+                        <materialDesign:PackIcon Kind="FileDocumentMultiple"
+                                                 Width="20"
+                                                 Height="20"
+                                                 Margin="0,0,8,0"
+                                                 VerticalAlignment="Center"/>
                         <TextBlock Text="طباعة كشف الحساب"
-                                   FontWeight="SemiBold"/>
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 
-                <!-- Back -->
-                <Button Grid.Column="2"
+                <!-- Back Button -->
+                <Button Grid.Column="3"
                         Command="{Binding BackCommand}"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
+                        Style="{StaticResource GhostButtonStyle}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="ArrowRight"
-                                                 Width="20"
-                                                 Height="20"
-                                                 Foreground="{StaticResource PrimaryBrush}"/>
+                                                 Width="18"
+                                                 Height="18"
+                                                 VerticalAlignment="Center"/>
                         <TextBlock Text="رجوع"
                                    Margin="6,0,0,0"
-                                   Foreground="{StaticResource PrimaryBrush}"
-                                   FontWeight="SemiBold"/>
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
         </Border>
 
-        <!-- ================= Invoices Table ================= -->
-        <Border Grid.Row="1"
+        <!-- ==================== STATISTICS CARDS ==================== -->
+        <Grid Grid.Row="1" Margin="24,16,24,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Total Invoices Card -->
+            <Border Grid.Column="0" 
+                    Margin="0,0,8,0"
+                    Background="White"
+                    CornerRadius="14"
+                    Effect="{StaticResource CardShadow}">
+                <Grid Margin="18">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="42" Height="42" CornerRadius="10" Background="#EEF2FF">
+                            <materialDesign:PackIcon Kind="FileDocument"
+                                                     Width="22"
+                                                     Height="22"
+                                                     Foreground="{StaticResource PremiumPurpleBrush}"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="عدد الفواتير"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding Invoices.Count}"
+                                       FontSize="24"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Total Amount Card -->
+            <Border Grid.Column="1" 
+                    Margin="8,0"
+                    Background="White"
+                    CornerRadius="14"
+                    Effect="{StaticResource CardShadow}">
+                <Grid Margin="18">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="42" Height="42" CornerRadius="10" Background="#FEF3C7">
+                            <materialDesign:PackIcon Kind="CurrencyUsd"
+                                                     Width="22"
+                                                     Height="22"
+                                                     Foreground="{StaticResource PremiumOrangeBrush}"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="إجمالي المبلغ"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}">
+                                <TextBlock.Text>
+                                    <Binding Path="TotalAmount" StringFormat="N2" FallbackValue="0.00"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Paid Amount Card -->
+            <Border Grid.Column="2" 
+                    Margin="8,0"
+                    Background="White"
+                    CornerRadius="14"
+                    Effect="{StaticResource CardShadow}">
+                <Grid Margin="18">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="42" Height="42" CornerRadius="10" Background="#D1FAE5">
+                            <materialDesign:PackIcon Kind="CheckCircle"
+                                                     Width="22"
+                                                     Height="22"
+                                                     Foreground="{StaticResource PremiumGreenBrush}"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="المدفوع"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PremiumGreenBrush}">
+                                <TextBlock.Text>
+                                    <Binding Path="TotalPaid" StringFormat="N2" FallbackValue="0.00"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Remaining Amount Card -->
+            <Border Grid.Column="3" 
+                    Margin="8,0,0,0"
+                    Background="White"
+                    CornerRadius="14"
+                    Effect="{StaticResource CardShadow}">
+                <Grid Margin="18">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="42" Height="42" CornerRadius="10" Background="#FEE2E2">
+                            <materialDesign:PackIcon Kind="AlertCircle"
+                                                     Width="22"
+                                                     Height="22"
+                                                     Foreground="{StaticResource PremiumRedBrush}"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="المتبقي"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PremiumRedBrush}">
+                                <TextBlock.Text>
+                                    <Binding Path="TotalRemaining" StringFormat="N2" FallbackValue="0.00"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ==================== INVOICES TABLE ==================== -->
+        <Border Grid.Row="2"
+                Margin="24,16,24,24"
                 Background="White"
-                CornerRadius="14"
-                Margin="16,0,16,16"
-                Padding="0">
+                CornerRadius="16"
+                Effect="{StaticResource CardShadow}">
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <DataGrid ItemsSource="{Binding Invoices}"
-                      AutoGenerateColumns="False"
-                      CanUserAddRows="False"
-                      IsReadOnly="True"
-                      HeadersVisibility="Column"
-                      GridLinesVisibility="None"
-                      Background="Transparent"
-                      BorderThickness="0"
-                      RowHeight="44"
-                      ColumnHeaderHeight="44"
-                      HorizontalScrollBarVisibility="Disabled"
+                <!-- Table Header -->
+                <Border Grid.Row="0" 
+                        BorderBrush="{StaticResource BorderColorBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="24,18">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Receipt"
+                                                     Width="24"
+                                                     Height="24"
+                                                     Foreground="{StaticResource PremiumPurpleBrush}"
+                                                     VerticalAlignment="Center"/>
+                            <TextBlock Text="سجل الفواتير"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="10,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-                      SelectionUnit="CellOrRowHeader"
-                      SelectionMode="Extended"
-                      ClipboardCopyMode="ExcludeHeader">
+                <!-- DataGrid -->
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding Invoices}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#F1F5F9"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          RowHeight="60"
+                          ColumnHeaderHeight="50"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto"
+                          SelectionUnit="FullRow"
+                          SelectionMode="Single">
 
-                <!-- ===== Styles ===== -->
-                <DataGrid.Resources>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#F1F5F9"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="Padding" Value="12,0"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
-                    </Style>
+                    <!-- DataGrid Styles -->
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#F8FAFC"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Padding" Value="16,0"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        </Style>
 
-                    <Style TargetType="DataGridCell">
-                        <Setter Property="Padding" Value="12,0"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
-                    </Style>
-                </DataGrid.Resources>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Padding" Value="16,0"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridCell">
+                                        <Border Background="{TemplateBinding Background}"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#F5F3FF"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
 
-                <!-- ===== Columns ===== -->
-                <DataGrid.Columns>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#FAFAFA"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#F5F3FF"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Resources>
 
-                    <DataGridTextColumn Header="رقم الفاتورة"
-                                        Binding="{Binding code}"
-                                        Width="2*"/>
+                    <!-- Columns -->
+                    <DataGrid.Columns>
 
-                    <DataGridTextColumn Header="التاريخ"
-                                        Binding="{Binding GeneratedDate, StringFormat=yyyy-MM-dd}"
-                                        Width="*"/>
+                        <!-- Invoice Code -->
+                        <DataGridTemplateColumn Header="رقم الفاتورة" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="#EEF2FF" 
+                                            CornerRadius="8" 
+                                            Padding="12,6"
+                                            HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding code}"
+                                                   FontWeight="Bold"
+                                                   FontSize="14"
+                                                   Foreground="{StaticResource PremiumPurpleBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="الإجمالي"
-                                        Binding="{Binding Amount}"
-                                        Width="*"/>
+                        <!-- Date -->
+                        <DataGridTemplateColumn Header="التاريخ" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="CalendarMonth"
+                                                                 Width="16"
+                                                                 Height="16"
+                                                                 Foreground="{StaticResource TextSecondaryBrush}"
+                                                                 VerticalAlignment="Center"
+                                                                 Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding GeneratedDate, StringFormat=yyyy-MM-dd}"
+                                                   FontSize="14"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="المدفوع"
-                                        Binding="{Binding PaidAmount}"
-                                        Width="*"/>
+                        <!-- Total Amount -->
+                        <DataGridTemplateColumn Header="الإجمالي" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Amount, StringFormat=N2}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="المتبقي"
-                                        Binding="{Binding RemainingAmount}"
-                                        Width="*"/>
+                        <!-- Paid Amount -->
+                        <DataGridTemplateColumn Header="المدفوع" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="#D1FAE5" 
+                                            CornerRadius="8" 
+                                            Padding="10,5"
+                                            HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding PaidAmount, StringFormat=N2}"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#059669"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTemplateColumn Header="طباعة"
-                                            Width="Auto">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding DataContext.PrintSingleCommand,
-                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        Background="{StaticResource PrimaryBrush}"
-                                        Foreground="White"
-                                        Width="34"
-                                        Height="34"
-                                        Cursor="Hand">
-                                    <materialDesign:PackIcon Kind="Printer"
-                                                             Width="16"
-                                                             Height="16"/>
-                                </Button>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                        <!-- Remaining Amount -->
+                        <DataGridTemplateColumn Header="المتبقي" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="8" 
+                                            Padding="10,5"
+                                            HorizontalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#FEE2E2"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RemainingAmount}" Value="0">
+                                                        <Setter Property="Background" Value="#D1FAE5"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding RemainingAmount, StringFormat=N2}"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#DC2626"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RemainingAmount}" Value="0">
+                                                            <Setter Property="Foreground" Value="#059669"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                </DataGrid.Columns>
-            </DataGrid>
+                        <!-- Print Button -->
+                        <DataGridTemplateColumn Header="طباعة" Width="90">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.PrintSingleCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource PrintIconButtonStyle}"
+                                            ToolTip="طباعة هذه الفاتورة">
+                                        <materialDesign:PackIcon Kind="Printer"
+                                                                 Width="18"
+                                                                 Height="18"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Empty State -->
+                <StackPanel Grid.Row="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding HasNoInvoices, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+                    <materialDesign:PackIcon Kind="FileDocumentRemove"
+                                             Width="64"
+                                             Height="64"
+                                             Foreground="#CBD5E1"
+                                             HorizontalAlignment="Center"/>
+                    <TextBlock Text="لا توجد فواتير"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,16,0,0"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

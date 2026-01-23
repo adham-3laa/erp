@@ -39,8 +39,9 @@ namespace erp.Printing
                     row.RelativeItem().AlignRight().Column(col =>
                     {
                         col.Item().Text("رقم الفاتورة").FontSize(16).Bold();
-                        col.Item().Text($"{_invoice.InvoiceId}")
-                                  .FontSize(9);
+                        col.Item().Text($"{_invoice.InvoiceCode}")
+                                  .FontSize(14)
+                                  .Bold();
                     });
                 });
 
