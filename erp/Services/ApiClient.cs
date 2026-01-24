@@ -33,14 +33,50 @@ public sealed class ApiClient
         }
     }
 
-    // Public constant for default base URL
-    public const string DefaultBaseUrl = "http://warhouse.runasp.net/";
+    // Public property for default base URL (loaded from appsettings.json)
+    // To use hardcoded URL, uncomment the line below and comment out the load logic or keep it as fallback
+    // public static string DefaultBaseUrl { get; private set; } = "http://warhouse.runasp.net/";
+    
+    // Default to empty or localhost if config is missing (strictly relying on JSON now)
+    public static string DefaultBaseUrl { get; private set; } = "http://localhost:7266/";  // Fallback if JSON fails
 
-    public static HttpClient CreateHttpClient(string baseUrl = DefaultBaseUrl)
+    static ApiClient()
     {
+        LoadConfiguration();
+    }
+
+    private static void LoadConfiguration()
+    {
+        try
+        {
+            var path = "appsettings.json";
+            if (System.IO.File.Exists(path))
+            {
+                var json = System.IO.File.ReadAllText(path);
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("BaseUrl", out var element))
+                {
+                    var url = element.GetString();
+                    if (!string.IsNullOrWhiteSpace(url))
+                    {
+                        DefaultBaseUrl = url.TrimEnd('/') + "/";
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fail silently or log if possible, fallback to hardcoded default is already set
+            System.Diagnostics.Debug.WriteLine($"Failed to load config: {ex.Message}");
+        }
+    }
+
+    public static HttpClient CreateHttpClient(string? baseUrl = null)
+    {
+        var url = baseUrl ?? DefaultBaseUrl;
         var http = new HttpClient
         {
-            BaseAddress = new Uri(baseUrl, UriKind.Absolute),
+            BaseAddress = new Uri(url, UriKind.Absolute),
             Timeout = TimeSpan.FromSeconds(30)
         };
 
