@@ -661,11 +661,11 @@ namespace erp.Views.Orders
             }
             else
             {
-                // التحقق من أن الاسم ثلاثي (3 كلمات أو أكثر)
+                // التحقق من أن الاسم ثلاثي (3 كلمات بالضبط)
                 var nameParts = customerName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (nameParts.Length < 3)
+                if (nameParts.Length != 3)
                 {
-                    ShowError(CustomerErrorText, CustomerInputWrapper, "اسم العميل يجب أن يكون ثلاثياً على الأقل (3 أسماء)");
+                    ShowError(CustomerErrorText, CustomerInputWrapper, "اسم العميل يجب أن يكون ثلاثياً فقط (لا يقل ولا يزيد عن 3 أسماء)");
                     isValid = false;
                 }
             }
