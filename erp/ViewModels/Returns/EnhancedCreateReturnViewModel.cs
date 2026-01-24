@@ -367,8 +367,7 @@ namespace erp.ViewModels.Returns
 
                 return selected.All(i => 
                     i.ReturnQuantity > 0 && 
-                    i.ReturnQuantity <= i.Dto.Quantity && 
-                    !string.IsNullOrWhiteSpace(i.Reason));
+                    i.ReturnQuantity <= i.Dto.Quantity);
             }
             else
             {
@@ -378,8 +377,7 @@ namespace erp.ViewModels.Returns
 
                 return selectedInvoiceProducts.All(i => 
                     i.ReturnQuantity > 0 && 
-                    i.ReturnQuantity <= i.Dto.Quantity && 
-                    !string.IsNullOrWhiteSpace(i.Reason));
+                    i.ReturnQuantity <= i.Dto.Quantity);
             }
         }
 
@@ -426,8 +424,8 @@ namespace erp.ViewModels.Returns
             {
                 1 when IsCustomerReturn => "يرجى إدخال رقم الطلب وجلب المنتجات أولاً",
                 1 when IsSupplierReturn => "يرجى إدخال اسم المورد ورقم الفاتورة وتحميل المنتجات",
-                2 when IsCustomerReturn => "يرجى اختيار منتج واحد على الأقل وتحديد الكمية والسبب",
-                2 when IsSupplierReturn => "يرجى اختيار منتج واحد على الأقل من الفاتورة وتحديد الكمية والسبب",
+                2 when IsCustomerReturn => "يرجى اختيار منتج واحد على الأقل وتحديد الكمية",
+                2 when IsSupplierReturn => "يرجى اختيار منتج واحد على الأقل من الفاتورة وتحديد الكمية",
                 _ => "يرجى إكمال جميع البيانات المطلوبة"
             };
             SetStatus(message, StatusType.Warning);
@@ -688,11 +686,8 @@ namespace erp.ViewModels.Returns
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(CurrentSupplierItem.Reason))
-            {
-                SetStatus("يرجى إدخال سبب الإرجاع", StatusType.Warning);
-                return;
-            }
+            // Reason is now optional
+            // if (string.IsNullOrWhiteSpace(CurrentSupplierItem.Reason)) ...
 
             // Check for duplicate product
             if (SupplierReturnItems.Any(i => i.ProductName.Equals(CurrentSupplierItem.ProductName, StringComparison.OrdinalIgnoreCase)))
@@ -793,12 +788,12 @@ namespace erp.ViewModels.Returns
             {
                 if (item.ReturnQuantity <= 0)
                     return (false, $"الكمية غير صالحة للمنتج: {item.Dto.Productname}");
-                
+
                 if (item.ReturnQuantity > item.Dto.Quantity)
                     return (false, $"لا يمكن إرجاع كمية أكبر من المشتراة للمنتج: {item.Dto.Productname}");
-                
-                if (string.IsNullOrWhiteSpace(item.Reason))
-                    return (false, $"يجب إدخال سبب الإرجاع للمنتج: {item.Dto.Productname}");
+
+                // Reason is optional
+                // if (string.IsNullOrWhiteSpace(item.Reason)) ...
             }
 
             if (!int.TryParse(OrderCode, out int orderCodeInt))
@@ -817,6 +812,7 @@ namespace erp.ViewModels.Returns
 
             return await _returnsService.CreateReturnAsync(request);
         }
+
 
         private async Task<(bool Success, string ErrorMessage)> SubmitSupplierReturnAsync()
         {
@@ -838,8 +834,8 @@ namespace erp.ViewModels.Returns
                 if (item.ReturnQuantity > item.Dto.Quantity)
                     return (false, $"لا يمكن إرجاع كمية أكبر من الموجودة في الفاتورة للمنتج: {item.Dto.ProductName}");
                 
-                if (string.IsNullOrWhiteSpace(item.Reason))
-                    return (false, $"يجب إدخال سبب الإرجاع للمنتج: {item.Dto.ProductName}");
+                // Reason is optional
+                // if (string.IsNullOrWhiteSpace(item.Reason)) ...
             }
 
             var request = new ReturnToSupplierRequestDto

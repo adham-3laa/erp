@@ -124,11 +124,11 @@ namespace erp.Printing
                             // No alternating colors for pure B&W/Simple look, or maybe just borders
                             // Let's use simple borders as often requested in B&W
                              
-                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.ProductName);
-                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.CategoryName);
-                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.UnitPrice.ToString("N2"));
-                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.Quantity.ToString());
-                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.Total.ToString("N2"));
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.ProductName).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.CategoryName).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.UnitPrice.ToString("N2")).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.Quantity.ToString()).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.Total.ToString("N2")).Bold();
                         }
                     });
 
@@ -152,7 +152,7 @@ namespace erp.Printing
                                 t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.SubTotal:N2}").Bold();
 
                                 t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text("المدفوع");
-                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.PaidAmount:N2}");
+                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.PaidAmount:N2}").Bold();
 
                                 t.Cell().Padding(5).Text("المتبقي").Bold();
                                 t.Cell().Padding(5).AlignLeft().Text($"{_invoice.RemainingAmount:N2}").Bold();
