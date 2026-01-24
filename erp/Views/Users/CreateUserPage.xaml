@@ -5,215 +5,348 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="1000"
+             FlowDirection="RightToLeft">
+
+    <UserControl.Resources>
+        <!-- Animated Glow Effect -->
+        <DropShadowEffect x:Key="PrimaryOutlineGlow"
+                          Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                          BlurRadius="22"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+
+        <!-- Wizard Card with Gradient Border -->
+        <Style x:Key="WizardCardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="22"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                        <GradientStop Color="{StaticResource Purple600}" Offset="0.5"/>
+                        <GradientStop Color="{StaticResource Indigo600}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Padding" Value="32"/>
+            <Setter Property="Effect" Value="{StaticResource PrimaryOutlineGlow}"/>
+        </Style>
+
+        <!-- Field title -->
+        <Style x:Key="FieldTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Input Wrapper with Gradient Border -->
+        <Style x:Key="InputWrapperStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#E5E7EB" Offset="0"/>
+                        <GradientStop Color="#D1D5DB" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="0,0,0,24"/>
+        </Style>
+
+        <!-- Input Inner Style -->
+        <Style x:Key="InputInnerStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+
+        <!-- TextBox style -->
+        <Style x:Key="WizardTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}"/>
+        </Style>
+
+        <!-- Primary Action Button -->
+        <Style x:Key="PrimaryActionButton" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="MinWidth" Value="160"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="14"
+                                Padding="24,12">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                                    <GradientStop Color="{StaticResource Purple700}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect Color="{StaticResource Indigo700}"
+                                                  BlurRadius="12"
+                                                  ShadowDepth="4"
+                                                  Opacity="0.3"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource Indigo600}" Offset="0"/>
+                                            <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Secondary Action Button -->
+        <Style x:Key="SecondaryActionButton" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="14"
+                                Padding="24,12"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F5F3FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Bd" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
     <Grid Background="{StaticResource PageBgBrush}">
-        <!-- Outer Gradient Frame -->
-        <Border Style="{StaticResource GlowGradientFrame}" Margin="20">
-            <!-- Inner White Card -->
-            <Border Style="{StaticResource InnerCardContainer}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid Margin="28">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                        <!-- Header -->
-                        <StackPanel Grid.Row="0" Margin="0,0,0,24">
-                            <TextBlock Text="إنشاء مستخدم جديد"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextDarkBrush}"
-                                       HorizontalAlignment="Center"/>
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,32" HorizontalAlignment="Center">
+                    <TextBlock FontSize="28" FontWeight="Bold" HorizontalAlignment="Center">
+                        <TextBlock.Text>👤 إنشاء مستخدم جديد</TextBlock.Text>
+                        <TextBlock.Foreground>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="{StaticResource Indigo700}" Offset="0"/>
+                                <GradientStop Color="{StaticResource Purple600}" Offset="1"/>
+                            </LinearGradientBrush>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                    <TextBlock Text="إضافة مستخدم جديد للنظام وتحديد صلاحياته"
+                               FontSize="15"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Margin="0,8,0,0"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
 
-                            <TextBlock Text="املأ الحقول التالية لإنشاء مستخدم جديد في النظام"
-                                       FontSize="14"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,8,0,0"/>
-                        </StackPanel>
-
-                        <!-- Form -->
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Left Column -->
-                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <!-- Full Name -->
-                                <StackPanel Margin="0,0,0,20">
-                                    <TextBlock Text="الاسم الكامل"
-                                               FontSize="13"
-                                               FontWeight="Medium"
-                                               Foreground="{StaticResource TextDarkBrush}"
-                                               Margin="0,0,0,6"/>
-
-                                    <Border Style="{StaticResource GlowInputFrame}">
-                                        <Border Style="{StaticResource GlowInputInner}">
-                                            <TextBox Text="{Binding Fullname, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource GlowTextBox}"
-                                                     FontSize="14"/>
-                                        </Border>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Email -->
-                                <StackPanel Margin="0,0,0,20">
-                                    <TextBlock Text="البريد الإلكتروني"
-                                               FontSize="13"
-                                               FontWeight="Medium"
-                                               Foreground="{StaticResource TextDarkBrush}"
-                                               Margin="0,0,0,6"/>
-
-                                    <Border Style="{StaticResource GlowInputFrame}">
-                                        <Border Style="{StaticResource GlowInputInner}">
-                                            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource GlowTextBox}"
-                                                     FontSize="14"/>
-                                        </Border>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- User Type -->
-                                <StackPanel Margin="0,0,0,20">
-                                    <TextBlock Text="نوع المستخدم"
-                                               FontSize="13"
-                                               FontWeight="Medium"
-                                               Foreground="{StaticResource TextDarkBrush}"
-                                               Margin="0,0,0,6"/>
-
-                                    <Border Style="{StaticResource GlowInputFrame}">
-                                        <Border Style="{StaticResource GlowInputInner}">
-                                            <!-- تعديل الـ ComboBox -->
-                                            <ComboBox
-    ItemsSource="{Binding UserTypes}"
-    SelectedItem="{Binding SelectedUserType}"
-    DisplayMemberPath="Text"
-    SelectedValuePath="Value"
-    SelectedIndex="-1"
-    Background="Transparent"
-    BorderThickness="0"
-    FontSize="14"
-    Padding="4"/>
-
-
-                                        </Border>
-                                    </Border>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!-- Right Column -->
-                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                                <!-- Phone Number -->
-                                <StackPanel Margin="0,0,0,20">
-                                    <TextBlock Text="رقم الهاتف"
-                                               FontSize="13"
-                                               FontWeight="Medium"
-                                               Foreground="{StaticResource TextDarkBrush}"
-                                               Margin="0,0,0,6"/>
-
-                                    <Border Style="{StaticResource GlowInputFrame}">
-                                        <Border Style="{StaticResource GlowInputInner}">
-                                            <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource GlowTextBox}"
-                                                     FontSize="14"/>
-                                        </Border>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Password -->
-                                <StackPanel Margin="0,0,0,20">
-                                    <TextBlock Text="كلمة المرور"
-                                               FontSize="13"
-                                               FontWeight="Medium"
-                                               Foreground="{StaticResource TextDarkBrush}"
-                                               Margin="0,0,0,6"/>
-
-                                    <Border Style="{StaticResource GlowInputFrame}">
-                                        <Border Style="{StaticResource GlowInputInner}">
-                                            <PasswordBox x:Name="PasswordBox"
-                                                         PasswordChanged="PasswordBox_PasswordChanged"
-                                                         Style="{StaticResource GlowPasswordBox}"/>
-                                        </Border>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Confirm Password -->
-                                <StackPanel Margin="0,0,0,20">
-                                    <TextBlock Text="تأكيد كلمة المرور"
-                                               FontSize="13"
-                                               FontWeight="Medium"
-                                               Foreground="{StaticResource TextDarkBrush}"
-                                               Margin="0,0,0,6"/>
-
-                                    <Border Style="{StaticResource GlowInputFrame}">
-                                        <Border Style="{StaticResource GlowInputInner}">
-                                            <PasswordBox x:Name="ConfirmPasswordBox"
-                                                         PasswordChanged="ConfirmPasswordBox_PasswordChanged"
-                                                         Style="{StaticResource GlowPasswordBox}"/>
-                                        </Border>
-                                    </Border>
-                                </StackPanel>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- Loading Overlay -->
-                        <Border
-        Background="#80FFFFFF"
-        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-        IsHitTestVisible="{Binding IsLoading}"
-        Panel.ZIndex="999" Margin="-10,260,10,18" Grid.Row="1">
-
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="جاري إنشاء المستخدم..."
-                       Margin="0,12,0,0"
-                       Foreground="{StaticResource TextMutedBrush}"/>
-                                <ProgressBar IsIndeterminate="True" Width="200" Height="6"/>
-                            </StackPanel>
+                <!-- Wizard Card -->
+                <Border Grid.Row="1"
+                        Style="{StaticResource WizardCardStyle}"
+                        MaxWidth="550"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        Margin="0,0,0,40">
+                    
+                    <StackPanel>
+                        <!-- Full Name -->
+                        <TextBlock Text="الاسم الكامل" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border Style="{StaticResource InputWrapperStyle}">
+                            <Border Style="{StaticResource InputInnerStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <materialDesign:PackIcon Kind="AccountOutline" 
+                                                           Foreground="{StaticResource TextMutedBrush}" 
+                                                           Width="20" Height="20" 
+                                                           Margin="14,0,0,0"
+                                                           VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Fullname, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource WizardTextBoxStyle}"
+                                             Padding="10,12"
+                                             materialDesign:HintAssist.Hint="الاسم الثلاثي (مطلوب)"/>
+                                </Grid>
+                            </Border>
                         </Border>
 
-                        <!-- Buttons -->
-                        <StackPanel Grid.Row="2" 
-                                    Orientation="Horizontal" 
+                        <!-- Phone Number -->
+                        <Grid>
+                            <TextBlock Text="رقم الهاتف" Style="{StaticResource FieldTitleStyle}" HorizontalAlignment="Left"/>
+                            <TextBlock Text="(اختياري)" 
+                                       FontSize="12" 
+                                       Foreground="{StaticResource TextMutedBrush}" 
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Top"
+                                       Margin="0,4,0,0"/>
+                        </Grid>
+                        
+                        <Border Style="{StaticResource InputWrapperStyle}">
+                            <Border Style="{StaticResource InputInnerStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <materialDesign:PackIcon Kind="PhoneOutline" 
+                                                           Foreground="{StaticResource TextMutedBrush}" 
+                                                           Width="20" Height="20" 
+                                                           Margin="14,0,0,0"
+                                                           VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource WizardTextBoxStyle}"
+                                             Padding="10,12"
+                                             materialDesign:HintAssist.Hint="01xxxxxxxxx"/>
+                                </Grid>
+                            </Border>
+                        </Border>
+
+                        <!-- User Type -->
+                        <TextBlock Text="نوع المستخدم / الصلاحية" Style="{StaticResource FieldTitleStyle}"/>
+                        <Border Style="{StaticResource InputWrapperStyle}">
+                            <Border Style="{StaticResource InputInnerStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <materialDesign:PackIcon Kind="BadgeAccountHorizontalOutline" 
+                                                           Foreground="{StaticResource TextMutedBrush}" 
+                                                           Width="20" Height="20" 
+                                                           Margin="14,0,0,0"
+                                                           VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding UserTypes}"
+                                              SelectedItem="{Binding SelectedUserType}"
+                                              DisplayMemberPath="Text"
+                                              SelectedValuePath="Value"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              Padding="10,12"
+                                              Height="46"
+                                              FontSize="15"
+                                              VerticalContentAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </Border>
+
+                        <!-- Hidden Fields (Preserved) -->
+                        <StackPanel Visibility="Collapsed">
+                            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
+                            <PasswordBox x:Name="PasswordBox" PasswordChanged="PasswordBox_PasswordChanged"/>
+                            <PasswordBox x:Name="ConfirmPasswordBox" PasswordChanged="ConfirmPasswordBox_PasswordChanged"/>
+                        </StackPanel>
+
+                        <!-- Error Message -->
+                        <StackPanel Orientation="Horizontal" 
+                                    Margin="0,0,0,24" 
                                     HorizontalAlignment="Center"
-                                    Margin="0,32,0,0">
+                                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <materialDesign:PackIcon Kind="AlertCircleOutline" Foreground="#EF4444" Width="20" Height="20" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ErrorMessage}"
+                                       Foreground="#EF4444"
+                                       FontSize="14"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Loading Indicator -->
+                        <StackPanel Margin="0,0,0,20" 
+                                    HorizontalAlignment="Center" 
+                                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ProgressBar IsIndeterminate="True" Height="4" Width="150" Margin="0,0,0,8"/>
+                            <TextBlock Text="جاري حفظ البيانات..." Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Buttons Actions -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
                             <Button Command="{Binding CreateCommand}"
-                                    Style="{StaticResource DarkButtonStyle}"
-                                    MinWidth="140"
-                                    Margin="0,0,12,0">
+                                    Style="{StaticResource PrimaryActionButton}"
+                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                    Margin="0,0,16,0">
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Check" Width="18" Height="18" Margin="0,0,6,0"/>
-                                    <TextBlock Text="إنشاء مستخدم"/>
+                                    <TextBlock Text="حفظ المستخدم"/>
+                                    <materialDesign:PackIcon Kind="Check" Width="20" Height="20" Margin="8,0,0,0"/>
                                 </StackPanel>
                             </Button>
 
                             <Button Command="{Binding CancelCommand}"
-                                    Style="{StaticResource DarkButtonStyle}"
-                                    Background="{StaticResource TextMutedBrush}"
-                                    MinWidth="140">
+                                    Style="{StaticResource SecondaryActionButton}"
+                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}">
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Close" Width="18" Height="18" Margin="0,0,6,0"/>
                                     <TextBlock Text="إلغاء"/>
+                                    <materialDesign:PackIcon Kind="Close" Width="20" Height="20" Margin="8,0,0,0"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
 
-                        <!-- Error Message Display -->
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   Foreground="Red"
-                                   FontSize="14"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,268,0,10"
-                                   Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" 
-                                   Grid.Row="1" 
-                                   TextWrapping="WrapWithOverflow"/>
-                    </Grid>
-                </ScrollViewer>
-            </Border>
-        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

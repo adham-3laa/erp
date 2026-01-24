@@ -320,7 +320,7 @@
                                             ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 
                         <DataGridTextColumn Header="النوع"
-                                            Binding="{Binding Type}"
+                                            Binding="{Binding TypeDisplayName}"
                                             Width="*"
                                             ElementStyle="{StaticResource CenteredTextColumnElementStyle}"/>
 

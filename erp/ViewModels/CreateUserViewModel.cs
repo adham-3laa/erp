@@ -20,11 +20,11 @@ namespace erp.ViewModels
 
             UserTypes = new ObservableCollection<UserTypeOption>
 {
-    new UserTypeOption("مدير النظام", "SystemAdmin"),
+    // new UserTypeOption("مدير النظام", "SystemAdmin"),
     new UserTypeOption("مستخدم", "User"),
     new UserTypeOption("عميل", "Customer"),
     new UserTypeOption("مندوب مبيعات", "SalesRep"),
-    new UserTypeOption("مدير مخزن", "StoreManager"),
+    // new UserTypeOption("مدير مخزن", "StoreManager"),
     new UserTypeOption("مورد", "Supplier"),
     new UserTypeOption("محاسب", "Accountant")
 };
