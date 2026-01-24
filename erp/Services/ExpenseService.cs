@@ -23,7 +23,7 @@ namespace erp.Services
 
             _client = new HttpClient(handler)
             {
-                BaseAddress = new Uri("http://warhouse.runasp.net/")
+                BaseAddress = new Uri(ApiClient.DefaultBaseUrl)
             };
         }
 

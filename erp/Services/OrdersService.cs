@@ -45,7 +45,7 @@ namespace erp.Services
     public class OrdersService
     {
         private readonly ApiClient _api;
-        private const string BaseUrl = "http://warhouse.runasp.net"; // لو swagger موجود هنا
+        private string BaseUrl => ApiClient.DefaultBaseUrl.TrimEnd('/');
 
         public OrdersService(ApiClient api)
         {

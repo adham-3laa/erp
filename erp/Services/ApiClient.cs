@@ -33,7 +33,10 @@ public sealed class ApiClient
         }
     }
 
-    public static HttpClient CreateHttpClient(string baseUrl = "http://warhouse.runasp.net/")
+    // Public constant for default base URL
+    public const string DefaultBaseUrl = "http://warhouse.runasp.net/";
+
+    public static HttpClient CreateHttpClient(string baseUrl = DefaultBaseUrl)
     {
         var http = new HttpClient
         {

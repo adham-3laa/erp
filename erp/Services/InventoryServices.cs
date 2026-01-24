@@ -21,10 +21,7 @@ namespace erp.Services
 
         public InventoryService()
         {
-            _client = new HttpClient
-            {
-                BaseAddress = new Uri("http://warhouse.runasp.net/")
-            };
+            _client = ApiClient.CreateHttpClient();
         }
 
         // ================== ✅ NEW: Lightweight DTO for printing ==================

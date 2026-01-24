@@ -54,7 +54,7 @@ namespace erp
 
             Session = new AuthSession();
 
-            Http = ApiClient.CreateHttpClient("http://warhouse.runasp.net/");
+            Http = ApiClient.CreateHttpClient();
             Api = new ApiClient(Http, Session);
 
             Categories = new CategoryService(Api);

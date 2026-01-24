@@ -30,10 +30,7 @@ namespace erp.Services
             _inventoryService = inventoryService;
             _invoiceService = invoiceService;
 
-            _categoriesClient = new HttpClient
-            {
-                BaseAddress = new Uri("http://warhouse.runasp.net/")
-            };
+            _categoriesClient = ApiClient.CreateHttpClient();
         }
 
         public async Task<PrintableInvoiceDto?> BuildPrintableInvoiceAsync(
