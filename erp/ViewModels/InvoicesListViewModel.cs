@@ -121,26 +121,15 @@ namespace erp.ViewModels.Invoices
 
             try
             {
-                var response = await _invoiceService.GetInvoices(
-                    search: null,
-                    invoiceType: null,
-                    query: RecipientQuery,
-                    orderId: null,
-                    lastInvoice: null,
-                    fromDate: null,
-                    toDate: null,
-                    page: 1,
-                    pageSize: 10
-                );
-
+                var suggestions = await _invoiceService.GetInvoicesAutocompleteAsync(RecipientQuery);
+                                
                 var search = RecipientQuery.ToLower();
 
-                var names = response.Items
-                    .Where(x => !string.IsNullOrWhiteSpace(x.RecipientName) || !string.IsNullOrWhiteSpace(x.SupplierName))
-                    .Select(x => x.DisplayName)
+                var names = suggestions
+                    .Where(x => !string.IsNullOrWhiteSpace(x.fullname))
+                    .Select(x => x.fullname)
                     .Distinct()
                     .ToList();
-
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
@@ -150,16 +139,28 @@ namespace erp.ViewModels.Invoices
                     {
                         var lower = name.ToLower();
                         var index = lower.IndexOf(search);
-                        if (index < 0) continue;
-
-                        RecipientSuggestions.Add(new RecipientSuggestion
+                        
+                        if (index < 0) 
                         {
-                            FullName = name,
-                            BeforeMatch = name.Substring(0, index),
-                            Match = name.Substring(index, search.Length),
-                            AfterMatch = name.Substring(index + search.Length)
-                        });
-
+                             // Fallback if no exact match found (unlikely if API works as expected, but safe)
+                             RecipientSuggestions.Add(new RecipientSuggestion
+                             {
+                                 FullName = name,
+                                 BeforeMatch = name,
+                                 Match = "",
+                                 AfterMatch = ""
+                             });
+                        }
+                        else
+                        {
+                            RecipientSuggestions.Add(new RecipientSuggestion
+                            {
+                                FullName = name,
+                                BeforeMatch = name.Substring(0, index),
+                                Match = name.Substring(index, search.Length),
+                                AfterMatch = name.Substring(index + search.Length)
+                            });
+                        }
                     }
 
                     OnPropertyChanged(nameof(HasNoRecipientResults));

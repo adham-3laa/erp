@@ -83,16 +83,26 @@ namespace erp.Services
                         // Use injected service instead of creating new one
                         var supplierProducts = await _invoiceService.GetSupplierInvoiceProductsAsync(invoice.code);
 
+                        // Load inventory & categories to resolve category names
+                        // Renamed to avoid scope conflict with outer variables
+                        var allInventoryProducts = await _inventoryService.GetAllProductsAsync();
+                        var allCategoriesMap = await GetCategoriesMapAsync();
+
                         foreach (var sp in supplierProducts)
                         {
                             if (sp == null) continue;
+
+                            var product = allInventoryProducts
+                                .FirstOrDefault(p => string.Equals(p.ProductId?.Trim(), sp.ProductId?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                            var categoryName = ResolveCategoryName(product?.Category, allCategoriesMap);
 
                             printable.Items.Add(new PrintableInvoiceItemDto
                             {
                                 ProductName = sp.ProductName ?? "-",
                                 Quantity = (int)sp.Quantity,
                                 UnitPrice = sp.BuyPrice,
-                                CategoryName = "غير محدد"
+                                CategoryName = categoryName
                             });
                         }
                     }
@@ -177,6 +187,11 @@ namespace erp.Services
             // 3️⃣ Get categories map (categoryId -> categoryName)
             var categoriesMap = await GetCategoriesMapAsync();
 
+            // Use OrderCode if available for better readability, otherwise fallback to GUID
+            string displayOrderId = (invoice.OrderCode.HasValue && invoice.OrderCode.Value > 0) 
+                ? invoice.OrderCode.Value.ToString() 
+                : orderId;
+
             var printableCustomer = new PrintableInvoiceDto
             {
                 InvoiceId = invoice.Id,
@@ -184,7 +199,7 @@ namespace erp.Services
                 InvoiceDate = invoice.GeneratedDate,
                 CustomerName = invoice.RecipientName ?? user.Fullname,
                 CustomerEmail = user.Email,
-                OrderId = orderId,
+                OrderId = displayOrderId,
                 PaidAmount = invoice.PaidAmount,
                 RemainingAmount = invoice.RemainingAmount
             };

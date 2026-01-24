@@ -289,6 +289,23 @@ namespace erp.Services
         /// </summary>
         /// <param name="invoiceCode">The invoice code (sequential integer) - REQUIRED</param>
         /// <returns>List of products returned to the supplier</returns>
+        /// <summary>
+        /// Gets Supplier Return Invoice products by invoice code.
+        /// 
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// MANDATORY ENDPOINT (Single Source of Truth):
+        /// GET /api/Returns/GetAllProductsInSpecificReturnSupplierInvoice?invoiceCode={code}
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// 
+        /// This is the ONLY way to retrieve Supplier Return Invoice details.
+        /// 
+        /// ⚠️ CONSTRAINTS:
+        /// - Use invoiceCode ONLY (do NOT use OrderId, CustomerId, or SalesRepId)
+        /// - This is an ERP-critical financial and inventory document
+        /// - The returned data affects supplier reconciliation and inventory counts
+        /// </summary>
+        /// <param name="invoiceCode">The invoice code (sequential integer) - REQUIRED</param>
+        /// <returns>List of products returned to the supplier</returns>
         public async Task<List<SupplierReturnInvoiceProductDto>> GetSupplierReturnInvoiceProductsAsync(int invoiceCode)
         {
             if (invoiceCode <= 0)
@@ -320,6 +337,30 @@ namespace erp.Services
 
             return apiResponse?.value ?? new List<SupplierReturnInvoiceProductDto>();
         }
+
+        // =====================================================
+        // =============== Autocomplete ========================
+        // =====================================================
+
+        public async Task<List<InvoiceRecipientDto>> GetInvoicesAutocompleteAsync(string term)
+        {
+            AttachToken();
+            var response = await _client.GetAsync($"api/Invoices/All/autocomplete?term={Uri.EscapeDataString(term)}");
+            if (!response.IsSuccessStatusCode) return new List<InvoiceRecipientDto>();
+            
+            var content = await response.Content.ReadAsStringAsync();
+            var apiResponse = JsonSerializer.Deserialize<AutocompleteResponse<InvoiceRecipientDto>>(
+                content, 
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+            return apiResponse?.value ?? new List<InvoiceRecipientDto>();
+        }
+    }
+
+    public class InvoiceRecipientDto
+    {
+        public int usernumber { get; set; }
+        public string fullname { get; set; }
     }
 }
 

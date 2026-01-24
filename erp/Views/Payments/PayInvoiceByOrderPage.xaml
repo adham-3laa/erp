@@ -76,7 +76,7 @@
                                    Foreground="#374151"/>
                         
                         <TextBox Style="{StaticResource InputTextBox}" 
-                                 Text="{Binding PaidAmount, UpdateSourceTrigger=PropertyChanged}"/>
+                                 Text="{Binding PaidAmountText, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <!-- Messages Area -->
                         <StackPanel Margin="0,16,0,0">
