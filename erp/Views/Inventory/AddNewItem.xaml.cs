@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using erp.Services.Category;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -16,6 +17,7 @@ namespace erp.Views.Inventory
     {
         private readonly InventoryService _service = new();
         private readonly OrdersService _ordersService;
+        private readonly CategoryService _categoryService;
         private readonly List<Product> _products = new();
 
         private int _count;
@@ -41,6 +43,7 @@ namespace erp.Views.Inventory
         {
             InitializeComponent();
             _ordersService = new OrdersService(App.Api);
+            _categoryService = new CategoryService(App.Api);
             UpdatePlaceholders();
         }
 
@@ -134,13 +137,13 @@ namespace erp.Views.Inventory
         {
             try
             {
-                var products = await _service.GetAllProductsLookupAsync();
-                _allCategories = products
-                    .Select(p => p.CategoryName)
+                var categories = await _categoryService.GetAllAsync();
+                _allCategories = categories
+                    .Select(c => c.Name)
                     .Where(c => !string.IsNullOrWhiteSpace(c))
                     .Distinct()
                     .OrderBy(c => c)
-                    .ToList()!;
+                    .ToList();
             }
             catch (Exception ex)
             {
