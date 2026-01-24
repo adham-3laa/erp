@@ -33,7 +33,7 @@ public sealed class ApiClient
         }
     }
 
-    public static HttpClient CreateHttpClient(string baseUrl = "http://warhouse.runasp.net/")
+    public static HttpClient CreateHttpClient(string baseUrl = "http://localhost:7266/")
     {
         var http = new HttpClient
         {

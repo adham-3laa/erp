@@ -23,7 +23,7 @@ namespace erp.Services
         {
             _client = new HttpClient
             {
-                BaseAddress = new Uri("http://warhouse.runasp.net/")
+                BaseAddress = new Uri("http://localhost:7266/")
             };
         }
 
