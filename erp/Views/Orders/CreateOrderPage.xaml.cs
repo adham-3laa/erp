@@ -1,5 +1,6 @@
 ﻿using erp.DTOS.Orders;
 using erp.Services;
+using erp.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -633,10 +634,14 @@ namespace erp.Views.Orders
             catch (Exception ex)
             {
                 SetLoading(false);
+                
+                // تعريب رسالة الخطأ
+                var localizedError = ErrorMessageLocalizer.GetLocalizedErrorFromException(ex);
+                
                 SetStatus($"فشل في إنشاء الطلب", StatusType.Error);
 
                 MessageBox.Show(
-                    $"حدث خطأ أثناء إنشاء الطلب:\n{ex.Message}",
+                    $"حدث خطأ أثناء إنشاء الطلب:\n{localizedError}",
                     "خطأ",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
