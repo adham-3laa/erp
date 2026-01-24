@@ -98,6 +98,11 @@ namespace erp.ViewModels
             if (string.IsNullOrWhiteSpace(Fullname))
                 return Fail("الاسم الكامل مطلوب");
 
+            // التحقق من أن الاسم يتكون من 3 أسماء بالضبط
+            var nameParts = Fullname.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (nameParts.Length != 3)
+                return Fail("يجب أن يكون الاسم ثلاثي فقط (الاسم الأول + اسم الأب + اسم الجد)");
+
             if (string.IsNullOrWhiteSpace(Email))
                 return Fail("البريد الإلكتروني مطلوب");
 

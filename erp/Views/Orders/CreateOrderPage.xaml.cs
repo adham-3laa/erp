@@ -52,6 +52,15 @@ namespace EduGate.Views.Orders
                 return;
             }
 
+            // التحقق من أن الاسم يتكون من 3 أسماء بالضبط
+            var nameParts = CustomerCodeTextBox.Text.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (nameParts.Length != 3)
+            {
+                MessageBox.Show("يجب أن يكون الاسم ثلاثي فقط (الاسم الأول + اسم الأب + اسم الجد)", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomerCodeTextBox.Focus();
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
             {
                 MessageBox.Show("أدخل اسم المنتج");
