@@ -546,6 +546,64 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
+                        <!-- Invoice Type -->
+                        <DataGridTemplateColumn Header="نوع الفاتورة" Width="Auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="6" Padding="8,4" HorizontalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#F1F5F9"/> <!-- Default Gray -->
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Type}" Value="CustomerInvoice">
+                                                        <Setter Property="Background" Value="#DBEAFE"/> <!-- Blue 100 -->
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="SupplierInvoice">
+                                                        <Setter Property="Background" Value="#FFEDD5"/> <!-- Orange 100 -->
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="ReturnInvoice">
+                                                        <Setter Property="Background" Value="#FEE2E2"/> <!-- Red 100 -->
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="SupplierReturnInvoice">
+                                                        <Setter Property="Background" Value="#FEE2E2"/> <!-- Red 100 -->
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="CommissionInvoice">
+                                                        <Setter Property="Background" Value="#E0E7FF"/> <!-- Indigo 100 -->
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding TypeDisplayName}" 
+                                                   FontSize="12" 
+                                                   FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#475569"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Type}" Value="CustomerInvoice">
+                                                            <Setter Property="Foreground" Value="#1E40AF"/> <!-- Blue 800 -->
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="SupplierInvoice">
+                                                            <Setter Property="Foreground" Value="#9A3412"/> <!-- Orange 800 -->
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="ReturnInvoice">
+                                                            <Setter Property="Foreground" Value="#991B1B"/> <!-- Red 800 -->
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="SupplierReturnInvoice">
+                                                            <Setter Property="Foreground" Value="#991B1B"/> <!-- Red 800 -->
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="CommissionInvoice">
+                                                            <Setter Property="Foreground" Value="#3730A3"/> <!-- Indigo 800 -->
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
                         <!-- Date -->
                         <DataGridTemplateColumn Header="التاريخ" Width="*">
                             <DataGridTemplateColumn.CellTemplate>

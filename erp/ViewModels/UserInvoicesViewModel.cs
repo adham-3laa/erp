@@ -61,54 +61,74 @@ namespace erp.ViewModels
         /// بدل ما نجيب فواتير "بالنوع" لكل الناس من /api/Invoices/list
         /// بنجيب فواتير اليوزر نفسه من endpoints المتخصصة حسب نوعه.
         /// </summary>
+        /// <summary>
+        /// Loads invoices from multiple sources (Customer & Supplier endpoints)
+        /// to support users who act as both Suppliers and Customers using the same ID.
+        /// </summary>
         private async Task LoadInvoices()
         {
             Invoices.Clear();
 
             try
             {
-                List<InvoiceResponseDto> list = new();
+                var tasks = new List<Task<List<InvoiceResponseDto>>>();
 
-                switch (User.UserType)
+                // 1. Always try to fetch Customer Invoices (Sales)
+                // Endpoint: /api/Invoices/AllInvoicesForSpecificCustomerByCustomerId
+                tasks.Add(GetInvoicesSafe(() => _invoiceService.GetInvoicesForCustomer(User.Id)));
+
+                // 2. Always try to fetch Supplier Invoices (Supply)
+                // Endpoint: /api/Invoices/AllInvoicesForSpecificSupplierBySupplierId
+                tasks.Add(GetInvoicesSafe(() => _invoiceService.GetInvoicesForSupplier(User.Id)));
+
+                // 3. If SalesRep, fetch their specific invoices too
+                if (User.UserType == "SalesRep")
                 {
-                    case "Customer":
-                        // ✅ فواتير عميل محدد
-                        list = await _invoiceService.GetInvoicesForCustomer(User.Id);
-                        break;
-
-                    case "Supplier":
-                        // ✅ فواتير مورد محدد
-                        list = await _invoiceService.GetInvoicesForSupplier(User.Id);
-                        break;
-
-                    case "SalesRep":
-                        // ✅ فواتير مندوب محدد
-                        // لو عندك SalesRepId مختلف عن User.Id، بدّل هنا
-                        list = await _invoiceService.GetInvoicesForSalesRep(User.Id);
-                        break;
-
-                    default:
-                        // لو نوع غير معروف/أدمن: خليها فاضية (أو ودّيه لصفحة إدارة الفواتير)
-                        list = new List<InvoiceResponseDto>();
-                        break;
+                    tasks.Add(GetInvoicesSafe(() => _invoiceService.GetInvoicesForSalesRep(User.Id)));
                 }
 
-                // ✅ Sort by GeneratedDate DESC (newest first) - ERP-grade invoice register requirement
-                var sortedList = list.OrderByDescending(i => i.GeneratedDate).ToList();
-                
-                foreach (var invoice in sortedList)
+                // Wait for all requests to complete
+                await Task.WhenAll(tasks);
+
+                // Merge all lists
+                var allInvoices = tasks
+                    .SelectMany(t => t.Result) // Flatten results
+                    .GroupBy(i => i.Id)        // Group by ID to remove duplicates
+                    .Select(g => g.First())    // Take first of each group
+                    .OrderByDescending(i => i.GeneratedDate) // Sort by Date DESC (Newest First)
+                    .ToList();
+
+                // Add to ObservableCollection
+                foreach (var invoice in allInvoices)
                     Invoices.Add(invoice);
 
-                // ✅ Notify UI to update statistics cards
+                // Update Statistics
                 OnPropertyChanged(nameof(TotalAmount));
                 OnPropertyChanged(nameof(TotalPaid));
                 OnPropertyChanged(nameof(TotalRemaining));
                 OnPropertyChanged(nameof(HasNoInvoices));
             }
-            catch
+            catch (Exception ex)
             {
-                // تقدر تضيف MessageBox لو تحب
-                // MessageBox.Show(ex.Message);
+                System.Diagnostics.Debug.WriteLine($"[UserInvoicesVM] Critical Error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Helper to swallow exceptions from individual endpoints (e.g. if user not found as Supplier)
+        /// returning an empty list instead of crashing the whole load.
+        /// </summary>
+        private async Task<List<InvoiceResponseDto>> GetInvoicesSafe(Func<Task<List<InvoiceResponseDto>>> action)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                // Log warning but don't fail
+                System.Diagnostics.Debug.WriteLine($"[UserInvoicesVM] Warning: Failed to fetch invoices from one source. {ex.Message}");
+                return new List<InvoiceResponseDto>();
             }
         }
 
