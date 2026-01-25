@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Threading;
 using erp.Services;
 using erp.Services.Category;
+using erp.Views;
 using erp.Views.Auth;
 
 // ✅ QuestPDF
@@ -27,6 +28,9 @@ namespace erp
         public static IAuthSession Session { get; private set; }
 
         public static AuthService Auth { get; private set; } = null!;
+
+        // 🔐 System Lock Service
+        public static LockService Lock { get; private set; } = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -65,8 +69,59 @@ namespace erp
             Dashboard = new DashboardService(Api);
             Cheques = new ChequeService(Api);
 
+            // 🔐 Initialize Lock Service
+            Lock = new LockService();
+
             ErrorHandlingService.LogInfo("Application started successfully.");
 
+            // ═══════════════════════════════════════════════════════════
+            // 🔐 TIME-LOCK CHECK - Must happen BEFORE login
+            // ═══════════════════════════════════════════════════════════
+            
+            if (Lock.IsSystemLocked())
+            {
+                ErrorHandlingService.LogInfo("System is locked. Showing lock overlay.");
+                
+                // Show lock overlay - blocks everything until unlocked
+                var lockOverlay = new SystemLockOverlay(Lock, OnSystemUnlocked);
+                lockOverlay.Show();
+            }
+            else
+            {
+                // System not locked - proceed to login normally
+                ShowLoginWindow();
+            }
+        }
+
+        /// <summary>
+        /// Called when system is successfully unlocked.
+        /// Closes the lock overlay and proceeds to login.
+        /// </summary>
+        private void OnSystemUnlocked()
+        {
+            ErrorHandlingService.LogInfo("System unlocked. Proceeding to login.");
+            
+            // Find and close the lock overlay
+            foreach (Window window in Current.Windows)
+            {
+                if (window is SystemLockOverlay lockOverlay)
+                {
+                    // Allow closing
+                    lockOverlay.Tag = "AllowClose";
+                    lockOverlay.Close();
+                    break;
+                }
+            }
+            
+            // Show login window
+            ShowLoginWindow();
+        }
+
+        /// <summary>
+        /// Shows the login window.
+        /// </summary>
+        private void ShowLoginWindow()
+        {
             var loginWindow = new LoginWindow();
             loginWindow.Show();
         }
