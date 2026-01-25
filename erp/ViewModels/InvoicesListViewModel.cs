@@ -68,7 +68,6 @@ namespace erp.ViewModels.Invoices
                 : InvoiceType switch
                 {
                     "فواتير العملاء" => "CustomerInvoice",
-                    "فواتير العمولات" => "CommissionInvoice",
                     "فواتير الموردين" => "SupplierInvoice",
                     "فواتير المرتجعات" => "ReturnInvoice",
                     "فواتير مرتجعات الموردين" => "SupplierReturnInvoice",

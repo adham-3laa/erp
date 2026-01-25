@@ -47,5 +47,16 @@ namespace erp.Views.Invoices
             }
         }
 
+        // ✅ Navigate to Sales & Return Invoice page
+        private void SalesReturnInvoice_Click(object sender, RoutedEventArgs e)
+        {
+            var nav = NavigationService.GetNavigationService(this);
+
+            if (nav != null)
+                nav.Navigate(new SalesReturnInvoicePage());
+            else
+                MessageBox.Show("NavigationService غير متاح", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
     }
 }

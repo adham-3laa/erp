@@ -30,6 +30,7 @@
             <conv:CollectionCountToVisibilityConverter x:Key="CollectionCountToVisibilityConverter"/>
             <conv:UserStatusConverter x:Key="UserStatusConverter"/>
             <conv:QuantityLessThanConverter x:Key="QuantityLessThanConverter"/>
+            <conv:IsNegativeConverter x:Key="IsNegativeConverter"/>
             
         </ResourceDictionary>
     </Application.Resources>

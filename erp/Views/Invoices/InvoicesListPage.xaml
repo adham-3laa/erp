@@ -94,6 +94,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0"
@@ -106,7 +107,23 @@
 
             <Border Grid.Column="1" Opacity="0"/>
 
+            <!-- ✨ Sales & Return Invoice Button -->
             <Button Grid.Column="2"
+                    Content="📊 كشف المبيعات والتوريدات"
+                    Width="220"
+                    Style="{StaticResource DarkButtonStyle}"
+                    Click="SalesReturnInvoice_Click"
+                    ToolTip="عرض كشف حساب المبيعات والتوريدات للعميل"
+                    Margin="0,0,10,0">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#4F46E5" Offset="0"/>
+                        <GradientStop Color="#7C3AED" Offset="1"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
+
+            <Button Grid.Column="3"
                     Content="بحث"
                     Width="120"
                     Style="{StaticResource DarkButtonStyle}"
@@ -148,7 +165,6 @@
                             <ComboBox SelectedItem="{Binding InvoiceType}">
                                 <sys:String>الكل</sys:String>
                                 <sys:String>فواتير العملاء</sys:String>
-                                <sys:String>فواتير العمولات</sys:String>
                                 <sys:String>فواتير الموردين</sys:String>
                                 <sys:String>فواتير المرتجعات</sys:String>
                                 <sys:String>فواتير مرتجعات الموردين</sys:String>
