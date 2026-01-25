@@ -25,7 +25,7 @@ namespace erp.Views.Orders
         private readonly ObservableCollection<OrderItemViewModel> _items = new();
 
         // حقول للـ Autocomplete
-        private List<CustomerAutocompleteItem> _customerSuggestions = new();
+        private List<SupplierAutocompleteItem> _customerSuggestions = new();
         private List<ProductAutocompleteItem> _productSuggestions = new();
 
         // Debounce timers
@@ -37,7 +37,7 @@ namespace erp.Views.Orders
         private OrderItemViewModel? _currentProductItem;
 
         // العميل المحدد
-        private CustomerAutocompleteItem? _selectedCustomer;
+        private SupplierAutocompleteItem? _selectedCustomer;
 
         // ثابت لوقت التأخير في البحث (بالمللي ثانية)
         private const int SearchDebounceMs = 300;
@@ -101,7 +101,7 @@ namespace erp.Views.Orders
                 if (token.IsCancellationRequested) return;
 
                 // البحث من الـ API
-                _customerSuggestions = await _ordersService.GetCustomersAutocompleteAsync(searchText);
+                _customerSuggestions = await _ordersService.GetSuppliersAutocompleteAsync(searchText);
 
                 if (token.IsCancellationRequested) return;
 
@@ -190,7 +190,7 @@ namespace erp.Views.Orders
                     break;
 
                 case Key.Enter:
-                    if (CustomerSuggestionsListBox.SelectedItem is CustomerAutocompleteItem selected)
+                    if (CustomerSuggestionsListBox.SelectedItem is SupplierAutocompleteItem selected)
                     {
                         SelectCustomer(selected);
                     }
@@ -211,7 +211,7 @@ namespace erp.Views.Orders
 
         private void CustomerSuggestionsListBox_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (CustomerSuggestionsListBox.SelectedItem is CustomerAutocompleteItem selected)
+            if (CustomerSuggestionsListBox.SelectedItem is SupplierAutocompleteItem selected)
             {
                 SelectCustomer(selected);
             }
@@ -222,7 +222,7 @@ namespace erp.Views.Orders
             e.Handled = false;
         }
 
-        private void SelectCustomer(CustomerAutocompleteItem customer)
+        private void SelectCustomer(SupplierAutocompleteItem customer)
         {
             _selectedCustomer = customer;
             CustomerNameTextBox.Text = customer.fullname;
