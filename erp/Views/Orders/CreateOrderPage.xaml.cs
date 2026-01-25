@@ -26,21 +26,18 @@ namespace erp.Views.Orders
 
         // حقول للـ Autocomplete
         private List<CustomerAutocompleteItem> _customerSuggestions = new();
-        private List<SalesRepAutocompleteItem> _salesRepSuggestions = new();
         private List<ProductAutocompleteItem> _productSuggestions = new();
 
         // Debounce timers
         private CancellationTokenSource? _customerSearchCts;
-        private CancellationTokenSource? _salesRepSearchCts;
         private CancellationTokenSource? _productSearchCts;
 
         // المنتج الحالي المحدد للـ Autocomplete
         private TextBox? _currentProductTextBox;
         private OrderItemViewModel? _currentProductItem;
 
-        // العميل والمندوب المحددين
+        // العميل المحدد
         private CustomerAutocompleteItem? _selectedCustomer;
-        private SalesRepAutocompleteItem? _selectedSalesRep;
 
         // ثابت لوقت التأخير في البحث (بالمللي ثانية)
         private const int SearchDebounceMs = 300;
@@ -69,9 +66,6 @@ namespace erp.Views.Orders
         private void UpdatePlaceholders()
         {
             CustomerPlaceholder.Visibility = string.IsNullOrEmpty(CustomerNameTextBox.Text)
-                ? Visibility.Visible : Visibility.Collapsed;
-
-            SalesRepPlaceholder.Visibility = string.IsNullOrEmpty(SalesRepNameTextBox.Text)
                 ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -240,160 +234,6 @@ namespace erp.Views.Orders
 
         #endregion
 
-        #region === Sales Rep Autocomplete ===
-
-        private async void SalesRepNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            UpdatePlaceholders();
-            ClearError(SalesRepErrorText, SalesRepInputWrapper);
-
-            var searchText = SalesRepNameTextBox.Text?.Trim();
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                SalesRepSuggestionsPopup.IsOpen = false;
-                _selectedSalesRep = null;
-                return;
-            }
-
-            // إلغاء البحث السابق
-            _salesRepSearchCts?.Cancel();
-            _salesRepSearchCts = new CancellationTokenSource();
-            var token = _salesRepSearchCts.Token;
-
-            try
-            {
-                ShowSalesRepLoading(true);
-                SalesRepSuggestionsPopup.IsOpen = true;
-
-                await Task.Delay(SearchDebounceMs, token);
-                if (token.IsCancellationRequested) return;
-
-                _salesRepSuggestions = await _ordersService.GetSalesRepAutocompleteAsync(searchText);
-
-                if (token.IsCancellationRequested) return;
-
-                ShowSalesRepLoading(false);
-
-                if (_salesRepSuggestions.Count > 0)
-                {
-                    SalesRepSuggestionsListBox.ItemsSource = _salesRepSuggestions;
-                    SalesRepSuggestionsListBox.Visibility = Visibility.Visible;
-                    SalesRepNoResultsText.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    SalesRepSuggestionsListBox.Visibility = Visibility.Collapsed;
-                    SalesRepNoResultsText.Visibility = Visibility.Visible;
-                }
-            }
-            catch (OperationCanceledException) { }
-            catch
-            {
-                ShowSalesRepLoading(false);
-                SalesRepNoResultsText.Text = "خطأ في البحث";
-                SalesRepNoResultsText.Visibility = Visibility.Visible;
-                SalesRepSuggestionsListBox.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void ShowSalesRepLoading(bool show)
-        {
-            SalesRepLoadingText.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-            SalesRepSuggestionsListBox.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
-            SalesRepNoResultsText.Visibility = Visibility.Collapsed;
-        }
-
-        private void SalesRepNameTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(SalesRepNameTextBox.Text) && _salesRepSuggestions.Count > 0)
-            {
-                SalesRepSuggestionsPopup.IsOpen = true;
-            }
-        }
-
-        private void SalesRepNameTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            Task.Delay(200).ContinueWith(_ =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    if (!SalesRepSuggestionsListBox.IsMouseOver && !SalesRepNameTextBox.IsFocused)
-                    {
-                        SalesRepSuggestionsPopup.IsOpen = false;
-                    }
-                });
-            });
-        }
-
-        private void SalesRepNameTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (!SalesRepSuggestionsPopup.IsOpen) return;
-
-            switch (e.Key)
-            {
-                case Key.Down:
-                    if (SalesRepSuggestionsListBox.Items.Count > 0)
-                    {
-                        SalesRepSuggestionsListBox.Focus();
-                        SalesRepSuggestionsListBox.SelectedIndex = Math.Min(
-                            SalesRepSuggestionsListBox.SelectedIndex + 1,
-                            SalesRepSuggestionsListBox.Items.Count - 1);
-                    }
-                    e.Handled = true;
-                    break;
-
-                case Key.Up:
-                    if (SalesRepSuggestionsListBox.Items.Count > 0)
-                    {
-                        SalesRepSuggestionsListBox.Focus();
-                        SalesRepSuggestionsListBox.SelectedIndex = Math.Max(
-                            SalesRepSuggestionsListBox.SelectedIndex - 1, 0);
-                    }
-                    e.Handled = true;
-                    break;
-
-                case Key.Enter:
-                    if (SalesRepSuggestionsListBox.SelectedItem is SalesRepAutocompleteItem selected)
-                    {
-                        SelectSalesRep(selected);
-                    }
-                    e.Handled = true;
-                    break;
-
-                case Key.Escape:
-                    SalesRepSuggestionsPopup.IsOpen = false;
-                    e.Handled = true;
-                    break;
-            }
-        }
-
-        private void SalesRepSuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
-
-        private void SalesRepSuggestionsListBox_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (SalesRepSuggestionsListBox.SelectedItem is SalesRepAutocompleteItem selected)
-            {
-                SelectSalesRep(selected);
-            }
-        }
-
-        private void SalesRepSuggestionsListBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            e.Handled = false;
-        }
-
-        private void SelectSalesRep(SalesRepAutocompleteItem salesRep)
-        {
-            _selectedSalesRep = salesRep;
-            SalesRepNameTextBox.Text = salesRep.fullname;
-            SalesRepSuggestionsPopup.IsOpen = false;
-            SalesRepNameTextBox.Focus();
-            SalesRepNameTextBox.CaretIndex = SalesRepNameTextBox.Text.Length;
-            UpdatePlaceholders();
-        }
-
-        #endregion
-
         #region === Product Autocomplete ===
 
         private async void ProductNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -507,24 +347,14 @@ namespace erp.Views.Orders
 
         #region === Input Validation ===
 
-        private void CommissionTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void SellPriceTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            if (sender is not TextBox textBox) return;
-
-            var newText = textBox.Text.Insert(textBox.SelectionStart, e.Text);
-            var isValid = newText.All(c => char.IsDigit(c) || c == '.' || c == ',');
-
-            if (isValid)
-            {
-                var dotCount = newText.Count(c => c == '.' || c == ',');
-                if (dotCount > 1)
-                {
-                    e.Handled = true;
-                    return;
-                }
-            }
-
-            e.Handled = !isValid;
+            // السماح بالأرقام والنقطة العشرية فقط
+            var textBox = sender as TextBox;
+            var newText = textBox?.Text.Insert(textBox.CaretIndex, e.Text) ?? e.Text;
+            
+            // التحقق من أن النص الناتج هو رقم صحيح أو عشري
+            e.Handled = !decimal.TryParse(newText, out _);
         }
 
         private void PhoneNumberTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -583,27 +413,13 @@ namespace erp.Views.Orders
                 SetLoading(true);
                 SetStatus("جاري إنشاء الطلب...", StatusType.Loading);
 
-                // التحقق من نسبة العمولة
-                // التحقق من نسبة العمولة
-                var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "";
-                double commission = 0;
-
-                if (!string.IsNullOrWhiteSpace(commissionText))
-                {
-                    if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out commission))
-                    {
-                        ShowError(CommissionErrorText, CommissionTextBox.Parent as Border, "نسبة العمولة غير صحيحة");
-                        SetLoading(false);
-                        return;
-                    }
-                }
-
                 // تجميع البيانات
                 var validItems = _items
-                    .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.quantity > 0)
+                    .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.sellprice > 0 && i.quantity > 0)
                     .Select(i => new CreateOrderItemDto
                     {
                         productname = i.productname.Trim(),
+                        sellprice = i.sellprice,
                         quantity = i.quantity
                     })
                     .ToList();
@@ -611,13 +427,13 @@ namespace erp.Views.Orders
                 var request = new CreateOrderRequestDto
                 {
                     customername = CustomerNameTextBox.Text.Trim(),
-                    salesrepname = SalesRepNameTextBox.Text.Trim(),
+                    salesrepname = "",
                     phonenumber = PhoneNumberTextBox.Text?.Trim() ?? "",
                     items = validItems
                 };
 
                 // إرسال الطلب
-                await _ordersService.CreateOrderAsync(request, commission);
+                await _ordersService.CreateOrderAsync(request, 0);
 
                 // نجاح!
                 SetLoading(false);
@@ -670,34 +486,26 @@ namespace erp.Views.Orders
                 }
             }
 
-
-
-            // التحقق من نسبة العمولة
-            // التحقق من نسبة العمولة (اختياري)
-            var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "";
-            
-            if (!string.IsNullOrWhiteSpace(commissionText))
-            {
-                if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
-                {
-                    ShowError(CommissionErrorText, null, "نسبة العمولة غير صحيحة. يرجى إدخال قيمة رقمية");
-                    isValid = false;
-                }
-                else if (commission < 0 || commission > 100)
-                {
-                    ShowError(CommissionErrorText, null, "نسبة العمولة يجب أن تكون بين 0 و 100");
-                    isValid = false;
-                }
-            }
-
-            // التحقق من وجود منتج واحد على الأقل
+            // التحقق من وجود منتج واحد على الأقل مع سعر البيع والكمية
             var validItems = _items
-                .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.quantity > 0)
+                .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.sellprice > 0 && i.quantity > 0)
                 .ToList();
 
             if (validItems.Count == 0)
             {
-                ShowError(ProductsErrorText, null, "من فضلك أضف منتجاً واحداً على الأقل مع تحديد الكمية");
+                ShowError(ProductsErrorText, null, "من فضلك أضف منتجاً واحداً على الأقل مع تحديد سعر البيع والكمية");
+                isValid = false;
+            }
+
+            // التحقق من أن سعر البيع لكل منتج صحيح
+            var invalidPriceProducts = _items
+                .Where(p => !string.IsNullOrWhiteSpace(p.productname) && p.sellprice <= 0)
+                .ToList();
+
+            if (invalidPriceProducts.Count > 0)
+            {
+                var invalidNames = string.Join("، ", invalidPriceProducts.Select(p => p.productname));
+                ShowError(ProductsErrorText, null, $"يجب تحديد سعر البيع للمنتجات التالية: {invalidNames}");
                 isValid = false;
             }
 
@@ -713,12 +521,9 @@ namespace erp.Views.Orders
         private void ClearForm()
         {
             CustomerNameTextBox.Clear();
-            SalesRepNameTextBox.Clear();
-            CommissionTextBox.Text = "1.75";
             PhoneNumberTextBox.Clear();
 
             _selectedCustomer = null;
-            _selectedSalesRep = null;
 
             _items.Clear();
             _items.Add(new OrderItemViewModel());
@@ -761,8 +566,6 @@ namespace erp.Views.Orders
         private void ClearAllErrors()
         {
             ClearError(CustomerErrorText, CustomerInputWrapper);
-            ClearError(SalesRepErrorText, SalesRepInputWrapper);
-            ClearError(CommissionErrorText, null);
             ClearError(ProductsErrorText, null);
         }
 
@@ -814,6 +617,7 @@ namespace erp.Views.Orders
     public class OrderItemViewModel : INotifyPropertyChanged
     {
         private string _productname = "";
+        private decimal _sellprice = 0;
         private int _quantity = 1;
 
         public string productname
@@ -822,6 +626,16 @@ namespace erp.Views.Orders
             set
             {
                 _productname = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal sellprice
+        {
+            get => _sellprice;
+            set
+            {
+                _sellprice = value;
                 OnPropertyChanged();
             }
         }

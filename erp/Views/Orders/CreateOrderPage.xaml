@@ -438,117 +438,19 @@
                             </Grid>
                             <TextBlock x:Name="CustomerErrorText" Style="{StaticResource ErrorMessageStyle}"/>
 
-                            <!-- Sales Rep Name Field -->
-                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <TextBlock Text="اسم المندوب (اختياري)" Style="{StaticResource FieldTitleStyle}" Margin="0"/>
-                            </StackPanel>
-                            
-                            <Grid>
-                                <Border x:Name="SalesRepInputWrapper" Style="{StaticResource InputWrapperStyle}">
+                            <!-- Phone Number Field -->
+                            <StackPanel Margin="0,8,0,0">
+                                <TextBlock Text="رقم هاتف العميل (اختياري)" Style="{StaticResource FieldTitleStyle}"/>
+                                <Border Style="{StaticResource InputWrapperStyle}">
                                     <Border Style="{StaticResource InputInnerStyle}">
-                                        <Grid>
-                                            <TextBox x:Name="SalesRepNameTextBox"
-                                                     Style="{StaticResource OrderTextBoxStyle}"
-                                                     TextChanged="SalesRepNameTextBox_TextChanged"
-                                                     GotFocus="SalesRepNameTextBox_GotFocus"
-                                                     LostFocus="SalesRepNameTextBox_LostFocus"
-                                                     KeyDown="SalesRepNameTextBox_KeyDown"/>
-                                            <TextBlock x:Name="SalesRepPlaceholder"
-                                                       Text="ابحث باسم المندوب..."
-                                                       Foreground="#9CA3AF"
-                                                       VerticalAlignment="Center"
-                                                       Margin="14,0,0,0"
-                                                       IsHitTestVisible="False"
-                                                       FontSize="14"/>
-                                        </Grid>
+                                        <TextBox x:Name="PhoneNumberTextBox"
+                                                 Style="{StaticResource OrderTextBoxStyle}"
+                                                 FlowDirection="LeftToRight"
+                                                 TextAlignment="Center"
+                                                 PreviewTextInput="PhoneNumberTextBox_PreviewTextInput"/>
                                     </Border>
                                 </Border>
-
-                                <!-- Suggestions Popup for Sales Rep -->
-                                <Popup x:Name="SalesRepSuggestionsPopup"
-                                       PlacementTarget="{Binding ElementName=SalesRepInputWrapper}"
-                                       Placement="Bottom"
-                                       StaysOpen="False"
-                                       AllowsTransparency="True"
-                                       PopupAnimation="Fade">
-                                    <Border Background="White"
-                                            CornerRadius="12"
-                                            BorderBrush="#E5E7EB"
-                                            BorderThickness="1"
-                                            MinWidth="400"
-                                            MaxHeight="250"
-                                            Effect="{StaticResource SuggestionsShadow}">
-                                        <Grid>
-                                            <TextBlock x:Name="SalesRepLoadingText"
-                                                       Text="جاري البحث..."
-                                                       Style="{StaticResource LoadingIndicatorStyle}"
-                                                       HorizontalAlignment="Center"
-                                                       Margin="12"
-                                                       Visibility="Collapsed"/>
-                                            <TextBlock x:Name="SalesRepNoResultsText"
-                                                       Text="لا توجد نتائج"
-                                                       Foreground="{StaticResource TextMutedBrush}"
-                                                       HorizontalAlignment="Center"
-                                                       Margin="12"
-                                                       Visibility="Collapsed"/>
-                                            <ListBox x:Name="SalesRepSuggestionsListBox"
-                                                     Style="{StaticResource SuggestionsListStyle}"
-                                                     ItemContainerStyle="{StaticResource SuggestionItemStyle}"
-                                                     SelectionChanged="SalesRepSuggestionsListBox_SelectionChanged"
-                                                     MouseLeftButtonUp="SalesRepSuggestionsListBox_MouseLeftButtonUp"
-                                                     PreviewMouseDown="SalesRepSuggestionsListBox_PreviewMouseDown">
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="🧑‍💼" Margin="0,0,8,0"/>
-                                                            <TextBlock Text="{Binding fullname}"
-                                                                       FontSize="14"
-                                                                       Foreground="{StaticResource TextDarkBrush}"/>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
-                                            </ListBox>
-                                        </Grid>
-                                    </Border>
-                                </Popup>
-                            </Grid>
-                            <TextBlock x:Name="SalesRepErrorText" Style="{StaticResource ErrorMessageStyle}"/>
-
-                            <!-- Commission Field -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                    <TextBlock Text="نسبة العمولة (%) (اختياري)" Style="{StaticResource FieldTitleStyle}"/>
-                                    <Border Style="{StaticResource InputWrapperStyle}">
-                                        <Border Style="{StaticResource InputInnerStyle}">
-                                            <TextBox x:Name="CommissionTextBox"
-                                                     Style="{StaticResource OrderTextBoxStyle}"
-                                                     FlowDirection="LeftToRight"
-                                                     TextAlignment="Center"
-                                                     PreviewTextInput="CommissionTextBox_PreviewTextInput"
-                                                     Text="1.75"/>
-                                        </Border>
-                                    </Border>
-                                    <TextBlock x:Name="CommissionErrorText" Style="{StaticResource ErrorMessageStyle}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                                    <TextBlock Text="رقم هاتف العميل (اختياري)" Style="{StaticResource FieldTitleStyle}"/>
-                                    <Border Style="{StaticResource InputWrapperStyle}">
-                                        <Border Style="{StaticResource InputInnerStyle}">
-                                            <TextBox x:Name="PhoneNumberTextBox"
-                                                     Style="{StaticResource OrderTextBoxStyle}"
-                                                     FlowDirection="LeftToRight"
-                                                     TextAlignment="Center"
-                                                     PreviewTextInput="PhoneNumberTextBox_PreviewTextInput"/>
-                                        </Border>
-                                    </Border>
-                                </StackPanel>
-                            </Grid>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 
@@ -596,49 +498,87 @@
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="140"/>
                                                             <ColumnDefinition Width="120"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <!-- Product Name with Autocomplete -->
                                                         <Grid Grid.Column="0" Margin="0,0,12,0">
-                                                            <Border CornerRadius="8"
-                                                                    BorderThickness="1"
-                                                                    BorderBrush="#E5E7EB"
-                                                                    Background="White">
-                                                                <TextBox Text="{Binding productname, UpdateSourceTrigger=PropertyChanged}"
-                                                                         BorderThickness="0"
-                                                                         Padding="12,10"
-                                                                         FontSize="14"
-                                                                         Background="Transparent"
-                                                                         Tag="{Binding}"
-                                                                         TextChanged="ProductNameTextBox_TextChanged"
-                                                                         GotFocus="ProductNameTextBox_GotFocus"
-                                                                         LostFocus="ProductNameTextBox_LostFocus"/>
-                                                            </Border>
+                                                            <StackPanel>
+                                                                <TextBlock Text="اسم المنتج"
+                                                                           Foreground="#6B7280"
+                                                                           FontSize="11"
+                                                                           Margin="0,0,0,4"/>
+                                                                <Border CornerRadius="8"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="#E5E7EB"
+                                                                        Background="White">
+                                                                    <TextBox Text="{Binding productname, UpdateSourceTrigger=PropertyChanged}"
+                                                                             BorderThickness="0"
+                                                                             Padding="12,10"
+                                                                             FontSize="14"
+                                                                             Background="Transparent"
+                                                                             Tag="{Binding}"
+                                                                             TextChanged="ProductNameTextBox_TextChanged"
+                                                                             GotFocus="ProductNameTextBox_GotFocus"
+                                                                             LostFocus="ProductNameTextBox_LostFocus"/>
+                                                                </Border>
+                                                            </StackPanel>
+                                                        </Grid>
+
+                                                        <!-- Sell Price -->
+                                                        <Grid Grid.Column="1" Margin="0,0,12,0">
+                                                            <StackPanel>
+                                                                <TextBlock Text="سعر البيع"
+                                                                           Foreground="#6B7280"
+                                                                           FontSize="11"
+                                                                           Margin="0,0,0,4"/>
+                                                                <Border CornerRadius="8"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="#E5E7EB"
+                                                                        Background="White">
+                                                                    <TextBox Text="{Binding sellprice, UpdateSourceTrigger=PropertyChanged}"
+                                                                             BorderThickness="0"
+                                                                             Padding="12,10"
+                                                                             FontSize="14"
+                                                                             Background="Transparent"
+                                                                             TextAlignment="Center"
+                                                                             FlowDirection="LeftToRight"
+                                                                             PreviewTextInput="SellPriceTextBox_PreviewTextInput"/>
+                                                                </Border>
+                                                            </StackPanel>
                                                         </Grid>
 
                                                         <!-- Quantity -->
-                                                        <Grid Grid.Column="1" Margin="0,0,12,0">
-                                                            <Border CornerRadius="8"
-                                                                    BorderThickness="1"
-                                                                    BorderBrush="#E5E7EB"
-                                                                    Background="White">
-                                                                <TextBox Text="{Binding quantity, UpdateSourceTrigger=PropertyChanged}"
-                                                                         BorderThickness="0"
-                                                                         Padding="12,10"
-                                                                         FontSize="14"
-                                                                         Background="Transparent"
-                                                                         TextAlignment="Center"
-                                                                         FlowDirection="LeftToRight"
-                                                                         PreviewTextInput="QuantityTextBox_PreviewTextInput"/>
-                                                            </Border>
+                                                        <Grid Grid.Column="2" Margin="0,0,12,0">
+                                                            <StackPanel>
+                                                                <TextBlock Text="الكمية"
+                                                                           Foreground="#6B7280"
+                                                                           FontSize="11"
+                                                                           Margin="0,0,0,4"/>
+                                                                <Border CornerRadius="8"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="#E5E7EB"
+                                                                        Background="White">
+                                                                    <TextBox Text="{Binding quantity, UpdateSourceTrigger=PropertyChanged}"
+                                                                             BorderThickness="0"
+                                                                             Padding="12,10"
+                                                                             FontSize="14"
+                                                                             Background="Transparent"
+                                                                             TextAlignment="Center"
+                                                                             FlowDirection="LeftToRight"
+                                                                             PreviewTextInput="QuantityTextBox_PreviewTextInput"/>
+                                                                </Border>
+                                                            </StackPanel>
                                                         </Grid>
 
                                                         <!-- Remove Button -->
-                                                        <Button Grid.Column="2"
+                                                        <Button Grid.Column="3"
                                                                 Content="✕"
                                                                 Style="{StaticResource RemoveButtonStyle}"
+                                                                VerticalAlignment="Bottom"
+                                                                Margin="0,0,0,4"
                                                                 Click="RemoveItem_Click"/>
                                                     </Grid>
                                                 </Border>
@@ -656,7 +596,7 @@
                                   Click="AddItem_Click"/>
                             
                             <!-- Products Hint -->
-                            <TextBlock Text="💡 ابدأ بكتابة اسم المنتج للبحث التلقائي"
+                            <TextBlock Text="💡 ابدأ بكتابة اسم المنتج للبحث التلقائي - يجب تحديد سعر البيع والكمية"
                                        Foreground="{StaticResource TextMutedBrush}"
                                        FontSize="12"
                                        Margin="4,8,0,0"/>

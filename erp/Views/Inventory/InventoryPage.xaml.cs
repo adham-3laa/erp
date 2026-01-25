@@ -232,8 +232,8 @@ namespace erp.Views.Inventory
                 {
                     _currentSource = new List<Product>();
                     ProductsDataGrid.ItemsSource = null;
-                    ShowEmptyState("❌ المنتج غير موجود", $"لا يوجد منتج باسم \"{searchText}\" في المخزون.\nتأكد من كتابة الاسم بشكل صحيح أو أضف المنتج للمخزون.");
-                    ShowError($"⚠️ لم يتم العثور على منتج باسم \"{searchText}\"");
+                    ShowEmptyState("⚠️ عذرا المنتج غير موجود", $"لا يوجد منتج باسم \"{searchText}\" في المخزون حالياً.");
+                    ShowError("⚠️ عذرا المنتج غير موجود");
                     PageTextBlock.Text = "";
                     TotalItemsText.Text = "";
                     ProductCountText.Text = "0 منتج";
@@ -250,9 +250,9 @@ namespace erp.Views.Inventory
             {
                 // Search was cancelled, ignore
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ShowError($"حدث خطأ أثناء البحث: {ex.Message}");
+                ShowError("⚠️ لم يتم العثور على هذا المنتج");
             }
             finally
             {

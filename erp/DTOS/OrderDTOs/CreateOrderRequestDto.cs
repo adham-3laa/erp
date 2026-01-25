@@ -11,6 +11,7 @@
     public class CreateOrderItemDto
     {
         public string productname { get; set; } = "";
+        public decimal sellprice { get; set; }
         public int quantity { get; set; }
     }
 }
