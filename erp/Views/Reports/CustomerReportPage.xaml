@@ -281,16 +281,7 @@
                             <TextBlock Text="{Binding Report.TotalNetDebt, StringFormat='{}{0:N0} ج.م'}" 
                                       FontSize="40" FontWeight="Bold" Foreground="White" 
                                       HorizontalAlignment="Center" Margin="0,12,0,0"/>
-                            <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Foreground="White" Opacity="0.7" FontSize="13">
-                                <Run Text="(= "/>
-                                <Run Text="{Binding Report.TotalDebt, StringFormat='{}{0:N0}', Mode=OneWay}"/>
-                                <Run Text=" - "/>
-                                <Run Text="{Binding Report.TotalReturnsAmount, StringFormat='{}{0:N0}', Mode=OneWay}"/>
-                                <Run Text=")"/>
-                            </TextBlock>
-                            <Border Background="#8B5CF6" CornerRadius="16" Padding="12,6" Margin="0,12,0,0" HorizontalAlignment="Center">
-                                <TextBlock Text="بعد خصم المرتجعات" FontSize="12" Foreground="White"/>
-                            </Border>
+                            
                         </StackPanel>
                     </Border>
 

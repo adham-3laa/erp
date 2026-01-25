@@ -373,12 +373,21 @@
                 <TextBlock Text="📤 الحركات الخارجة" FontSize="18" FontWeight="Bold" 
                            Foreground="#1F2937" Margin="0,0,0,14"/>
 
-                <UniformGrid Columns="3">
+                <UniformGrid Columns="4">
                     <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
                             BorderBrush="#E5E7EB" BorderThickness="1">
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="المبيعات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
                             <TextBlock Text="{Binding Report.TotalOutSold, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="مرتجعات المورد" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalOutReturned, FallbackValue='0'}" 
                                        Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>

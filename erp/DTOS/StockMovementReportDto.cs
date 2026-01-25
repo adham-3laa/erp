@@ -46,6 +46,9 @@ public class StockMovementReportDto
     [JsonPropertyName("totaloutupdatedbyemployee")]
     public int TotalOutUpdatedByEmployee { get; set; }
 
+    [JsonPropertyName("totaloutreturned")]
+    public int TotalOutReturned { get; set; }
+
     [JsonPropertyName("currentstock")]
     public int CurrentStock { get; set; }
 }
