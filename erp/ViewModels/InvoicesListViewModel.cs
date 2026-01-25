@@ -79,7 +79,93 @@ namespace erp.ViewModels.Invoices
             set { _recipientQuery = value; OnPropertyChanged(); }
         }
 
+<<<<<<< HEAD
         // 📅 من تاريخ
+=======
+        private System.Timers.Timer _recipientDebounceTimer;
+
+        private void StartRecipientDebounce()
+        {
+            _recipientDebounceTimer?.Stop();
+            _recipientDebounceTimer = new System.Timers.Timer(350);
+            _recipientDebounceTimer.Elapsed += async (_, __) =>
+            {
+                _recipientDebounceTimer.Stop();
+                await LoadRecipientSuggestions();
+            };
+            _recipientDebounceTimer.Start();
+        }
+
+        private async Task LoadRecipientSuggestions()
+        {
+            if (string.IsNullOrWhiteSpace(RecipientQuery))
+            {
+                App.Current.Dispatcher.Invoke(() => RecipientSuggestions.Clear());
+                return;
+            }
+
+            try
+            {
+                var suggestions = await _invoiceService.GetInvoicesAutocompleteAsync(RecipientQuery);
+                                
+                var search = RecipientQuery.ToLower();
+
+                var names = suggestions
+                    .Where(x => !string.IsNullOrWhiteSpace(x.fullname))
+                    .Select(x => x.fullname)
+                    .Distinct()
+                    .ToList();
+
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    RecipientSuggestions.Clear();
+
+                    foreach (var name in names)
+                    {
+                        var lower = name.ToLower();
+                        var index = lower.IndexOf(search);
+                        
+                        if (index < 0) 
+                        {
+                             // Fallback if no exact match found (unlikely if API works as expected, but safe)
+                             RecipientSuggestions.Add(new RecipientSuggestion
+                             {
+                                 FullName = name,
+                                 BeforeMatch = name,
+                                 Match = "",
+                                 AfterMatch = ""
+                             });
+                        }
+                        else
+                        {
+                            RecipientSuggestions.Add(new RecipientSuggestion
+                            {
+                                FullName = name,
+                                BeforeMatch = name.Substring(0, index),
+                                Match = name.Substring(index, search.Length),
+                                AfterMatch = name.Substring(index + search.Length)
+                            });
+                        }
+                    }
+
+                    OnPropertyChanged(nameof(HasNoRecipientResults));
+                });
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        public void SelectRecipient(RecipientSuggestion item)
+        {
+            RecipientQuery = item.FullName;
+            RecipientSuggestions.Clear();
+        }
+
+        // ================= Dates =================
+
+>>>>>>> ad1f622d97b67f8b3e45d4015a285558ad57c332
         private DateTime? _fromDate;
         public DateTime? FromDate
         {

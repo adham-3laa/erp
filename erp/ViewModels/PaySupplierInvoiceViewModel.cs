@@ -25,9 +25,45 @@ namespace erp.ViewModels.Invoices
             get => _paidAmount;
             set
             {
-                _paidAmount = value;
-                OnPropertyChanged();
-                PayCommand.NotifyCanExecuteChanged();
+                if (_paidAmount != value)
+                {
+                    _paidAmount = value;
+                    OnPropertyChanged();
+
+                    // Sync text only if actual value mismatch (supports programmatic reset)
+                    if (!decimal.TryParse(_paidAmountText, out var currentVal) || currentVal != value)
+                    {
+                        _paidAmountText = value == 0 ? "" : value.ToString();
+                        OnPropertyChanged(nameof(PaidAmountText));
+                    }
+
+                    PayCommand.NotifyCanExecuteChanged();
+                }
+            }
+        }
+
+        private string _paidAmountText = "";
+        public string PaidAmountText
+        {
+            get => _paidAmountText;
+            set
+            {
+                if (_paidAmountText != value)
+                {
+                    _paidAmountText = value;
+                    OnPropertyChanged();
+
+                    if (decimal.TryParse(value, out var val))
+                    {
+                        _paidAmount = val;
+                    }
+                    else
+                    {
+                        _paidAmount = 0;
+                    }
+                    OnPropertyChanged(nameof(PaidAmount));
+                    PayCommand.NotifyCanExecuteChanged();
+                }
             }
         }
 

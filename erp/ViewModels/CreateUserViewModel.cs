@@ -98,6 +98,7 @@ namespace erp.ViewModels
             if (string.IsNullOrWhiteSpace(Fullname))
                 return Fail("الاسم الكامل مطلوب");
 
+<<<<<<< HEAD
             // التحقق من أن الاسم يتكون من 3 أسماء بالضبط
             var nameParts = Fullname.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (nameParts.Length != 3)
@@ -117,6 +118,12 @@ namespace erp.ViewModels
 
             if (Password != ConfirmPassword)
                 return Fail("كلمتا المرور غير متطابقتين");
+=======
+            // التحقق من أن الاسم ثلاثي (3 أجزاء بالضبط)
+            var nameParts = Fullname.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (nameParts.Length != 3)
+                return Fail("الاسم يجب أن يكون ثلاثي فقط (لا يقل ولا يزيد عن 3 أسماء)");
+>>>>>>> ad1f622d97b67f8b3e45d4015a285558ad57c332
 
             return true;
         }

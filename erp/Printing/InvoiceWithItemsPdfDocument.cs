@@ -23,34 +23,83 @@ namespace erp.Printing
             {
                 page.Size(PageSizes.A4);
                 page.Margin(30);
-                page.DefaultTextStyle(x => x.FontSize(10));
+                page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial")); // Default font
+
+                // Black and White Theme
+                var titleColor = Colors.Black;
+                var headerBgColor = Colors.Grey.Lighten3;
+                var borderColor = Colors.Grey.Lighten2;
 
                 // ===== Header =====
                 page.Header().Row(row =>
                 {
-                    row.RelativeItem().AlignLeft().Column(col =>
+                    // Logo / Company Name
+                    row.RelativeItem().Column(col =>
                     {
-                        col.Item().Text("The First").FontSize(18).Bold();
+                        col.Item().Text("The First").FontSize(20).Bold().FontColor(titleColor);
                         col.Item().Text("Smart ERP System")
-                                  .FontSize(9)
-                                  .FontColor(Colors.Grey.Darken1);
+                                  .FontSize(10)
+                                  .FontColor(Colors.Grey.Darken2);
                     });
 
+                    // Invoice Details (Right Aligned)
                     row.RelativeItem().AlignRight().Column(col =>
                     {
+<<<<<<< HEAD
                         col.Item().Text("فاتورة").FontSize(16).Bold();
                         col.Item().Text($"رقم: {_invoice.InvoiceId}")
                                   .FontSize(9);
+=======
+                        col.Item().Text("فاتورة ضريبية").FontSize(18).Bold().FontColor(titleColor);
+                        
+                        col.Item().PaddingTop(25).Table(table =>
+                        {
+                            table.ColumnsDefinition(c =>
+                            {
+                                c.RelativeColumn();
+                                c.ConstantColumn(10);
+                                c.RelativeColumn();
+                            });
+
+                            table.Cell().AlignRight().Text($"{_invoice.CustomerName}").FontSize(14).Bold();
+                            table.Cell(); // spacer
+                            table.Cell().AlignRight().Text(": اسم العميل").FontSize(14).SemiBold();
+
+                            table.Cell().AlignRight().Text($"{_invoice.InvoiceCode}").FontSize(14).Bold();
+                            table.Cell(); // spacer
+                            table.Cell().AlignRight().Text(": رقم الفاتورة").FontSize(14).SemiBold();
+                            
+                            if (!string.IsNullOrEmpty(_invoice.OrderId))
+                            {
+                                table.Cell().AlignRight().Text($"{_invoice.OrderId}").FontSize(14).Bold();
+                                table.Cell();
+                                table.Cell().AlignRight().Text(": رقم الطلب").FontSize(14).SemiBold();
+                            }
+
+                            table.Cell().AlignRight().Text($"{_invoice.InvoiceDate:yyyy-MM-dd}").FontSize(14);
+                            table.Cell();
+                            table.Cell().AlignRight().Text(": التاريخ").SemiBold().FontSize(14);
+                        });
+>>>>>>> ad1f622d97b67f8b3e45d4015a285558ad57c332
                     });
                 });
 
                 // ===== Content =====
-                page.Content().PaddingTop(20).Column(col =>
+                page.Content().PaddingTop(25).Column(col =>
                 {
-                    col.Item().Text($"العميل: {_invoice.CustomerName}").Bold();
-                    col.Item().Text($"البريد: {_invoice.CustomerEmail}");
-                    col.Item().Text($"تاريخ الفاتورة: {_invoice.InvoiceDate:yyyy-MM-dd}");
-                    col.Item().PaddingVertical(10);
+                    //// Customer Section
+                    //col.Item().BorderBottom(1).BorderColor(borderColor).PaddingBottom(5).Row(row => 
+                    //{
+                    //    row.RelativeItem().Column(c =>
+                    //    {
+                    //        c.Item().Text("بيانات العميل").FontSize(12).Bold().FontColor(titleColor);
+                    //        c.Item().Text($"{_invoice.CustomerName}").FontSize(11).Bold();
+                    //        if (!string.IsNullOrEmpty(_invoice.CustomerEmail))
+                    //            c.Item().Text($"{_invoice.CustomerEmail}").FontSize(9).FontColor(Colors.Grey.Darken2);
+                    //    });
+                    //});
+                    
+                    col.Item().PaddingVertical(15);
 
                     // ===== Items Table =====
                     col.Item().Table(table =>
@@ -64,42 +113,80 @@ namespace erp.Printing
                             c.RelativeColumn(2); // الإجمالي
                         });
 
+                        // Table Header
                         table.Header(h =>
                         {
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("المنتج").Bold();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("الفئة").Bold();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("السعر").Bold();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("الكمية").Bold();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("الإجمالي").Bold();
+                            h.Cell().Background(headerBgColor).Padding(5).Text("المنتج").Bold();
+                            h.Cell().Background(headerBgColor).Padding(5).Text("الفئة").Bold();
+                            h.Cell().Background(headerBgColor).Padding(5).Text("السعر").Bold();
+                            h.Cell().Background(headerBgColor).Padding(5).Text("الكمية").Bold();
+                            h.Cell().Background(headerBgColor).Padding(5).Text("الإجمالي").Bold();
                         });
 
-                        foreach (var item in _invoice.Items)
+                        // Table Rows
+                        for (int i = 0; i < _invoice.Items.Count; i++)
                         {
-                            table.Cell().Padding(5).Text(item.ProductName);
-                            table.Cell().Padding(5).Text(item.CategoryName);
-                            table.Cell().Padding(5).Text(item.UnitPrice.ToString("N2"));
-                            table.Cell().Padding(5).Text(item.Quantity.ToString());
-                            table.Cell().Padding(5).Text(item.Total.ToString("N2"));
+                            var item = _invoice.Items[i];
+                            // No alternating colors for pure B&W/Simple look, or maybe just borders
+                            // Let's use simple borders as often requested in B&W
+                             
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.ProductName).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.CategoryName).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.UnitPrice.ToString("N2")).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.Quantity.ToString()).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(item.Total.ToString("N2")).Bold();
                         }
                     });
 
-                    col.Item().PaddingVertical(10);
+                    col.Item().PaddingVertical(15);
 
                     // ===== Totals =====
-                    col.Item().AlignRight().Text($"الإجمالي: {_invoice.SubTotal:N2}").Bold();
-                    col.Item().AlignRight().Text($"المدفوع: {_invoice.PaidAmount:N2}");
-                    col.Item().AlignRight().Text($"المتبقي: {_invoice.RemainingAmount:N2}").Bold();
+                    col.Item().Row(row =>
+                    {
+                        row.RelativeItem(); // Spacer
+                        row.RelativeItem().Column(c =>
+                        {
+                            c.Item().Table(t =>
+                            {
+                                t.ColumnsDefinition(cols => 
+                                {
+                                    cols.RelativeColumn();
+                                    cols.RelativeColumn();
+                                });
+
+                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text("الإجمالي").SemiBold();
+                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.SubTotal:N2}").Bold();
+
+                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text("المدفوع");
+                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.PaidAmount:N2}").Bold();
+
+                                t.Cell().Padding(5).Text("المتبقي").Bold();
+                                t.Cell().Padding(5).AlignLeft().Text($"{_invoice.RemainingAmount:N2}").Bold();
+                            });
+                        });
+                    });
                 });
 
                 // ===== Footer =====
-                page.Footer().AlignCenter().Text(t =>
+                page.Footer().PaddingTop(10).AlignCenter().Column(col => 
                 {
-                    t.Span("The First ERP | ");
-                    t.Span($"طباعة: {DateTime.Now:yyyy-MM-dd} | ");
-                    t.Span("صفحة ");
-                    t.CurrentPageNumber();
-                    t.Span(" / ");
-                    t.TotalPages();
+                    col.Item().ShowOnce().LineHorizontal(1).LineColor(borderColor);
+                    col.Item().PaddingTop(5).Row(row => 
+                    {
+                        row.RelativeItem().AlignLeft().Text(t => 
+                        {
+                             t.Span("The First ERP | ").FontSize(9).FontColor(Colors.Grey.Darken2);
+                             t.Span(DateTime.Now.ToString("yyyy-MM-dd")).FontSize(9);
+                        });
+                        
+                        row.RelativeItem().AlignRight().Text(t =>
+                        {
+                            t.Span("صفحة ");
+                            t.CurrentPageNumber();
+                            t.Span(" من ");
+                            t.TotalPages();
+                        });
+                    });
                 });
             });
         }

@@ -158,7 +158,145 @@ namespace erp.Services
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
 
+<<<<<<< HEAD
             return apiResponse?.value ?? new List<InvoiceResponseDto>();
+=======
+            var result = apiResponse?.value ?? new List<InvoiceResponseDto>();
+            
+            // ✅ Debug: Log first invoice code to verify parsing
+            if (result.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[InvoiceService] First invoice - code: {result[0].code}, Id: {result[0].Id}");
+            }
+
+            return result;
         }
+
+        // =====================================================
+        // ========= Supplier Invoice Products =================
+        // =====================================================
+
+        /// <summary>
+        /// Gets supplier invoice products by invoice code.
+        /// Endpoint: GET /api/Invoices/GetSupplierInviceProductsByInvoicCode?invoiceCode={code}
+        /// </summary>
+        /// <param name="invoiceCode">The invoice code (sequential integer)</param>
+        public async Task<List<SupplierInvoiceProductDto>> GetSupplierInvoiceProductsAsync(int invoiceCode)
+        {
+            AttachToken();
+
+            var url = $"api/Invoices/GetSupplierInviceProductsByInvoicCode?invoiceCode={invoiceCode}";
+
+            var response = await _client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error ({(int)response.StatusCode}): {err}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<SupplierInvoiceProductDto>>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return apiResponse?.value ?? new List<SupplierInvoiceProductDto>();
+        }
+
+        // =====================================================
+        // ========= Supplier Return Invoice Products ==========
+        // =====================================================
+
+        /// <summary>
+        /// Gets Supplier Return Invoice products by invoice code.
+        /// 
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// MANDATORY ENDPOINT (Single Source of Truth):
+        /// GET /api/Returns/GetAllProductsInSpecificReturnSupplierInvoice?invoiceCode={code}
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// 
+        /// This is the ONLY way to retrieve Supplier Return Invoice details.
+        /// 
+        /// ⚠️ CONSTRAINTS:
+        /// - Use invoiceCode ONLY (do NOT use OrderId, CustomerId, or SalesRepId)
+        /// - This is an ERP-critical financial and inventory document
+        /// - The returned data affects supplier reconciliation and inventory counts
+        /// </summary>
+        /// <param name="invoiceCode">The invoice code (sequential integer) - REQUIRED</param>
+        /// <returns>List of products returned to the supplier</returns>
+        /// <summary>
+        /// Gets Supplier Return Invoice products by invoice code.
+        /// 
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// MANDATORY ENDPOINT (Single Source of Truth):
+        /// GET /api/Returns/GetAllProductsInSpecificReturnSupplierInvoice?invoiceCode={code}
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// 
+        /// This is the ONLY way to retrieve Supplier Return Invoice details.
+        /// 
+        /// ⚠️ CONSTRAINTS:
+        /// - Use invoiceCode ONLY (do NOT use OrderId, CustomerId, or SalesRepId)
+        /// - This is an ERP-critical financial and inventory document
+        /// - The returned data affects supplier reconciliation and inventory counts
+        /// </summary>
+        /// <param name="invoiceCode">The invoice code (sequential integer) - REQUIRED</param>
+        /// <returns>List of products returned to the supplier</returns>
+        public async Task<List<SupplierReturnInvoiceProductDto>> GetSupplierReturnInvoiceProductsAsync(int invoiceCode)
+        {
+            if (invoiceCode <= 0)
+                throw new ArgumentException("Invoice code must be a positive integer", nameof(invoiceCode));
+
+            AttachToken();
+
+            // ═══════════════════════════════════════════════════════════════
+            // MANDATORY ENDPOINT - DO NOT MODIFY
+            // ═══════════════════════════════════════════════════════════════
+            var url = $"api/Returns/GetAllProductsInSpecificReturnSupplierInvoice?invoiceCode={invoiceCode}";
+
+            var response = await _client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error ({(int)response.StatusCode}): {err}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            // Debug log for troubleshooting
+            System.Diagnostics.Debug.WriteLine($"[InvoiceService] SupplierReturnInvoice products response: {json.Substring(0, Math.Min(500, json.Length))}...");
+
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<SupplierReturnInvoiceProductDto>>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return apiResponse?.value ?? new List<SupplierReturnInvoiceProductDto>();
+>>>>>>> ad1f622d97b67f8b3e45d4015a285558ad57c332
+        }
+
+        // =====================================================
+        // =============== Autocomplete ========================
+        // =====================================================
+
+        public async Task<List<InvoiceRecipientDto>> GetInvoicesAutocompleteAsync(string term)
+        {
+            AttachToken();
+            var response = await _client.GetAsync($"api/Invoices/All/autocomplete?term={Uri.EscapeDataString(term)}");
+            if (!response.IsSuccessStatusCode) return new List<InvoiceRecipientDto>();
+            
+            var content = await response.Content.ReadAsStringAsync();
+            var apiResponse = JsonSerializer.Deserialize<AutocompleteResponse<InvoiceRecipientDto>>(
+                content, 
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+            return apiResponse?.value ?? new List<InvoiceRecipientDto>();
+        }
+    }
+
+    public class InvoiceRecipientDto
+    {
+        public int usernumber { get; set; }
+        public string fullname { get; set; }
     }
 }

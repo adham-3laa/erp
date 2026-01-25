@@ -303,6 +303,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
+<<<<<<< HEAD
                 <Border Grid.Column="0" Margin="8" Padding="18" CornerRadius="16" Background="#FEF2F2">
                     <StackPanel>
                         <TextBlock Text="إجمالي الخارج (مبيعات)"
@@ -328,6 +329,35 @@
                                    Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
+=======
+                <UniformGrid Columns="4">
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="المبيعات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalOutSold, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="مرتجعات المورد" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalOutReturned, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="White" CornerRadius="12" Padding="16" Margin="4" Height="92"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="التسويات" Foreground="#6B7280" FontSize="12" FontWeight="Medium"/>
+                            <TextBlock Text="{Binding Report.TotalOutAdjusted, FallbackValue='0'}" 
+                                       Foreground="#111827" FontSize="26" FontWeight="Bold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+>>>>>>> ad1f622d97b67f8b3e45d4015a285558ad57c332
 
                 <!-- ✅ NEW -->
                 <Border Grid.Column="2" Margin="8" Padding="18" CornerRadius="16" Background="#F0FDFA">

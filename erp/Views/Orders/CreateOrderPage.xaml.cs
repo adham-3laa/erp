@@ -123,6 +123,71 @@ namespace EduGate.Views.Orders
             }
         }
 
+<<<<<<< HEAD
+=======
+        private bool ValidateForm()
+        {
+            var isValid = true;
+
+            // التحقق من اسم العميل
+            var customerName = CustomerNameTextBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(customerName))
+            {
+                ShowError(CustomerErrorText, CustomerInputWrapper, "من فضلك أدخل اسم العميل");
+                isValid = false;
+            }
+            else
+            {
+                // التحقق من أن الاسم ثلاثي (3 كلمات بالضبط)
+                var nameParts = customerName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (nameParts.Length != 3)
+                {
+                    ShowError(CustomerErrorText, CustomerInputWrapper, "اسم العميل يجب أن يكون ثلاثياً فقط (لا يقل ولا يزيد عن 3 أسماء)");
+                    isValid = false;
+                }
+            }
+
+
+
+            // التحقق من نسبة العمولة
+            // التحقق من نسبة العمولة (اختياري)
+            var commissionText = CommissionTextBox.Text?.Replace(',', '.') ?? "";
+            
+            if (!string.IsNullOrWhiteSpace(commissionText))
+            {
+                if (!double.TryParse(commissionText, NumberStyles.Float, CultureInfo.InvariantCulture, out var commission))
+                {
+                    ShowError(CommissionErrorText, null, "نسبة العمولة غير صحيحة. يرجى إدخال قيمة رقمية");
+                    isValid = false;
+                }
+                else if (commission < 0 || commission > 100)
+                {
+                    ShowError(CommissionErrorText, null, "نسبة العمولة يجب أن تكون بين 0 و 100");
+                    isValid = false;
+                }
+            }
+
+            // التحقق من وجود منتج واحد على الأقل
+            var validItems = _items
+                .Where(i => !string.IsNullOrWhiteSpace(i.productname) && i.quantity > 0)
+                .ToList();
+
+            if (validItems.Count == 0)
+            {
+                ShowError(ProductsErrorText, null, "من فضلك أضف منتجاً واحداً على الأقل مع تحديد الكمية");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        private void ClearForm_Click(object sender, RoutedEventArgs e)
+        {
+            ClearForm();
+            SetStatus("تم مسح النموذج", StatusType.Info);
+        }
+
+>>>>>>> ad1f622d97b67f8b3e45d4015a285558ad57c332
         private void ClearForm()
         {
             CustomerCodeTextBox.Clear();

@@ -25,7 +25,18 @@
                     Padding="24"
                     Width="420">
 
+<<<<<<< HEAD
                 <StackPanel>
+=======
+                        <!-- Input Section -->
+                        <TextBlock Text="أدخل المبلغ المراد دفعه" 
+                                   FontWeight="SemiBold" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#374151"/>
+                        
+                        <TextBox Style="{StaticResource InputTextBox}" 
+                                 Text="{Binding PaidAmountText, UpdateSourceTrigger=PropertyChanged}"/>
+>>>>>>> ad1f622d97b67f8b3e45d4015a285558ad57c332
 
                     <!-- Remaining Amount -->
                     <TextBlock Text="المبلغ المتبقي"
