@@ -45,7 +45,7 @@ namespace erp.Printing
                     // Invoice Details (Right Aligned)
                     row.RelativeItem().AlignRight().Column(col =>
                     {
-                        col.Item().Text("فاتورة ضريبية").FontSize(18).Bold().FontColor(titleColor);
+                        col.Item().Text(_invoice.InvoiceTitle).FontSize(18).Bold().FontColor(titleColor);
                         
                         col.Item().PaddingTop(25).Table(table =>
                         {

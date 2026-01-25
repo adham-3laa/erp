@@ -60,7 +60,8 @@ namespace erp.Printing
                 {
                     table.ColumnsDefinition(columns =>
                     {
-                        columns.RelativeColumn(2); // رقم الفاتورة
+                        columns.RelativeColumn(1.5f); // رقم الفاتورة
+                        columns.RelativeColumn(2.5f); // نوع الفاتورة
                         columns.RelativeColumn(2); // التاريخ
                         columns.RelativeColumn(2); // الإجمالي
                         columns.RelativeColumn(2); // المدفوع
@@ -71,6 +72,7 @@ namespace erp.Printing
                     table.Header(header =>
                     {
                         header.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("رقم الفاتورة").Bold();
+                        header.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("نوع الفاتورة").Bold();
                         header.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("التاريخ").Bold();
                         header.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("الإجمالي").Bold();
                         header.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("المدفوع").Bold();
@@ -81,6 +83,7 @@ namespace erp.Printing
                     foreach (var inv in _invoices)
                     {
                         table.Cell().Padding(5).Text(inv.code.ToString());
+                        table.Cell().Padding(5).Text(inv.TypeDisplayName);
                         table.Cell().Padding(5).Text(inv.GeneratedDate.ToString("yyyy-MM-dd"));
                         table.Cell().Padding(5).Text(inv.Amount.ToString("N2"));
                         table.Cell().Padding(5).Text(inv.PaidAmount.ToString("N2"));
@@ -88,7 +91,7 @@ namespace erp.Printing
                     }
 
                     // ===== Total Row =====
-                    table.Cell().ColumnSpan(2).PaddingTop(8).Text("الإجمالي الكلي").Bold();
+                    table.Cell().ColumnSpan(3).PaddingTop(8).Text("الإجمالي الكلي").Bold();
 
                     table.Cell().PaddingTop(8)
                         .Text(_invoices.Sum(x => x.Amount).ToString("N2"))

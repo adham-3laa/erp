@@ -18,6 +18,11 @@ namespace erp.DTOS.InvoicesDTOS
 
         public string CustomerName { get; set; }
         public string CustomerEmail { get; set; }
+        
+        /// <summary>
+        /// Display Title (Client Invoice, Supplier Invoice, etc.)
+        /// </summary>
+        public string InvoiceTitle { get; set; } = "فاتورة ضريبية";
 
         // Order
         public string OrderId { get; set; }

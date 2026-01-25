@@ -56,7 +56,8 @@ namespace erp.Services
                     CustomerEmail = user.Email,
                     OrderId = invoice.code.ToString(), // ✅ Use Invoice Code as reference for Supplier Invoices
                     PaidAmount = invoice.PaidAmount,
-                    RemainingAmount = invoice.RemainingAmount
+                    RemainingAmount = invoice.RemainingAmount,
+                    InvoiceTitle = invoice.TypeDisplayName // ✅ Set explicit title (e.g. فاتورة مورد)
                 };
 
                 // ✅ لو Items موجودة في الفاتورة مباشرة
@@ -201,7 +202,8 @@ namespace erp.Services
                 CustomerEmail = user.Email,
                 OrderId = displayOrderId,
                 PaidAmount = invoice.PaidAmount,
-                RemainingAmount = invoice.RemainingAmount
+                RemainingAmount = invoice.RemainingAmount,
+                InvoiceTitle = invoice.TypeDisplayName // ✅ Set explicit title (e.g. فاتورة مبيعات)
             };
 
             // 4️⃣ Map OrderItem -> Inventory Product -> Category Name
