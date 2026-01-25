@@ -34,7 +34,7 @@ namespace erp.Services
             public decimal SalePrice { get; set; }
             public decimal BuyPrice { get; set; }
             public int Quantity { get; set; }
-            public string SKU { get; set; } = "N/A";
+            public string SKU { get; set; } = "غير متوفر";
             public string Description { get; set; } = "";
             public string? CategoryId { get; set; }
             public string? CategoryName { get; set; }
@@ -132,7 +132,7 @@ namespace erp.Services
                 BuyPrice = Convert.ToInt32(p.BuyPrice),
 
                 Quantity = p.Quantity,  // السماح بالكمية 0 (نفاد المخزون)
-                SKU = string.IsNullOrWhiteSpace(p.SKU) ? "N/A" : p.SKU,
+                SKU = string.IsNullOrWhiteSpace(p.SKU) ? "غير متوفر" : p.SKU,
 
                 // ✅ عرض اسم الصنف بدل الكود
                 Category = !string.IsNullOrWhiteSpace(p.CategoryName)
@@ -257,7 +257,7 @@ namespace erp.Services
                 throw new Exception("الكمية غير صالحة (يجب أن تكون 0 أو أكثر)");
 
             if (string.IsNullOrWhiteSpace(product.SKU))
-                product.SKU = "N/A";
+                product.SKU = "غير متوفر";
 
             var request = new UpdateProductWithCategoryNameRequest
             {

@@ -523,50 +523,88 @@
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="140"/>
+                                                            <ColumnDefinition Width="140"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <!-- Product Name with Autocomplete -->
                                                         <Grid Grid.Column="0" Margin="0,0,12,0">
-                                                            <Border CornerRadius="8"
-                                                                    BorderThickness="1"
-                                                                    BorderBrush="#E5E7EB"
-                                                                    Background="White">
-                                                                <Grid>
-                                                                    <TextBox Text="{Binding productname, UpdateSourceTrigger=PropertyChanged}"
+                                                            <StackPanel>
+                                                                <TextBlock Text="اسم المنتج"
+                                                                           Foreground="#6B7280"
+                                                                           FontSize="11"
+                                                                           Margin="0,0,0,4"/>
+                                                                <Border CornerRadius="8"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="#E5E7EB"
+                                                                        Background="White">
+                                                                    <Grid>
+                                                                        <TextBox Text="{Binding productname, UpdateSourceTrigger=PropertyChanged}"
+                                                                                 BorderThickness="0"
+                                                                                 Padding="12,10"
+                                                                                 FontSize="14"
+                                                                                 Background="Transparent"
+                                                                                 Tag="{Binding}"
+                                                                                 TextChanged="ProductNameTextBox_TextChanged"
+                                                                                 GotFocus="ProductNameTextBox_GotFocus"
+                                                                                 LostFocus="ProductNameTextBox_LostFocus"/>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </StackPanel>
+                                                        </Grid>
+
+                                                        <!-- Buy Price -->
+                                                        <Grid Grid.Column="1" Margin="0,0,12,0">
+                                                            <StackPanel>
+                                                                <TextBlock Text="سعر الشراء"
+                                                                           Foreground="#6B7280"
+                                                                           FontSize="11"
+                                                                           Margin="0,0,0,4"/>
+                                                                <Border CornerRadius="8"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="#E5E7EB"
+                                                                        Background="White">
+                                                                    <TextBox Text="{Binding buyprice, UpdateSourceTrigger=PropertyChanged}"
                                                                              BorderThickness="0"
                                                                              Padding="12,10"
                                                                              FontSize="14"
                                                                              Background="Transparent"
-                                                                             Tag="{Binding}"
-                                                                             TextChanged="ProductNameTextBox_TextChanged"
-                                                                             GotFocus="ProductNameTextBox_GotFocus"
-                                                                             LostFocus="ProductNameTextBox_LostFocus"/>
-                                                                </Grid>
-                                                            </Border>
+                                                                             TextAlignment="Center"
+                                                                             FlowDirection="LeftToRight"
+                                                                             PreviewTextInput="BuyPriceTextBox_PreviewTextInput"/>
+                                                                </Border>
+                                                            </StackPanel>
                                                         </Grid>
 
                                                         <!-- Quantity -->
-                                                        <Grid Grid.Column="1" Margin="0,0,12,0">
-                                                            <Border CornerRadius="8"
-                                                                    BorderThickness="1"
-                                                                    BorderBrush="#E5E7EB"
-                                                                    Background="White">
-                                                                <TextBox Text="{Binding quantity, UpdateSourceTrigger=PropertyChanged}"
-                                                                         BorderThickness="0"
-                                                                         Padding="12,10"
-                                                                         FontSize="14"
-                                                                         Background="Transparent"
-                                                                         TextAlignment="Center"
-                                                                         FlowDirection="LeftToRight"
-                                                                         PreviewTextInput="QuantityTextBox_PreviewTextInput"/>
-                                                            </Border>
+                                                        <Grid Grid.Column="2" Margin="0,0,12,0">
+                                                            <StackPanel>
+                                                                <TextBlock Text="الكمية"
+                                                                           Foreground="#6B7280"
+                                                                           FontSize="11"
+                                                                           Margin="0,0,0,4"/>
+                                                                <Border CornerRadius="8"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="#E5E7EB"
+                                                                        Background="White">
+                                                                    <TextBox Text="{Binding quantity, UpdateSourceTrigger=PropertyChanged}"
+                                                                             BorderThickness="0"
+                                                                             Padding="12,10"
+                                                                             FontSize="14"
+                                                                             Background="Transparent"
+                                                                             TextAlignment="Center"
+                                                                             FlowDirection="LeftToRight"
+                                                                             PreviewTextInput="QuantityTextBox_PreviewTextInput"/>
+                                                                </Border>
+                                                            </StackPanel>
                                                         </Grid>
 
                                                         <!-- Remove Button -->
-                                                        <Button Grid.Column="2"
+                                                        <Button Grid.Column="3"
                                                                 Content="✕"
                                                                 Style="{StaticResource RemoveButtonStyle}"
+                                                                VerticalAlignment="Bottom"
+                                                                Margin="0,0,0,4"
                                                                 Click="RemoveProduct_Click"/>
                                                     </Grid>
                                                 </Border>
@@ -577,7 +615,7 @@
                             </Border>
 
                             <!-- Hint -->
-                            <TextBlock Text="💡 ابدأ بكتابة اسم المنتج للبحث التلقائي - يجب اختيار منتج موجود"
+                            <TextBlock Text="💡 ابدأ بكتابة اسم المنتج للبحث التلقائي - يجب اختيار منتج موجود وتحديد سعر الشراء والكمية"
                                        Foreground="{StaticResource TextMutedBrush}"
                                        FontSize="12"
                                        Margin="4,8,0,0"/>

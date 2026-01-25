@@ -358,6 +358,7 @@ namespace erp.Views.Inventory
                 {
                     // لا يمكن حذف آخر عنصر - مسح البيانات فقط
                     item.productname = "";
+                    item.buyprice = 0;
                     item.quantity = 1;
                     item.IsValid = null;
                 }
@@ -366,7 +367,7 @@ namespace erp.Views.Inventory
 
         private void UpdateItemsCount()
         {
-            var validCount = _products.Count(p => !string.IsNullOrWhiteSpace(p.productname) && p.quantity > 0);
+            var validCount = _products.Count(p => !string.IsNullOrWhiteSpace(p.productname) && p.buyprice > 0 && p.quantity > 0);
             ItemsCountBadge.Text = validCount.ToString();
         }
 
@@ -377,6 +378,16 @@ namespace erp.Views.Inventory
         private void QuantityTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !e.Text.All(char.IsDigit);
+        }
+
+        private void BuyPriceTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // السماح بالأرقام والنقطة العشرية فقط
+            var textBox = sender as TextBox;
+            var newText = textBox?.Text.Insert(textBox.CaretIndex, e.Text) ?? e.Text;
+            
+            // التحقق من أن النص الناتج هو رقم صحيح أو عشري
+            e.Handled = !decimal.TryParse(newText, out _);
         }
 
         #endregion
@@ -406,12 +417,24 @@ namespace erp.Views.Inventory
 
             // التحقق من المنتجات
             var validProducts = _products
-                .Where(p => !string.IsNullOrWhiteSpace(p.productname) && p.quantity > 0)
+                .Where(p => !string.IsNullOrWhiteSpace(p.productname) && p.buyprice > 0 && p.quantity > 0)
                 .ToList();
 
             if (validProducts.Count == 0)
             {
-                ShowError(ProductsErrorText, null, "من فضلك أضف منتجاً واحداً على الأقل مع تحديد الكمية");
+                ShowError(ProductsErrorText, null, "من فضلك أضف منتجاً واحداً على الأقل مع تحديد سعر الشراء والكمية");
+                return;
+            }
+
+            // التحقق من أن سعر الشراء لكل منتج صحيح
+            var invalidPriceProducts = _products
+                .Where(p => !string.IsNullOrWhiteSpace(p.productname) && p.buyprice <= 0)
+                .ToList();
+
+            if (invalidPriceProducts.Count > 0)
+            {
+                var invalidNames = string.Join("، ", invalidPriceProducts.Select(p => p.productname));
+                ShowError(ProductsErrorText, null, $"يجب تحديد سعر الشراء للمنتجات التالية: {invalidNames}");
                 return;
             }
 
@@ -433,6 +456,7 @@ namespace erp.Views.Inventory
                 var items = validProducts.Select(p => new StockInItemRequest
                 {
                     productname = p.productname.Trim(),
+                    buyprice = p.buyprice,
                     quantity = p.quantity
                 }).ToList();
 
@@ -567,6 +591,7 @@ namespace erp.Views.Inventory
     public class StockInItemViewModel : INotifyPropertyChanged
     {
         private string _productname = "";
+        private decimal _buyprice = 0;
         private int _quantity = 1;
         private bool? _isValid = null;
 
@@ -576,6 +601,16 @@ namespace erp.Views.Inventory
             set
             {
                 _productname = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal buyprice
+        {
+            get => _buyprice;
+            set
+            {
+                _buyprice = value;
                 OnPropertyChanged();
             }
         }

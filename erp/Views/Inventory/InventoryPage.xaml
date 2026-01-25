@@ -369,7 +369,7 @@
                                      TextChanged="SearchTextBox_TextChanged"/>
 
                             <!-- Placeholder -->
-                            <TextBlock Text="ابحث باسم المنتج أو الكود..."
+                            <TextBlock Text="ابحث المنتج بالاسم"
                                        Foreground="#9CA3AF"
                                        Margin="6,0,0,0"
                                        VerticalAlignment="Center"
@@ -572,7 +572,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTextColumn Header="SKU"
+                        <DataGridTextColumn Header="كود التخزين (SKU)"
                                             Binding="{Binding SKU}"
                                             Width="100"
                                             ElementStyle="{StaticResource CenteredTextStyle}"/>
