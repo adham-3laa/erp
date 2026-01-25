@@ -2,6 +2,7 @@
 using erp.DTOS.Inventory.Responses; // ApiResponse<T> => value
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -355,6 +356,85 @@ namespace erp.Services
                 
             return apiResponse?.value ?? new List<InvoiceRecipientDto>();
         }
+
+        // =====================================================
+        // =============== Netting Invoice ===================
+        // =====================================================
+
+        /// <summary>
+        /// Gets the netting invoice (Sales & Return comparison) for a partner.
+        /// 
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// Endpoint: GET /api/Invoices/netting-invoice
+        /// Parameters:
+        ///   - partnerName: Customer/Partner name (required)
+        ///   - fromDate: Start date (optional)
+        ///   - toDate: End date (optional)
+        /// ═══════════════════════════════════════════════════════════════════════════════
+        /// 
+        /// Returns a comprehensive financial summary comparing sales vs supply invoices.
+        /// </summary>
+        public async Task<NettingInvoiceResponseDto> GetNettingInvoiceAsync(
+            string partnerName,
+            DateTime? fromDate = null,
+            DateTime? toDate = null)
+        {
+            if (string.IsNullOrWhiteSpace(partnerName))
+                throw new ArgumentException("Partner name is required", nameof(partnerName));
+
+            AttachToken();
+
+            var queryParams = new List<string>
+            {
+                $"partnerName={Uri.EscapeDataString(partnerName)}"
+            };
+
+            if (fromDate.HasValue)
+                queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-ddTHH:mm:ss}");
+
+            if (toDate.HasValue)
+                queryParams.Add($"toDate={toDate.Value:yyyy-MM-ddTHH:mm:ss}");
+
+            var url = $"api/Invoices/netting-invoice?{string.Join("&", queryParams)}";
+
+            System.Diagnostics.Debug.WriteLine($"[InvoiceService] GET {url}");
+
+            var response = await _client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"[InvoiceService] Netting invoice error: {response.StatusCode} - {error}");
+                throw new Exception($"API Error ({(int)response.StatusCode}): {error}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"[InvoiceService] Netting invoice response: {json.Substring(0, Math.Min(500, json.Length))}...");
+
+            return JsonSerializer.Deserialize<NettingInvoiceResponseDto>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            ) ?? new NettingInvoiceResponseDto();
+        }
+
+        /// <summary>
+        /// Gets partner/customer names for autocomplete in the netting invoice search.
+        /// Uses the same autocomplete endpoint as regular invoices.
+        /// </summary>
+        public async Task<List<string>> GetPartnerNamesAutocompleteAsync(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return new List<string>();
+
+            // Let exceptions propagate to the caller (ViewModel)
+            var suggestions = await GetInvoicesAutocompleteAsync(term);
+            
+            return suggestions
+                .Where(x => !string.IsNullOrWhiteSpace(x.fullname))
+                .Select(x => x.fullname)
+                .Distinct()
+                .ToList();
+        }
     }
 
     public class InvoiceRecipientDto
@@ -363,5 +443,6 @@ namespace erp.Services
         public string fullname { get; set; }
     }
 }
+
 
 
