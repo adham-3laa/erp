@@ -33,16 +33,16 @@ namespace erp.Printing
                 // ================= HEADER =================
                 page.Header().Row(row =>
                 {
-                    row.RelativeItem().AlignLeft().Column(col =>
-                    {
-                        col.Item().Text("The First")
-                                  .FontSize(18)
-                                  .Bold();
+                    //row.RelativeItem().AlignLeft().Column(col =>
+                    //{
+                    //    col.Item().Text("The First")
+                    //              .FontSize(18)
+                    //              .Bold();
 
-                        col.Item().Text("Smart ERP System")
-                                  .FontSize(9)
-                                  .FontColor(Colors.Grey.Darken1);
-                    });
+                    //    col.Item().Text("Smart ERP System")
+                    //              .FontSize(9)
+                    //              .FontColor(Colors.Grey.Darken1);
+                    //});
 
                     row.RelativeItem().AlignRight().Column(col =>
                     {
@@ -50,7 +50,7 @@ namespace erp.Printing
                                   .FontSize(16)
                                   .Bold();
 
-                        col.Item().Text($"{_user.Fullname} : العميل")
+                        col.Item().AlignRight().Text($"{_user.Fullname} : العميل")
                                   .FontSize(10);
                     });
                 });
@@ -106,7 +106,7 @@ namespace erp.Printing
                 // ================= FOOTER =================
                 page.Footer().AlignCenter().Text(text =>
                 {
-                    text.Span("The First ERP  |  ");
+                    //text.Span("The First ERP  |  ");
                     text.Span($"تاريخ الطباعة: {DateTime.Now:yyyy-MM-dd}  |  ");
                     text.Span("صفحة ");
                     text.CurrentPageNumber();
