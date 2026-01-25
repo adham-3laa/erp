@@ -109,25 +109,31 @@
                 
                 <materialDesign:PackIcon Grid.Column="0" Kind="AccountSearch" VerticalAlignment="Center" Foreground="Gray" Width="24" Height="24" Margin="0,0,12,0"/>
                 
-                <ComboBox Grid.Column="1" Width="400" HorizontalAlignment="Right"
-                          IsEditable="True"
-                          StaysOpenOnEdit="True"
-                          Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
-                          ItemsSource="{Binding Suggestions}"
-                          SelectedItem="{Binding SelectedSuggestion}"
-                          DisplayMemberPath="FullName"
-                          materialDesign:HintAssist.Hint="اسم العميل"
-                          Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                          VerticalAlignment="Center">
+                <Grid Grid.Column="1" Width="400" HorizontalAlignment="Right">
+                    <ComboBox IsEditable="True"
+                              StaysOpenOnEdit="True"
+                              ItemsSource="{Binding Suggestions}"
+                              Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                              materialDesign:HintAssist.Hint="اسم العميل"
+                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                              VerticalAlignment="Center">
                         <ComboBox.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding LoadReportCommand}"/>
                         </ComboBox.InputBindings>
                         <ComboBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <VirtualizingStackPanel />
+                                <VirtualizingStackPanel/>
                             </ItemsPanelTemplate>
                         </ComboBox.ItemsPanel>
-                </ComboBox>
+                    </ComboBox>
+                    <ProgressBar IsIndeterminate="True" 
+                                 Width="20" Height="20" 
+                                 HorizontalAlignment="Right" 
+                                 VerticalAlignment="Bottom"
+                                 Margin="0,0,5,5"
+                                 Visibility="{Binding IsSuppliersLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                 Style="{StaticResource MaterialDesignCircularProgressBar}"/>
+                </Grid>
                 
                 <Button Grid.Column="2" 
                         Content="بحث" 

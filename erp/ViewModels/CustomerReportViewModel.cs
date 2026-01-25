@@ -4,6 +4,11 @@ using erp.DTOS.Reports;
 using erp.Services;
 using System;
 using System.Threading.Tasks;
+using erp.Services;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace erp.ViewModels.Reports
@@ -16,24 +21,18 @@ namespace erp.ViewModels.Reports
         {
             _reportService = new ReportService(App.Api);
             LoadReportCommand = new AsyncRelayCommand(LoadReportAsync);
+            LoadSuppliersAsync();
         }
 
-        public System.Collections.ObjectModel.ObservableCollection<erp.DTOS.Reports.CustomerSuggestionDto> Suggestions { get; } = new();
+        public System.Collections.ObjectModel.ObservableCollection<string> Suggestions { get; } = new();
 
-        private erp.DTOS.Reports.CustomerSuggestionDto _selectedSuggestion;
-        public erp.DTOS.Reports.CustomerSuggestionDto SelectedSuggestion
+        private System.Collections.ObjectModel.ObservableCollection<erp.DTOS.SupplierDto> _allSuppliers = new();
+
+        private bool _isSuppliersLoading;
+        public bool IsSuppliersLoading
         {
-            get => _selectedSuggestion;
-            set
-            {
-                if (SetProperty(ref _selectedSuggestion, value))
-                {
-                    if (value != null)
-                    {
-                        // Match logic similar to other VMS
-                    }
-                }
-            }
+            get => _isSuppliersLoading;
+            set => SetProperty(ref _isSuppliersLoading, value);
         }
 
         private string _customerName;
@@ -44,36 +43,54 @@ namespace erp.ViewModels.Reports
             {
                 if (SetProperty(ref _customerName, value))
                 {
-                    LoadSuggestions(value);
+                    UpdateSuggestions(value);
+                    if (_allSuppliers.Any(s => s.Name != null && s.Name.Equals(value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        LoadReportCommand.Execute(null);
+                    }
                 }
             }
         }
 
-        private async void LoadSuggestions(string term)
+        private void UpdateSuggestions(string searchText)
         {
-            if (string.IsNullOrWhiteSpace(term))
+            if (string.IsNullOrWhiteSpace(searchText))
             {
                 Suggestions.Clear();
                 return;
             }
 
-            if (_selectedSuggestion != null && string.Equals(_selectedSuggestion.FullName, term, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
+            var filtered = _allSuppliers
+                .Where(s => s.Name != null && s.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .Select(s => s.Name)
+                .Take(10)
+                .ToList();
 
+            Suggestions.Clear();
+            foreach (var suggestion in filtered)
+            {
+                Suggestions.Add(suggestion);
+            }
+        }
+
+        private async void LoadSuppliersAsync()
+        {
             try
             {
-                var results = await _reportService.GetCustomerSuggestionsAsync(term);
-                Suggestions.Clear();
-                foreach (var item in results)
+                IsSuppliersLoading = true;
+                var result = await _reportService.GetSuppliersAsync();
+                if (result != null && result.StatusCode == 200 && result.Value != null)
                 {
-                    Suggestions.Add(item);
+                    _allSuppliers = new System.Collections.ObjectModel.ObservableCollection<erp.DTOS.SupplierDto>(result.Value);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore
+                System.Diagnostics.Debug.WriteLine($"Failed to load suppliers: {ex.Message}");
+            }
+            finally
+            {
+                IsSuppliersLoading = false;
             }
         }
 
