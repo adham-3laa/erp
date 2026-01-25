@@ -93,6 +93,7 @@
                 <Button Content="👤 العملاء" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenCustomerReport"/>
                 <Button Content="👔 المندوبين" Style="{StaticResource ActiveTabButtonStyle}" Margin="8,0,0,0"/>
                 <Button Content="🏭 الموردين" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenSupplierReport"/>
+                <Button Content="☯️ مورد / عميل" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenDualRoleReport"/>
             </StackPanel>
         </Grid>
 

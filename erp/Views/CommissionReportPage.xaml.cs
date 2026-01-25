@@ -25,5 +25,8 @@ namespace erp.Views.Reports
 
         private void OpenSupplierReport(object sender, System.Windows.RoutedEventArgs e)
             => AppNavigation.NavigateToSupplierReport();
+
+        private void OpenDualRoleReport(object sender, System.Windows.RoutedEventArgs e)
+            => AppNavigation.NavigateToDualRoleReport();
     }
 }

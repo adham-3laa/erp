@@ -30,6 +30,7 @@
             <conv:CollectionCountToVisibilityConverter x:Key="CollectionCountToVisibilityConverter"/>
             <conv:UserStatusConverter x:Key="UserStatusConverter"/>
             <conv:QuantityLessThanConverter x:Key="QuantityLessThanConverter"/>
+            <conv:ChartBarWidthConverter x:Key="ChartBarWidthConverter"/>
             
         </ResourceDictionary>
     </Application.Resources>

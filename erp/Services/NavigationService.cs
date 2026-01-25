@@ -50,7 +50,7 @@ namespace erp.Services
         // ===================== REPORTS =====================
         public static void NavigateToSalesReport()
         {
-            _mainFrame?.Navigate(new SalesReportPage());
+            _mainFrame?.Navigate(new FullSalesReportPage());
         }
 
         public static void NavigateToStockMovementReport()
@@ -122,6 +122,11 @@ namespace erp.Services
         public static void NavigateToSupplierReport()
         {
             _mainFrame?.Navigate(new erp.Views.Reports.SupplierReportPage());
+        }
+
+        public static void NavigateToDualRoleReport()
+        {
+            _mainFrame?.Navigate(new erp.Views.Reports.DualRoleReportPage());
         }
         public static void NavigateToUserProfile(string userId)
         {

@@ -110,7 +110,7 @@ namespace erp
                     break;
 
                 case "Reports":
-                    MainFrame.Navigate(new erp.Views.Reports.SalesReportPage());
+                    MainFrame.Navigate(new erp.Views.Reports.FullSalesReportPage());
                     break;
 
                 case "Orders":

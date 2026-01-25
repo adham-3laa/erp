@@ -12,10 +12,11 @@ namespace erp.Views.Reports
             DataContext = new CustomerReportViewModel();
         }
 
-        private void OpenSalesReport(object sender, RoutedEventArgs e) => NavigationService.Navigate(new SalesReportPage());
+        private void OpenSalesReport(object sender, RoutedEventArgs e) => NavigationService.Navigate(new FullSalesReportPage());
         private void OpenStockMovementReport(object sender, RoutedEventArgs e) => NavigationService.Navigate(new StockMovementReportPage());
         private void OpenCommissionReport(object sender, RoutedEventArgs e) => NavigationService.Navigate(new CommissionReportPage());
         private void OpenSalesRepReport(object sender, RoutedEventArgs e) => NavigationService.Navigate(new SalesRepReportPage());
         private void OpenSupplierReport(object sender, RoutedEventArgs e) => NavigationService.Navigate(new SupplierReportPage());
+        private void OpenDualRoleReport(object sender, RoutedEventArgs e) => NavigationService.Navigate(new DualRoleReportPage());
     }
 }

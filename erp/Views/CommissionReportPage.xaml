@@ -161,7 +161,12 @@
 
                     <Button Content="🏭 الموردين"
                             Style="{StaticResource InactiveTabButtonStyle}"
+                            Margin="0,0,10,0"
                             Click="OpenSupplierReport"/>
+
+                    <Button Content="☯️ مورد / عميل"
+                            Style="{StaticResource InactiveTabButtonStyle}"
+                            Click="OpenDualRoleReport"/>
                 </StackPanel>
             </Grid>
 

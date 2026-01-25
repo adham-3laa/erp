@@ -1,0 +1,500 @@
+<Page x:Class="erp.Views.Reports.FullSalesReportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      FlowDirection="RightToLeft"
+      Background="{StaticResource PageBgBrush}">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+        <!-- Tab Styles -->
+        <Style x:Key="ActiveTabButtonStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonStyle}">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="18,10"/>
+        </Style>
+
+        <Style x:Key="InactiveTabButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#6B7280"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="18" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#4B5563"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- KPI Card Style -->
+        <Style x:Key="KpiCard" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Height" Value="130"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="📊 تقرير المبيعات الشامل" FontSize="26" FontWeight="Bold" Foreground="#FF1F2937"/>
+                <TextBlock Text="تحليل شامل للمبيعات والأرباح والعملاء خلال فترة زمنية محددة" FontSize="14" Foreground="#6B7280" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Button Content="📊 المبيعات" Style="{StaticResource ActiveTabButtonStyle}" Margin="8,0,0,0"/>
+                <Button Content="📦 حركة صنف" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenStockMovementReport"/>
+                <!-- <Button Content="💰 العمولات" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenCommissionReport"/> -->
+                <Button Content="👤 العملاء" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenCustomerReport"/>
+                <!-- <Button Content="👔 المندوبين" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenSalesRepReport"/> -->
+                <Button Content="🏭 الموردين" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenSupplierReport"/>
+                <Button Content="☯️ مورد / عميل" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenDualRoleReport"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Filter Section -->
+        <Border Grid.Row="1" Margin="0,20,0,0" Padding="16" Background="White" CornerRadius="16" BorderBrush="#E5E7EB" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- From Date -->
+                <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                    <TextBlock Text="من تاريخ" FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
+                    <DatePicker SelectedDate="{Binding FromDate}" 
+                                Width="180" Height="40"
+                                materialDesign:HintAssist.Hint="تاريخ البداية"
+                                />
+                </StackPanel>
+                
+                <!-- To Date -->
+                <StackPanel Grid.Column="1" Margin="0,0,16,0">
+                    <TextBlock Text="إلى تاريخ" FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
+                    <DatePicker SelectedDate="{Binding ToDate}" 
+                                Width="180" Height="40"
+                                materialDesign:HintAssist.Hint="تاريخ النهاية"
+                                />
+                </StackPanel>
+                
+                <!-- Load Button -->
+                <Button Grid.Column="2" 
+                        Content="📊 تحميل التقرير" 
+                        Command="{Binding LoadReportCommand}" 
+                        Style="{StaticResource DarkButtonStyle}" 
+                        Width="150" Height="40"
+                        VerticalAlignment="Bottom"
+                        IsEnabled="{Binding IsNotLoading}"/>
+            </Grid>
+        </Border>
+
+        <!-- Content Area -->
+        <ScrollViewer Grid.Row="2" Margin="0,20,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                
+                <!-- Error Banner -->
+                <Border Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" 
+                        Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Background="#FEE2E2" CornerRadius="12" Width="48" Height="48" Margin="0,0,16,0" VerticalAlignment="Top">
+                             <materialDesign:PackIcon Kind="{Binding ErrorState.IconKind}" Foreground="#DC2626" Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ErrorState.Title}" FontWeight="Bold" FontSize="16" Foreground="#991B1B" Margin="0,0,0,4"/>
+                            <TextBlock Text="{Binding ErrorState.Message}" FontSize="14" Foreground="#B91C1C" TextWrapping="Wrap" Opacity="0.9"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="2" 
+                                Content="{Binding ErrorState.ActionText}" 
+                                Command="{Binding LoadReportCommand}"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Foreground="#DC2626" BorderBrush="#DC2626"
+                                Margin="16,0,0,0" VerticalAlignment="Center"
+                                Height="36" Padding="16,0"/>
+                    </Grid>
+                </Border>
+
+                <!-- Initial State -->
+                <Border Visibility="{Binding ShowInitialState, Converter={StaticResource BoolToVisibilityConverter}}" 
+                        Background="#F9FAFB" CornerRadius="16" Padding="60" Margin="0,40,0,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="📊" FontSize="72" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                        <TextBlock Text="اختر الفترة الزمنية لعرض التقرير" FontSize="20" FontWeight="SemiBold" Foreground="#374151" HorizontalAlignment="Center"/>
+                        <TextBlock Text="حدد تاريخ البداية والنهاية ثم اضغط على 'تحميل التقرير'" FontSize="14" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Data Content -->
+                <StackPanel Visibility="{Binding HasData, Converter={StaticResource BoolToVisibilityConverter}}">
+                    
+                    <!-- KPI Summary Cards -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Total Orders -->
+                        <Border Grid.Column="0" Style="{StaticResource KpiCard}" Background="#EFF6FF">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <materialDesign:PackIcon Grid.Row="0" Kind="ShoppingOutline" Width="28" Height="28" Foreground="#3B82F6" HorizontalAlignment="Right"/>
+                                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                    <TextBlock Text="إجمالي الطلبات" Foreground="#1E40AF" FontSize="12" FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding Report.TotalOrders, StringFormat='{}{0:N0}'}" 
+                                              Foreground="#1E3A8A" FontSize="32" FontWeight="Bold" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Total Revenue -->
+                        <Border Grid.Column="1" Style="{StaticResource KpiCard}" Background="#ECFDF5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <materialDesign:PackIcon Grid.Row="0" Kind="CashMultiple" Width="28" Height="28" Foreground="#10B981" HorizontalAlignment="Right"/>
+                                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                    <TextBlock Text="إجمالي الإيرادات" Foreground="#065F46" FontSize="12" FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding Report.TotalRevenue, StringFormat='{}{0:N0} ج.م'}" 
+                                              Foreground="#064E3B" FontSize="28" FontWeight="Bold" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Total Cost -->
+                        <Border Grid.Column="2" Style="{StaticResource KpiCard}" Background="#FEF2F2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <materialDesign:PackIcon Grid.Row="0" Kind="TrendingDown" Width="28" Height="28" Foreground="#EF4444" HorizontalAlignment="Right"/>
+                                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                    <TextBlock Text="إجمالي التكاليف" Foreground="#991B1B" FontSize="12" FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding Report.TotalCost, StringFormat='{}{0:N0} ج.م'}" 
+                                              Foreground="#7F1D1D" FontSize="28" FontWeight="Bold" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Net Profit -->
+                        <Border Grid.Column="3" Style="{StaticResource KpiCard}" Background="#F0FDF4">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <materialDesign:PackIcon Grid.Row="0" Kind="TrendingUp" Width="28" Height="28" Foreground="#22C55E" HorizontalAlignment="Right"/>
+                                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                    <TextBlock Text="صافي الربح" Foreground="#14532D" FontSize="12" FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding Report.NetProfit, StringFormat='{}{0:N0} ج.م'}" 
+                                              Foreground="#15803D" FontSize="28" FontWeight="Bold" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Profit Margin -->
+                        <Border Grid.Column="4" Style="{StaticResource KpiCard}" Background="#FEF3C7">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <materialDesign:PackIcon Grid.Row="0" Kind="Percent" Width="28" Height="28" Foreground="#F59E0B" HorizontalAlignment="Right"/>
+                                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                    <TextBlock Text="هامش الربح" Foreground="#92400E" FontSize="12" FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding Report.ProfitMargin, StringFormat='{}{0:N2}%'}" 
+                                              Foreground="#78350F" FontSize="32" FontWeight="Bold" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Daily Sales Trend -->
+                    <materialDesign:Card Margin="6,8" Padding="24" materialDesign:ElevationAssist.Elevation="Dp1">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="📈 اتجاه المبيعات اليومية" FontSize="18" FontWeight="Bold" Foreground="#1F2937" HorizontalAlignment="Right"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <Border Background="#DBEAFE" CornerRadius="8" Padding="8,4" Margin="0,0,8,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="8" Height="8" Fill="#3B82F6" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                            <TextBlock Text="الإيرادات" FontSize="11" Foreground="#1E40AF"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="#D1FAE5" CornerRadius="8" Padding="8,4">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="8" Height="8" Fill="#10B981" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                            <TextBlock Text="الأرباح" FontSize="11" Foreground="#065F46"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- Simple Bar Chart Visualization -->
+                            <ItemsControl ItemsSource="{Binding Report.DailyTrend}" MaxHeight="300">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,4" Background="Transparent">
+                                            <Grid.ToolTip>
+                                                <StackPanel Margin="5">
+                                                    <TextBlock Text="{Binding Date, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="Bold" Margin="0,0,0,4"/>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="الإيرادات: " Foreground="#6B7280"/>
+                                                        <TextBlock Text="{Binding Revenue, StringFormat='{}{0:N0} ج.م'}" FontWeight="SemiBold" Foreground="#3B82F6"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="الأرباح: " Foreground="#6B7280"/>
+                                                        <TextBlock Text="{Binding Profit, StringFormat='{}{0:N0} ج.م'}" FontWeight="SemiBold" Foreground="#10B981"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="الطلبات: " Foreground="#6B7280"/>
+                                                        <TextBlock Text="{Binding OrderCount}" FontWeight="SemiBold" Foreground="#374151"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid.ToolTip>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <TextBlock Grid.Column="0" Text="{Binding Date, StringFormat='{}{0:dd/MM/yyyy}'}" 
+                                                      FontSize="11" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                            
+                                            <Grid Grid.Column="1" Margin="8,0">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="4"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                
+                                                <!-- Revenue Bar -->
+                                                <Border Grid.Row="0" Background="#DBEAFE" CornerRadius="2" Height="6" HorizontalAlignment="Stretch">
+                                                    <Border Background="#3B82F6" CornerRadius="2" HorizontalAlignment="Left">
+                                                        <Border.Width>
+                                                            <MultiBinding Converter="{StaticResource ChartBarWidthConverter}">
+                                                                <Binding Path="Revenue"/>
+                                                                <Binding Path="DataContext.MaxDailyRevenue" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                                <Binding RelativeSource="{RelativeSource AncestorType=Grid}" Path="ActualWidth"/>
+                                                            </MultiBinding>
+                                                        </Border.Width>
+                                                    </Border>
+                                                </Border>
+                                                
+                                                <!-- Profit Bar -->
+                                                <Border Grid.Row="2" Background="#D1FAE5" CornerRadius="2" Height="6" HorizontalAlignment="Stretch">
+                                                    <Border Background="#10B981" CornerRadius="2" HorizontalAlignment="Left">
+                                                        <Border.Width>
+                                                            <MultiBinding Converter="{StaticResource ChartBarWidthConverter}">
+                                                                <Binding Path="Profit"/>
+                                                                <Binding Path="DataContext.MaxDailyProfit" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                                <Binding RelativeSource="{RelativeSource AncestorType=Grid}" Path="ActualWidth"/>
+                                                            </MultiBinding>
+                                                        </Border.Width>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                            
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Revenue, StringFormat='{}{0:N0}'}" FontSize="11" FontWeight="SemiBold" Foreground="#3B82F6" Margin="0,0,8,0"/>
+                                                <TextBlock Text="/" FontSize="10" Foreground="#D1D5DB" Margin="0,0,4,0"/>
+                                                <TextBlock Text="{Binding Profit, StringFormat='{}{0:N0}'}" FontSize="11" FontWeight="SemiBold" Foreground="#10B981"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </materialDesign:Card>
+
+                    <!-- Top Selling Products & Top Customers -->
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Top Selling Products -->
+                        <materialDesign:Card Grid.Column="0" Margin="6,0" Padding="20" materialDesign:ElevationAssist.Elevation="Dp1">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,16">
+                                    <TextBlock Text="🏆 أكثر المنتجات مبيعاً" FontSize="16" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    <Border Background="#DBEAFE" CornerRadius="10" Padding="8,4" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Report.TopSellingProducts.Count}" FontSize="12" FontWeight="SemiBold" Foreground="#1E40AF"/>
+                                    </Border>
+                                </Grid>
+                                
+                                <DataGrid ItemsSource="{Binding Report.TopSellingProducts}" 
+                                         AutoGenerateColumns="False" 
+                                         CanUserAddRows="False" 
+                                         IsReadOnly="True" 
+                                         MaxHeight="400"
+                                         GridLinesVisibility="None"
+                                         HeadersVisibility="Column"
+                                         AlternatingRowBackground="#F9FAFB">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Foreground" Value="#1F2937"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="القيمة" Binding="{Binding TotalValue, StringFormat='N0'}" Width="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Foreground" Value="#10B981"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="الكمية" Binding="{Binding Count}" Width="80">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontSize" Value="12"/>
+                                                    <Setter Property="Foreground" Value="#6B7280"/>
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <!-- Top Customers -->
+                        <materialDesign:Card Grid.Column="1" Margin="6,0" Padding="20" materialDesign:ElevationAssist.Elevation="Dp1">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,16">
+                                    <TextBlock Text="👤 أفضل العملاء" FontSize="16" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    <Border Background="#FEF3C7" CornerRadius="10" Padding="8,4" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Report.TopCustomers.Count}" FontSize="12" FontWeight="SemiBold" Foreground="#92400E"/>
+                                    </Border>
+                                </Grid>
+                                
+                                <DataGrid ItemsSource="{Binding Report.TopCustomers}" 
+                                         AutoGenerateColumns="False" 
+                                         CanUserAddRows="False" 
+                                         IsReadOnly="True" 
+                                         MaxHeight="400"
+                                         GridLinesVisibility="None"
+                                         HeadersVisibility="Column"
+                                         AlternatingRowBackground="#F9FAFB">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="اسم العميل" Binding="{Binding Name}" Width="*">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Foreground" Value="#1F2937"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="القيمة" Binding="{Binding TotalValue, StringFormat='N0'}" Width="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Foreground" Value="#F59E0B"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="عدد الطلبات" Binding="{Binding Count}" Width="100">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontSize" Value="12"/>
+                                                    <Setter Property="Foreground" Value="#6B7280"/>
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </Grid>
+                </StackPanel>
+
+                <!-- No Data State -->
+                <Border Visibility="{Binding NoData, Converter={StaticResource BoolToVisibilityConverter}}" 
+                        Background="#FEF9C3" BorderBrush="#FDE047" BorderThickness="1" CornerRadius="16" Padding="60" Margin="0,40,0,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="🔍" FontSize="64" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock Text="لا توجد بيانات للفترة المحددة" FontSize="20" FontWeight="SemiBold" Foreground="#374151" HorizontalAlignment="Center"/>
+                        <TextBlock Text="جرب اختيار فترة زمنية مختلفة" FontSize="14" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="2" Background="#80FFFFFF" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="6" Style="{StaticResource MaterialDesignCircularProgressBar}"/>
+                <TextBlock Text="جاري تحميل التقرير..." Margin="0,16,0,0" Foreground="#374151" FontSize="14" FontWeight="Medium" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

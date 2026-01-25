@@ -90,10 +90,11 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                 <Button Content="📊 المبيعات" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenSalesReport"/>
                 <Button Content="📦 حركة صنف" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenStockMovementReport"/>
-                <Button Content="💰 العمولات" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenCommissionReport"/>
+                <!-- <Button Content="💰 العمولات" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenCommissionReport"/> -->
                 <Button Content="👤 العملاء" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenCustomerReport"/>
-                <Button Content="👔 المندوبين" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenSalesRepReport"/>
+                <!-- <Button Content="👔 المندوبين" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenSalesRepReport"/> -->
                 <Button Content="🏭 الموردين" Style="{StaticResource ActiveTabButtonStyle}" Margin="8,0,0,0"/>
+                <Button Content="☯️ مورد / عميل" Style="{StaticResource InactiveTabButtonStyle}" Margin="8,0,0,0" Click="OpenDualRoleReport"/>
             </StackPanel>
         </Grid>
 

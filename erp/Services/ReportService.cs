@@ -36,6 +36,28 @@ namespace erp.Services
                 $"api/Reports/sales?fromDate={from}&toDate={to}"
             );
         }
+
+        public async Task<FullSalesReportDto?> GetFullSalesReportAsync(
+            DateTime fromDate,
+            DateTime toDate)
+        {
+            // 🔒 تأكيد إن FromDate أصغر من ToDate
+            if (fromDate > toDate)
+                throw new ArgumentException("FromDate must be earlier than ToDate");
+
+            // ✅ تحويل لـ UTC + ISO 8601 (المطلوب من الـ API)
+            var from = fromDate
+                .ToUniversalTime()
+                .ToString("o", CultureInfo.InvariantCulture);
+
+            var to = toDate
+                .ToUniversalTime()
+                .ToString("o", CultureInfo.InvariantCulture);
+
+            return await _api.GetAsync<FullSalesReportDto>(
+                $"api/Reports/Full-sales-report?fromDate={from}&toDate={to}"
+            );
+        }
         public async Task<StockMovementReportDto?> GetStockMovementAsync(string productName)
         {
             if (string.IsNullOrWhiteSpace(productName))
@@ -125,6 +147,16 @@ namespace erp.Services
             );
 
             return response?.Value ?? new System.Collections.Generic.List<erp.DTOS.Reports.CustomerSuggestionDto>();
+        }
+
+        public async Task<DualRoleReportDto?> GetDualRoleReportAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name is required");
+
+            return await _api.GetAsync<DualRoleReportDto>(
+                $"api/Reports/dual-role-report?name={Uri.EscapeDataString(name)}"
+            );
         }
     }
 }
