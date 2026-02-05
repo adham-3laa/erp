@@ -252,7 +252,20 @@ namespace erp.Views.Inventory
             }
             catch (Exception ex)
             {
-                ShowError($"حدث خطأ أثناء البحث: {ex.Message}");
+                if (ex.Message.Contains("404") || ex.Message.Contains("Not Found"))
+                {
+                    // Handle as empty result instead of error
+                    _currentSource = new List<Product>();
+                    ProductsDataGrid.ItemsSource = null;
+                    ShowEmptyState("🔍 لا توجد نتائج", $"لا يوجد منتج باسم \"{searchText}\" في المخزون.");
+                    PageTextBlock.Text = "";
+                    TotalItemsText.Text = "";
+                    ProductCountText.Text = "0 منتج";
+                }
+                else
+                {
+                    ShowError($"حدث خطأ أثناء البحث: {ex.Message}");
+                }
             }
             finally
             {

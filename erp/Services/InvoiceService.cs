@@ -112,6 +112,70 @@ namespace erp.Services
             => GetValueList($"api/Invoices/AllInvoicesForSpecificSalesRepBySalesRepId?salesRepId={Uri.EscapeDataString(salesRepId)}");
 
         // =====================================================
+        // ============ NEW: With Statistics ===================
+        // =====================================================
+
+        /// <summary>
+        /// Gets all invoices for a customer WITH statistics.
+        /// Returns complete response including sales/returns counts and amounts.
+        /// Endpoint: GET /api/Invoices/AllInvoicesForSpecificCustomerByCustomerId
+        /// </summary>
+        public async Task<CustomerInvoicesResponseDto> GetCustomerInvoicesWithStats(string customerId)
+        {
+            AttachToken();
+
+            var url = $"api/Invoices/AllInvoicesForSpecificCustomerByCustomerId?customerId={Uri.EscapeDataString(customerId)}";
+
+            var response = await _client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"[InvoiceService] Customer invoices API Error: {err}");
+                throw new Exception($"API Error ({(int)response.StatusCode}): {err}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"[InvoiceService] Customer invoices response: {json.Substring(0, Math.Min(500, json.Length))}...");
+
+            var result = JsonSerializer.Deserialize<CustomerInvoicesResponseDto>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return result ?? new CustomerInvoicesResponseDto();
+        }
+
+        /// <summary>
+        /// Gets all invoices for a supplier WITH statistics.
+        /// Returns complete response including supply/returns counts and amounts.
+        /// Endpoint: GET /api/Invoices/AllInvoicesForSpecificSupplierBySupplierId
+        /// </summary>
+        public async Task<SupplierInvoicesResponseDto> GetSupplierInvoicesWithStats(string supplierId)
+        {
+            AttachToken();
+
+            var url = $"api/Invoices/AllInvoicesForSpecificSupplierBySupplierId?supplierId={Uri.EscapeDataString(supplierId)}";
+
+            var response = await _client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"[InvoiceService] Supplier invoices API Error: {err}");
+                throw new Exception($"API Error ({(int)response.StatusCode}): {err}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"[InvoiceService] Supplier invoices response: {json.Substring(0, Math.Min(500, json.Length))}...");
+
+            var result = JsonSerializer.Deserialize<SupplierInvoicesResponseDto>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return result ?? new SupplierInvoicesResponseDto();
+        }
+
+        // =====================================================
         // ============== Pay Supplier Invoice =================
         // =====================================================
 

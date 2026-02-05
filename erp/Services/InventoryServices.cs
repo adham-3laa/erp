@@ -346,6 +346,7 @@ namespace erp.Services
             return apiResponse?.value.Select(p => new Product
             {
                 ProductId = p.productid,
+                code = p.code, // ✅ Fix: Map Code correctly
                 Name = p.productname,
                 SalePrice = (int)p.saleprice,
                 BuyPrice = (int)p.buyprice,

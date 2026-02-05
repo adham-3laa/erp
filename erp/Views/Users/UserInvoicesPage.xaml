@@ -284,144 +284,181 @@
             </Grid>
         </Border>
 
-        <!-- ==================== STATISTICS CARDS ==================== -->
-        <Grid Grid.Row="1" Margin="24,16,24,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- ==================== STATISTICS SECTION ==================== -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
+            <StackPanel Margin="24,0,24,0">
+                
+                <!-- ROW 1: MAIN STATS (Sales or Supply) -->
+                <TextBlock Text="{Binding MainStatsTitle}" 
+                           FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-            <!-- Total Invoices Card -->
-            <Border Grid.Column="0" 
-                    Margin="0,0,8,0"
-                    Background="White"
-                    CornerRadius="14"
-                    Effect="{StaticResource CardShadow}">
-                <Grid Margin="18">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="42" Height="42" CornerRadius="10" Background="#EEF2FF">
-                            <materialDesign:PackIcon Kind="FileDocument"
-                                                     Width="22"
-                                                     Height="22"
-                                                     Foreground="{StaticResource PremiumPurpleBrush}"
-                                                     HorizontalAlignment="Center"
-                                                     VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="عدد الفواتير"
-                                       FontSize="12"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding Invoices.Count}"
-                                       FontSize="24"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </Border>
+                    <!-- Main Count -->
+                    <Border Grid.Column="0" Margin="0,0,8,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#EEF2FF">
+                                    <materialDesign:PackIcon Kind="FileDocument" Width="22" Height="22" Foreground="{StaticResource PremiumPurpleBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="عدد الفواتير" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding MainCount}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-            <!-- Total Amount Card -->
-            <Border Grid.Column="1" 
-                    Margin="8,0"
-                    Background="White"
-                    CornerRadius="14"
-                    Effect="{StaticResource CardShadow}">
-                <Grid Margin="18">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="42" Height="42" CornerRadius="10" Background="#FEF3C7">
-                            <materialDesign:PackIcon Kind="CurrencyUsd"
-                                                     Width="22"
-                                                     Height="22"
-                                                     Foreground="{StaticResource PremiumOrangeBrush}"
-                                                     HorizontalAlignment="Center"
-                                                     VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="إجمالي المبلغ"
-                                       FontSize="12"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock FontSize="20"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}">
-                                <TextBlock.Text>
-                                    <Binding Path="TotalAmount" StringFormat="N2" FallbackValue="0.00"/>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </Border>
+                    <!-- Main Total Amount -->
+                    <Border Grid.Column="1" Margin="8,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#FEF3C7">
+                                    <materialDesign:PackIcon Kind="CurrencyUsd" Width="22" Height="22" Foreground="{StaticResource PremiumOrangeBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="إجمالي المبلغ" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}">
+                                        <TextBlock.Text>
+                                            <Binding Path="MainAmount" StringFormat="N2" FallbackValue="0.00"/>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-            <!-- Paid Amount Card -->
-            <Border Grid.Column="2" 
-                    Margin="8,0"
-                    Background="White"
-                    CornerRadius="14"
-                    Effect="{StaticResource CardShadow}">
-                <Grid Margin="18">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="42" Height="42" CornerRadius="10" Background="#D1FAE5">
-                            <materialDesign:PackIcon Kind="CheckCircle"
-                                                     Width="22"
-                                                     Height="22"
-                                                     Foreground="{StaticResource PremiumGreenBrush}"
-                                                     HorizontalAlignment="Center"
-                                                     VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="المدفوع"
-                                       FontSize="12"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock FontSize="20"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource PremiumGreenBrush}">
-                                <TextBlock.Text>
-                                    <Binding Path="TotalPaid" StringFormat="N2" FallbackValue="0.00"/>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </Border>
+                    <!-- Main Paid Amount -->
+                    <Border Grid.Column="2" Margin="8,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#D1FAE5">
+                                    <materialDesign:PackIcon Kind="CheckCircle" Width="22" Height="22" Foreground="{StaticResource PremiumGreenBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="المدفوع" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="{StaticResource PremiumGreenBrush}">
+                                        <TextBlock.Text>
+                                            <Binding Path="MainPaid" StringFormat="N2" FallbackValue="0.00"/>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-            <!-- Remaining Amount Card -->
-            <Border Grid.Column="3" 
-                    Margin="8,0,0,0"
-                    Background="White"
-                    CornerRadius="14"
-                    Effect="{StaticResource CardShadow}">
-                <Grid Margin="18">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="42" Height="42" CornerRadius="10" Background="#FEE2E2">
-                            <materialDesign:PackIcon Kind="AlertCircle"
-                                                     Width="22"
-                                                     Height="22"
-                                                     Foreground="{StaticResource PremiumRedBrush}"
-                                                     HorizontalAlignment="Center"
-                                                     VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="المتبقي"
-                                       FontSize="12"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock FontSize="20"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource PremiumRedBrush}">
-                                <TextBlock.Text>
-                                    <Binding Path="TotalRemaining" StringFormat="N2" FallbackValue="0.00"/>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
+                    <!-- Main Remaining Amount -->
+                    <Border Grid.Column="3" Margin="8,0,0,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#FEE2E2">
+                                    <materialDesign:PackIcon Kind="AlertCircle" Width="22" Height="22" Foreground="{StaticResource PremiumRedBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="المتبقي" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="{StaticResource PremiumRedBrush}">
+                                        <TextBlock.Text>
+                                            <Binding Path="MainRemaining" StringFormat="N2" FallbackValue="0.00"/>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </Grid>
-            </Border>
-        </Grid>
+
+                <!-- ROW 2: RETURNS STATS -->
+                <TextBlock Text="إحصائيات المرتجعات" 
+                           FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Returns Count -->
+                    <Border Grid.Column="0" Margin="0,0,8,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#FEE2E2">
+                                    <materialDesign:PackIcon Kind="FileRotateLeft" Width="22" Height="22" Foreground="{StaticResource PremiumRedBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="عدد المرتجعات" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding ReturnsCount}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Returns Total Amount -->
+                    <Border Grid.Column="1" Margin="8,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#ffedd5">
+                                    <materialDesign:PackIcon Kind="CashMultiple" Width="22" Height="22" Foreground="{StaticResource PremiumOrangeBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="إجمالي المرتجعات" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}">
+                                        <TextBlock.Text>
+                                            <Binding Path="ReturnsAmount" StringFormat="N2" FallbackValue="0.00"/>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Returns Paid Amount -->
+                    <Border Grid.Column="2" Margin="8,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#D1FAE5">
+                                    <materialDesign:PackIcon Kind="CreditCardCheck" Width="22" Height="22" Foreground="{StaticResource PremiumGreenBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="المرتجع المدفوع" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="{StaticResource PremiumGreenBrush}">
+                                        <TextBlock.Text>
+                                            <Binding Path="ReturnsPaid" StringFormat="N2" FallbackValue="0.00"/>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Returns Remaining Amount -->
+                    <Border Grid.Column="3" Margin="8,0,0,0" Background="White" CornerRadius="14" Effect="{StaticResource CardShadow}">
+                        <Grid Margin="16">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="10" Background="#E0E7FF">
+                                    <materialDesign:PackIcon Kind="CashRefund" Width="22" Height="22" Foreground="{StaticResource PremiumPurpleBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="باقي المرتجعات" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="{StaticResource PremiumPurpleBrush}">
+                                        <TextBlock.Text>
+                                            <Binding Path="ReturnsRemaining" StringFormat="N2" FallbackValue="0.00"/>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
 
         <!-- ==================== INVOICES TABLE ==================== -->
         <Border Grid.Row="2"

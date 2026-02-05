@@ -278,8 +278,31 @@ namespace erp.Views.Inventory
         {
             ResultCard.Visibility = Visibility.Visible;
 
+            // ✅ FIX: Handle "No adjustment needed" case (API doesn't return quantity fields)
+            bool isMatch = false;
+            try
+            {
+                string msg = result.message;
+                if (!string.IsNullOrEmpty(msg) && 
+                   (msg.Contains("No adjustment needed", StringComparison.OrdinalIgnoreCase) || 
+                    msg.Contains("matches physical count", StringComparison.OrdinalIgnoreCase)))
+                {
+                    isMatch = true;
+                }
+            }
+            catch { /* Ignore safely */ }
+
             // تحديد الكمية المسجلة في النظام
-            int systemQty = updateStock ? result.oldquantity : result.systemquantity;
+            // If matched, assume system = actual (since delta is 0)
+            int systemQty = 0;
+            if (isMatch)
+            {
+                systemQty = actualQty;
+            }
+            else
+            {
+                systemQty = updateStock ? result.oldquantity : result.systemquantity;
+            }
 
             // عرض الكميات
             SystemQuantityText.Text = systemQty.ToString();
@@ -359,7 +382,30 @@ namespace erp.Views.Inventory
             }
 
             // الأثر المالي
-            FinancialImpactText.Text = result.financialimpact ?? "لا يوجد";
+            // الأثر المالي
+            string impact = result.financialimpact;
+            if (!string.IsNullOrWhiteSpace(impact))
+            {
+                // Translate English messages to Arabic
+                // Pattern 1: Profit (Surplus)
+                var profitMatch = System.Text.RegularExpressions.Regex.Match(impact, @"Profit \(Surplus\): Found ([\d\.]+) extra units\. Value gain: ([^\s]+)");
+                if (profitMatch.Success)
+                {
+                    string value = profitMatch.Groups[2].Value.Replace("$", "") + " ج.م";
+                    impact = $"ربح (زيادة): تم العثور على {profitMatch.Groups[1].Value} وحدة إضافية. مكسب قيمته: {value}";
+                }
+                // Pattern 2: Loss (Deficit)
+                else
+                {
+                    var lossMatch = System.Text.RegularExpressions.Regex.Match(impact, @"Loss \(Deficit\): Missing ([\d\.]+) units\. Value loss: ([^\s]+)");
+                    if (lossMatch.Success)
+                    {
+                         string value = lossMatch.Groups[2].Value.Replace("$", "") + " ج.م";
+                         impact = $"خسارة (عجز): يوجد نقص {lossMatch.Groups[1].Value} وحدة. خسارة قيمتها: {value}";
+                    }
+                }
+            }
+            FinancialImpactText.Text = !string.IsNullOrWhiteSpace(impact) ? impact : "لا يوجد";
 
             // ملاحظة التحديث
             if (updateStock)

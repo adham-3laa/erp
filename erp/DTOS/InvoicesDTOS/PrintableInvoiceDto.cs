@@ -7,6 +7,11 @@ namespace erp.DTOS.InvoicesDTOS
     public class PrintableInvoiceDto
     {
         public Guid InvoiceId { get; set; }
+
+        /// <summary>
+        /// Title to display on the invoice (e.g. فاتورة مبيعات, فاتورة مرتجع)
+        /// </summary>
+        public string InvoiceTypeTitle { get; set; } = "فاتورة";
         
         /// <summary>
         /// Sequential invoice code for display in printed documents.

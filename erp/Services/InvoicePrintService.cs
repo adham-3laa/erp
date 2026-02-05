@@ -45,20 +45,33 @@ namespace erp.Services
             // =====================================================
             // في SupplierInvoice الـ API بيرجع items داخل الفاتورة نفسها (مش OrderId)
             // لو مش موجودة، بنجيبها من endpoint GetSupplierInviceProductsByInvoicCode
-            if (invoice.InvoiceTypeParsed == Enums.InvoiceType.SupplierInvoice)
+            // =====================================================
+            // ============== SUPPLIER INVOICES (Supply & Return) =====================
+            // =====================================================
+            // Handle both SupplierInvoice and SupplierReturnInvoice
+            if (invoice.InvoiceTypeParsed == Enums.InvoiceType.SupplierInvoice || 
+                invoice.InvoiceTypeParsed == Enums.InvoiceType.SupplierReturnInvoice)
             {
+                var title = "فاتورة مورد";
+                if (invoice.InvoiceTypeParsed == Enums.InvoiceType.SupplierReturnInvoice)
+                    title = "فاتورة مرتجع مورد";
+
                 var printable = new PrintableInvoiceDto
                 {
                     InvoiceId = invoice.Id,
+                    InvoiceTypeTitle = title,
                     InvoiceCode = invoice.code, // ✅ Sequential invoice number for printing
                     InvoiceDate = invoice.GeneratedDate,
                     CustomerName = invoice.SupplierName ?? invoice.RecipientName ?? user.Fullname,
                     CustomerEmail = user.Email,
-                    OrderId = invoice.code.ToString(), // ✅ Use Invoice Code as reference for Supplier Invoices
+                    OrderId = invoice.code.ToString(), // ✅ Use Invoice Code as reference
                     PaidAmount = invoice.PaidAmount,
                     RemainingAmount = invoice.RemainingAmount
                 };
 
+                // Adjust title/header based on type if needed inside PrintableInvoiceDto 
+                // (though PrintableInvoiceDto currently doesn't carry Type info, the name usually comes from page title)
+                
                 // ✅ لو Items موجودة في الفاتورة مباشرة
                 if (invoice.Items != null && invoice.Items.Count > 0)
                 {
@@ -80,30 +93,63 @@ namespace erp.Services
                     // ✅ جلب المنتجات من API باستخدام invoice code
                     try
                     {
-                        // Use injected service instead of creating new one
-                        var supplierProducts = await _invoiceService.GetSupplierInvoiceProductsAsync(invoice.code);
-
-                        // Load inventory & categories to resolve category names
-                        // Renamed to avoid scope conflict with outer variables
-                        var allInventoryProducts = await _inventoryService.GetAllProductsAsync();
-                        var allCategoriesMap = await GetCategoriesMapAsync();
-
-                        foreach (var sp in supplierProducts)
+                        if (invoice.InvoiceTypeParsed == Enums.InvoiceType.SupplierReturnInvoice)
                         {
-                            if (sp == null) continue;
+                            // ==================== SUPPLIER RETURN ====================
+                            // Load using MANDATORY endpoint for returns
+                            var returnProducts = await _invoiceService.GetSupplierReturnInvoiceProductsAsync(invoice.code);
 
-                            var product = allInventoryProducts
-                                .FirstOrDefault(p => string.Equals(p.ProductId?.Trim(), sp.ProductId?.Trim(), StringComparison.OrdinalIgnoreCase));
+                            // Load inventory for mapping product details
+                            var allInventoryProductsMap = (await _inventoryService.GetAllProductsAsync())
+                                .Where(p => !string.IsNullOrEmpty(p.ProductId))
+                                .ToDictionary(p => p.ProductId.Trim(), StringComparer.OrdinalIgnoreCase);
+                            
+                            var returnCategoriesMap = await GetCategoriesMapAsync();
 
-                            var categoryName = ResolveCategoryName(product?.Category, allCategoriesMap);
-
-                            printable.Items.Add(new PrintableInvoiceItemDto
+                            foreach (var rp in returnProducts)
                             {
-                                ProductName = sp.ProductName ?? "-",
-                                Quantity = (int)sp.Quantity,
-                                UnitPrice = sp.BuyPrice,
-                                CategoryName = categoryName
-                            });
+                                if (rp == null) continue;
+                                
+                                var categoryName = "غير محدد";
+                                if (allInventoryProductsMap.TryGetValue(rp.ProductId?.Trim() ?? "", out var invProduct))
+                                {
+                                    categoryName = ResolveCategoryName(invProduct.Category, returnCategoriesMap);
+                                }
+
+                                printable.Items.Add(new PrintableInvoiceItemDto
+                                {
+                                    ProductName = rp.ProductName ?? "-",
+                                    Quantity = (int)rp.Quantity,
+                                    UnitPrice = rp.BuyPrice, 
+                                    CategoryName = categoryName
+                                });
+                            }
+                        }
+                        else
+                        {
+                            // ==================== SUPPLIER INVOICE ====================
+                            var supplierProducts = await _invoiceService.GetSupplierInvoiceProductsAsync(invoice.code);
+
+                            var allInventoryProducts = await _inventoryService.GetAllProductsAsync();
+                            var allCategoriesMap = await GetCategoriesMapAsync();
+
+                            foreach (var sp in supplierProducts)
+                            {
+                                if (sp == null) continue;
+
+                                var product = allInventoryProducts
+                                    .FirstOrDefault(p => string.Equals(p.ProductId?.Trim(), sp.ProductId?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                                var categoryName = ResolveCategoryName(product?.Category, allCategoriesMap);
+
+                                printable.Items.Add(new PrintableInvoiceItemDto
+                                {
+                                    ProductName = sp.ProductName ?? "-",
+                                    Quantity = (int)sp.Quantity,
+                                    UnitPrice = sp.BuyPrice,
+                                    CategoryName = categoryName
+                                });
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -113,8 +159,7 @@ namespace erp.Services
                     }
                 }
 
-                // Return printable even if items are empty, so we can at least print the header
-                // But the caller expects items generally. Let's return what we have.
+                // Return printable even if items are empty
                 return printable;
             }
 
@@ -187,14 +232,26 @@ namespace erp.Services
             // 3️⃣ Get categories map (categoryId -> categoryName)
             var categoriesMap = await GetCategoriesMapAsync();
 
-            // Use OrderCode if available for better readability, otherwise fallback to GUID
-            string displayOrderId = (invoice.OrderCode.HasValue && invoice.OrderCode.Value > 0) 
+            var displayOrderId = (invoice.OrderCode.HasValue && invoice.OrderCode.Value > 0) 
                 ? invoice.OrderCode.Value.ToString() 
                 : orderId;
+
+            // Determine Title
+            var customerTitle = "فاتورة مبيعات"; // Default
+            if (invoice.InvoiceTypeParsed == Enums.InvoiceType.ReturnInvoice || 
+                invoice.InvoiceTypeParsed == Enums.InvoiceType.SupplierReturnInvoice) // Should be ReturnInvoice usually
+            {
+                customerTitle = "فاتورة مرتجع";
+            }
+            else if (invoice.InvoiceTypeParsed == Enums.InvoiceType.CommissionInvoice)
+            {
+                customerTitle = "فاتورة عمولة";
+            }
 
             var printableCustomer = new PrintableInvoiceDto
             {
                 InvoiceId = invoice.Id,
+                InvoiceTypeTitle = customerTitle,
                 InvoiceCode = invoice.code, // ✅ Sequential invoice number for printing
                 InvoiceDate = invoice.GeneratedDate,
                 CustomerName = invoice.RecipientName ?? user.Fullname,
