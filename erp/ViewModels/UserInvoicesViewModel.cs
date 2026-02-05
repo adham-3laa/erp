@@ -12,6 +12,7 @@ using erp.Printing;
 using System.Diagnostics;
 using System.IO;
 using QuestPDF.Fluent;
+using Microsoft.Win32;
 
 namespace erp.ViewModels
 {
@@ -423,10 +424,41 @@ namespace erp.ViewModels
             if (printable == null || !printable.Items.Any())
                 return;
 
-            var path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                $"Invoice_{invoice.Id}.pdf"
-            );
+            // Get Arabic invoice type name for filename
+            string invoiceTypeName = "فاتورة";
+            // Set type based on invoice type
+            switch (invoice.InvoiceTypeParsed)
+            {
+                case erp.Enums.InvoiceType.CustomerInvoice:
+                    invoiceTypeName = "مبيعات";
+                    break;
+                case erp.Enums.InvoiceType.ReturnInvoice:
+                    invoiceTypeName = "مرتجع_مبيعات";
+                    break;
+                case erp.Enums.InvoiceType.SupplierInvoice:
+                    invoiceTypeName = "مورد";
+                    break;
+                case erp.Enums.InvoiceType.SupplierReturnInvoice:
+                    invoiceTypeName = "مرتجع_مورد";
+                    break;
+                case erp.Enums.InvoiceType.CommissionInvoice:
+                    invoiceTypeName = "عمولة";
+                    break;
+            }
+
+            // Show save file dialog
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "حفظ الفاتورة",
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                FileName = $"فاتورة_{invoiceTypeName}_{invoice.code}.pdf",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            if (saveDialog.ShowDialog() != true)
+                return;
+
+            var path = saveDialog.FileName;
 
             var doc = new InvoiceWithItemsPdfDocument(printable);
             doc.GeneratePdf(path);
@@ -439,10 +471,19 @@ namespace erp.ViewModels
 
         private void PrintAll()
         {
-            var filePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                $"Ledger_{User.Fullname}.pdf"
-            );
+            // Show save file dialog
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "حفظ كشف الحساب",
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                FileName = $"كشف حساب_{User.Fullname}.pdf",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            if (saveDialog.ShowDialog() != true)
+                return;
+
+            var filePath = saveDialog.FileName;
 
             var doc = new LedgerPdfDocument(User, Invoices);
             doc.GeneratePdf(filePath);

@@ -168,6 +168,16 @@ namespace erp.ViewModels.Auth
             if (string.IsNullOrWhiteSpace(msg))
                 return "البريد الإلكتروني أو كلمة المرور خاطئة";
 
+            // أخطاء الاتصال بالإنترنت أو السيرفر
+            if (msg.Contains("No such host is known", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("No connection", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("connection refused", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("timed out", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("SocketException", StringComparison.OrdinalIgnoreCase))
+            {
+                return "تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.";
+            }
+
             if (msg.Contains("traceId", StringComparison.OrdinalIgnoreCase) ||
                 msg.Contains("errors", StringComparison.OrdinalIgnoreCase) ||
                 msg.Contains("{", StringComparison.OrdinalIgnoreCase) ||
