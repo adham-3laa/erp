@@ -652,23 +652,7 @@ namespace erp.Views.Orders
         {
             var isValid = true;
 
-            // التحقق من اسم العميل
-            var customerName = CustomerNameTextBox.Text?.Trim();
-            if (string.IsNullOrWhiteSpace(customerName))
-            {
-                ShowError(CustomerErrorText, CustomerInputWrapper, "من فضلك أدخل اسم العميل");
-                isValid = false;
-            }
-            else
-            {
-                // التحقق من أن الاسم ثلاثي (3 كلمات بالضبط)
-                var nameParts = customerName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (nameParts.Length != 3)
-                {
-                    ShowError(CustomerErrorText, CustomerInputWrapper, "اسم العميل يجب أن يكون ثلاثياً فقط (لا يقل ولا يزيد عن 3 أسماء)");
-                    isValid = false;
-                }
-            }
+            // تم إزالة validation اسم العميل - يمكن إدخال أي اسم أو البحث عن عميل
 
 
 
