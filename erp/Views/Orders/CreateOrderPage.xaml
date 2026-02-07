@@ -378,7 +378,7 @@
                                                      LostFocus="CustomerNameTextBox_LostFocus"
                                                      KeyDown="CustomerNameTextBox_KeyDown"/>
                                             <TextBlock x:Name="CustomerPlaceholder"
-                                                       Text="ابحث باسم العميل (يجب أن يكون ثلاثياً على الأقل)..."
+                                                       Text="ابحث باسم العميل..."
                                                        Foreground="#9CA3AF"
                                                        VerticalAlignment="Center"
                                                        Margin="14,0,0,0"

@@ -98,8 +98,12 @@
                               SelectedValue="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}">
                         <ComboBoxItem Content="الكل" Tag=""/>
                         <ComboBoxItem Content="قيد الانتظار" Tag="Pending"/>
+
                         <ComboBoxItem Content="تم التحصيل" Tag="Collected"/>
                         <ComboBoxItem Content="تم الدفع" Tag="Paid"/>
+
+                        <ComboBoxItem Content="تم الدفع" Tag="Collected"/>
+
                         <ComboBoxItem Content="مرفوض / مرتد" Tag="Rejected"/>
                         <ComboBoxItem Content="ملغى" Tag="Cancelled"/>
                     </ComboBox>

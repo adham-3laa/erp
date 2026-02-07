@@ -131,7 +131,7 @@
                                  Margin="8,0,8,0">
 
                             <ListBoxItem Tag="Dashboard" Content="📊 الداشبورد"/>
-                            <ListBoxItem Tag="Users" Content="👤 المستخدمين"/>
+                            <ListBoxItem Tag="Users" Content="👤 عملاء و موردين"/>
                             <ListBoxItem Tag="Inventory" Content="📦 المخزون"/>
                             <ListBoxItem Tag="Invoices" Content="🧾 الفواتير"/>
                             <ListBoxItem Tag="Orders" Content="🛒 الطلبات"/>
