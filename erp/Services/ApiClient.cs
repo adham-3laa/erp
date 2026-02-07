@@ -185,9 +185,7 @@ public sealed class ApiClient
         using var res = await _http.SendAsync(req, ct).ConfigureAwait(false);
         var json = await res.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
-        if (!res.IsSuccessStatusCode)
-            throw new HttpRequestException($"Request failed: {(int)res.StatusCode} {res.ReasonPhrase}\n{json}");
-
+        // Return status code even on failure - let caller decide how to handle
         return (res.StatusCode, DeserializeOrDefault<T>(json));
     }
 

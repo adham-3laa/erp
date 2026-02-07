@@ -25,5 +25,11 @@ namespace erp.DTOS.Cheques
 
         [JsonPropertyName("notes")]
         public string Notes { get; set; } = "";
+
+        [JsonPropertyName("invoicecode")]
+        public int InvoiceCode { get; set; } = 0;
+
+        [JsonPropertyName("supplierinvoicecode")]
+        public int SupplierInvoiceCode { get; set; } = 0;
     }
 }

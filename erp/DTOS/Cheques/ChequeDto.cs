@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,24 +10,36 @@ namespace erp.DTOS.Cheques
     /// </summary>
     public class StatusJsonConverter : JsonConverter<string>
     {
-        // Map integer status values to their string representations
-        private static readonly string[] StatusMap = { "Pending", "Collected", "Rejected", "Cancelled" };
+        // Map integer status values to their Arabic string representations
+        private static readonly string[] StatusMap = { "قيد الانتظار", "تم التحصيل", "تم الدفع", "مرفوض", "ملغى" };
+        
+        // Map English status to Arabic
+        private static readonly Dictionary<string, string> EnglishToArabic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Pending", "قيد الانتظار" },
+            { "Collected", "تم التحصيل" },
+            { "Paid", "تم الدفع" },
+            { "Rejected", "مرفوض" },
+            { "Cancelled", "ملغى" }
+        };
 
         public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             switch (reader.TokenType)
             {
                 case JsonTokenType.String:
-                    return reader.GetString() ?? "Pending";
+                    var stringValue = reader.GetString() ?? "Pending";
+                    // Convert English to Arabic if needed
+                    return EnglishToArabic.TryGetValue(stringValue, out var arabicValue) ? arabicValue : stringValue;
                     
                 case JsonTokenType.Number:
                     int statusInt = reader.GetInt32();
                     return (statusInt >= 0 && statusInt < StatusMap.Length) 
                         ? StatusMap[statusInt] 
-                        : "Pending";
+                        : "قيد الانتظار";
                         
                 case JsonTokenType.Null:
-                    return "Pending";
+                    return "قيد الانتظار";
                     
                 default:
                     throw new JsonException($"Unexpected token type for status: {reader.TokenType}");

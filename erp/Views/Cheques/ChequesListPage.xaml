@@ -17,6 +17,7 @@
         <converters:ChequeDirectionConverter x:Key="ChequeDirectionConverter"/>
         <converters:OverdueToColorConverter x:Key="OverdueToColorConverter"/>
         <converters:CollectionCountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <converters:ChequeActionTooltipConverter x:Key="ChequeActionTooltipConverter"/>
 
         <Style TargetType="Button" x:Key="ActionBtn" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Padding" Value="8,4"/>
@@ -85,8 +86,8 @@
                     <ComboBox Width="160" Height="36" SelectedValuePath="Tag" 
                               SelectedValue="{Binding SelectedDirection, UpdateSourceTrigger=PropertyChanged}">
                         <ComboBoxItem Content="الكل" Tag=""/>
-                        <ComboBoxItem Content="وارد (مقبوضات)" Tag="Incoming"/>
-                        <ComboBoxItem Content="صادر (مدفوعات)" Tag="Outgoing"/>
+                        <ComboBoxItem Content="وارد" Tag="Incoming"/>
+                        <ComboBoxItem Content="صادر" Tag="Outgoing"/>
                     </ComboBox>
                 </StackPanel>
 
@@ -98,6 +99,7 @@
                         <ComboBoxItem Content="الكل" Tag=""/>
                         <ComboBoxItem Content="قيد الانتظار" Tag="Pending"/>
                         <ComboBoxItem Content="تم التحصيل" Tag="Collected"/>
+                        <ComboBoxItem Content="تم الدفع" Tag="Paid"/>
                         <ComboBoxItem Content="مرفوض / مرتد" Tag="Rejected"/>
                         <ComboBoxItem Content="ملغى" Tag="Cancelled"/>
                     </ComboBox>
@@ -171,7 +173,7 @@
 
                     <DataGrid.Columns>
                         <!-- Type Icon & Label -->
-                        <DataGridTemplateColumn Header="النوع" Width="120">
+                        <DataGridTemplateColumn Header="النوع" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -184,7 +186,8 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTextColumn Header="رقم الشيك" Binding="{Binding CheckNumber}" Width="120"/>
+                        <DataGridTextColumn Header="كود الشيك" Binding="{Binding Code}" Width="90"/>
+                        <DataGridTextColumn Header="رقم الشيك" Binding="{Binding CheckNumber}" Width="100"/>
                         <DataGridTextColumn Header="الطرف الآخر" Binding="{Binding RelatedName}" Width="*"/>
                         <DataGridTextColumn Header="البنك" Binding="{Binding BankName}" Width="140"/>
 
@@ -228,9 +231,9 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Content="✅" ToolTip="تم التحصيل" Style="{StaticResource ActionBtn}" Click="Accept_Click" Tag="{Binding}" FontSize="16"/>
+                                        <Button Content="✅" ToolTip="{Binding IsIncoming, Converter={StaticResource ChequeActionTooltipConverter}, ConverterParameter=Accept}" Style="{StaticResource ActionBtn}" Click="Accept_Click" Tag="{Binding}" FontSize="16"/>
                                         <Separator Width="1" Height="20" Background="#E5E7EB" Margin="6,0"/>
-                                        <Button Content="❌" ToolTip="رفض / ارتداد" Style="{StaticResource ActionBtn}" Click="Reject_Click" Tag="{Binding}" FontSize="16"/>
+                                        <Button Content="❌" ToolTip="{Binding IsIncoming, Converter={StaticResource ChequeActionTooltipConverter}, ConverterParameter=Reject}" Style="{StaticResource ActionBtn}" Click="Reject_Click" Tag="{Binding}" FontSize="16"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

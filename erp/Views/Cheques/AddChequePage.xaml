@@ -78,11 +78,8 @@
                 <StackPanel Margin="0,0,0,15">
                     <TextBlock Text="نوع الشيك"/>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                        <RadioButton GroupName="Type" Content="شيك وارد (من عميل)" IsChecked="{Binding IsIncoming}" Margin="0,0,20,0"/>
-                        <RadioButton GroupName="Type" Content="شيك صادر (لمورد)" IsChecked="{Binding IsIncoming, Converter={StaticResource InvertBoolConverter}}"/> 
-                        <!-- Need InvertBoolConverter or just bind inverse in VM. Simplest: Two bools in VM or ValueConverter -->
-                        <!-- Actually, if IsIncoming is checked, then checked. The second one needs to conform to !IsIncoming. -->
-                        <!-- WPF RadioButton binding usually tricky. Let's just create BooleanInverter -->
+                        <RadioButton GroupName="Type" Content="شيك وارد" IsChecked="{Binding IsIncoming}" Margin="0,0,20,0"/>
+                        <RadioButton GroupName="Type" Content="شيك صادر" IsChecked="{Binding IsIncoming, Converter={StaticResource InvertBoolConverter}}"/> 
                     </StackPanel>
                 </StackPanel>
 
@@ -141,10 +138,41 @@
                     </Grid>
                 </StackPanel>
 
-                <StackPanel Margin="0,0,0,20">
+                <StackPanel Margin="0,0,0,15">
                     <TextBlock Text="ملاحظات"/>
                     <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" Height="80" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
                 </StackPanel>
+
+                <!-- Invoice Codes Section -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- رقم فاتورة العميل - يظهر فقط للشيك الوارد -->
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="رقم فاتورة العميل"/>
+                            <TextBlock Text=" (اختياري)" Foreground="#9CA3AF" FontSize="12"/>
+                        </StackPanel>
+                        <TextBox Text="{Binding InvoiceCode, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding IsIncoming}"
+                                 ToolTip="أدخل رقم الفاتورة لربط الشيك بها وتحديث المبلغ المدفوع"/>
+                    </StackPanel>
+
+                    <!-- رقم فاتورة المورد - يظهر فقط للشيك الصادر -->
+                    <StackPanel Grid.Column="2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="رقم فاتورة المورد"/>
+                            <TextBlock Text=" (اختياري)" Foreground="#9CA3AF" FontSize="12"/>
+                        </StackPanel>
+                        <TextBox Text="{Binding SupplierInvoiceCode, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding IsIncoming, Converter={StaticResource InvertBoolConverter}}"
+                                 ToolTip="أدخل رقم فاتورة المورد لربط الشيك بها وتحديث المبلغ المدفوع"/>
+                    </StackPanel>
+                </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="إلغاء" Click="Cancel_Click" Background="Transparent" Foreground="Gray" BorderThickness="0" Margin="0,0,10,0"/>

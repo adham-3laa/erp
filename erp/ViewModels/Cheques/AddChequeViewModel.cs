@@ -100,6 +100,21 @@ namespace erp.ViewModels.Cheques
             set { _notes = value; OnPropertyChanged(); }
         }
 
+        // Invoice Code fields for linking cheque to invoices
+        private int _invoiceCode = 0;
+        public int InvoiceCode
+        {
+            get => _invoiceCode;
+            set { _invoiceCode = value; OnPropertyChanged(); }
+        }
+
+        private int _supplierInvoiceCode = 0;
+        public int SupplierInvoiceCode
+        {
+            get => _supplierInvoiceCode;
+            set { _supplierInvoiceCode = value; OnPropertyChanged(); }
+        }
+
         public ICommand SaveCommand { get; }
 
         public event EventHandler? OnSuccess;
@@ -164,9 +179,9 @@ namespace erp.ViewModels.Cheques
 
         private async Task SaveAsync()
         {
-            if (string.IsNullOrWhiteSpace(CheckNumber) || Amount <= 0 || string.IsNullOrWhiteSpace(BankName))
+            if (string.IsNullOrWhiteSpace(CheckNumber) || Amount <= 0 || string.IsNullOrWhiteSpace(BankName) || string.IsNullOrWhiteSpace(RelatedName))
             {
-                ErrorHandlingService.ShowWarning(ErrorHandlingService.Messages.RequiredFieldMissing + "\n(رقم الشيك، المبلغ، البنك)");
+                ErrorHandlingService.ShowWarning(ErrorHandlingService.Messages.RequiredFieldMissing + "\n(رقم الشيك، المبلغ، البنك، الاسم المرتبط)");
                 return;
             }
 
@@ -178,7 +193,9 @@ namespace erp.ViewModels.Cheques
                 BankName = BankName,
                 IsIncoming = IsIncoming,
                 RelatedName = RelatedName,
-                Notes = Notes
+                Notes = Notes,
+                InvoiceCode = InvoiceCode,
+                SupplierInvoiceCode = SupplierInvoiceCode
             };
 
             try

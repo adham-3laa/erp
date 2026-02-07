@@ -314,14 +314,8 @@ namespace erp.Services
         {
             return Application.Current.Dispatcher.Invoke(() =>
             {
-                var result = MessageBox.Show(
-                    arabicMessage,
-                    title,
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question,
-                    MessageBoxResult.No,
-                    MessageBoxOptions.RightAlign | MessageBoxOptions.RtlReading);
-                return result == MessageBoxResult.Yes;
+                var mainWindow = Application.Current.MainWindow;
+                return erp.Views.Shared.ThemedDialog.ShowConfirmation(mainWindow, title, arabicMessage, "نعم", "لا");
             });
         }
 

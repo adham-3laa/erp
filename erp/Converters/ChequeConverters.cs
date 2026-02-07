@@ -15,16 +15,19 @@ namespace erp.Converters
 
             switch (status)
             {
-                case "Collected":
+                case "تم التحصيل":
                     return isForeground ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#065F46")) 
                                         : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#D1FAE5"));
-                case "Rejected":
+                case "تم الدفع":
+                    return isForeground ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0369A1")) 
+                                        : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0F2FE"));
+                case "مرفوض":
                     return isForeground ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#991B1B")) 
                                         : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FEE2E2"));
-                case "Pending":
+                case "قيد الانتظار":
                     return isForeground ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#92400E")) 
                                         : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FEF3C7"));
-                case "Cancelled":
+                case "ملغى":
                     return isForeground ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#374151")) 
                                         : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E5E7EB"));
                 default:
@@ -43,7 +46,7 @@ namespace erp.Converters
             {
                 if (parameter?.ToString() == "Icon")
                     return isIncoming ? "⬇️" : "⬆️";
-                return isIncoming ? "وارد (عميل)" : "صادر (مورد)";
+                return isIncoming ? "وارد" : "صادر";
             }
             return "";
         }

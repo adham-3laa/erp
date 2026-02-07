@@ -84,12 +84,24 @@ namespace erp.Services
             try
             {
                 var url = $"/api/Cheques/update-status?cheqCode={cheqCode}&newStatus={Uri.EscapeDataString(newStatus)}";
-                var result = await _api.PutWithStatusAsync<object>(url, new { });
+                ErrorHandlingService.LogInfo($"Updating cheque status: URL={url}");
+                
+                var result = await _api.PutWithStatusAsync<ApiResponse<object>>(url, new { });
+                
+                ErrorHandlingService.LogInfo($"Cheque status update response: StatusCode={result.StatusCode}");
                 
                 if (result.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    ErrorHandlingService.LogInfo($"Cheque status updated: Code={cheqCode}, NewStatus={newStatus}");
+                    ErrorHandlingService.LogInfo($"Cheque status updated successfully: Code={cheqCode}, NewStatus={newStatus}");
                     return (true, null);
+                }
+                
+                // Try to get error message from API response
+                var apiMessage = result.Body?.message;
+                if (!string.IsNullOrEmpty(apiMessage))
+                {
+                    ErrorHandlingService.LogInfo($"API returned error: {apiMessage}");
+                    return (false, apiMessage);
                 }
                 
                 var message = ErrorHandlingService.GetMessageForStatusCode(result.StatusCode);

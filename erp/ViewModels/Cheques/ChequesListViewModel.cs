@@ -117,7 +117,16 @@ namespace erp.ViewModels.Cheques
                 
                 if (success)
                 {
-                    ErrorHandlingService.ShowSuccess($"تم تحديث حالة الشيك إلى '{newStatus}' بنجاح.");
+                    var arabicStatus = newStatus switch
+                    {
+                        "Collected" => "تم التحصيل",
+                        "Paid" => "تم الدفع",
+                        "Rejected" => "مرفوض",
+                        "Cancelled" => "ملغى",
+                        "Pending" => "قيد الانتظار",
+                        _ => newStatus
+                    };
+                    ErrorHandlingService.ShowSuccess($"تم تحديث حالة الشيك إلى '{arabicStatus}' بنجاح.");
                     await LoadChequesAsync();
                 }
                 else

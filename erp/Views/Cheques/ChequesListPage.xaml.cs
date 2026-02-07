@@ -29,9 +29,12 @@ namespace erp.Views.Cheques
         {
             if (sender is Button btn && btn.Tag is erp.DTOS.Cheques.ChequeDto cheque)
             {
-                if (ErrorHandlingService.Confirm($"هل أنت متأكد من تحصيل الشيك رقم {cheque.CheckNumber}؟", "تأكيد التحصيل"))
+                string newStatus = cheque.IsIncoming ? "Collected" : "Paid";
+                string actionArabic = cheque.IsIncoming ? "تحصيل" : "دفع";
+                
+                if (ErrorHandlingService.Confirm($"هل أنت متأكد من {actionArabic} الشيك كود {cheque.Code}؟", $"تأكيد {actionArabic}"))
                 {
-                    await _viewModel.UpdateStatusAsync(cheque.Code, "Collected");
+                    await _viewModel.UpdateStatusAsync(cheque.Code, newStatus);
                 }
             }
         }
@@ -40,7 +43,7 @@ namespace erp.Views.Cheques
         {
             if (sender is Button btn && btn.Tag is erp.DTOS.Cheques.ChequeDto cheque)
             {
-                if (ErrorHandlingService.Confirm($"هل أنت متأكد من رفض/ارتداد الشيك رقم {cheque.CheckNumber}؟", "تأكيد الرفض"))
+                if (ErrorHandlingService.Confirm($"هل أنت متأكد من رفض/ارتداد الشيك كود {cheque.Code}؟", "تأكيد الرفض"))
                 {
                     await _viewModel.UpdateStatusAsync(cheque.Code, "Rejected");
                 }
