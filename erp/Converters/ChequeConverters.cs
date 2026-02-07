@@ -43,7 +43,7 @@ namespace erp.Converters
             {
                 if (parameter?.ToString() == "Icon")
                     return isIncoming ? "⬇️" : "⬆️";
-                return isIncoming ? "وارد (عميل)" : "صادر (مورد)";
+                return isIncoming ? "وارد" : "صادر";
             }
             return "";
         }

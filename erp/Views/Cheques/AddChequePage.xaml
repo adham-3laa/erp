@@ -78,8 +78,8 @@
                 <StackPanel Margin="0,0,0,15">
                     <TextBlock Text="نوع الشيك"/>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                        <RadioButton GroupName="Type" Content="شيك وارد (من عميل)" IsChecked="{Binding IsIncoming}" Margin="0,0,20,0"/>
-                        <RadioButton GroupName="Type" Content="شيك صادر (لمورد)" IsChecked="{Binding IsIncoming, Converter={StaticResource InvertBoolConverter}}"/> 
+                        <RadioButton GroupName="Type" Content="شيك وارد " IsChecked="{Binding IsIncoming}" Margin="0,0,20,0"/>
+                        <RadioButton GroupName="Type" Content="شيك صادر " IsChecked="{Binding IsIncoming, Converter={StaticResource InvertBoolConverter}}"/> 
                         <!-- Need InvertBoolConverter or just bind inverse in VM. Simplest: Two bools in VM or ValueConverter -->
                         <!-- Actually, if IsIncoming is checked, then checked. The second one needs to conform to !IsIncoming. -->
                         <!-- WPF RadioButton binding usually tricky. Let's just create BooleanInverter -->
