@@ -252,13 +252,18 @@ namespace erp.Services
             {
                 InvoiceId = invoice.Id,
                 InvoiceTypeTitle = customerTitle,
+                InvoiceType = invoice.InvoiceTypeParsed,
                 InvoiceCode = invoice.code, // ✅ Sequential invoice number for printing
                 InvoiceDate = invoice.GeneratedDate,
                 CustomerName = invoice.RecipientName ?? user.Fullname,
                 CustomerEmail = user.Email,
                 OrderId = displayOrderId,
                 PaidAmount = invoice.PaidAmount,
-                RemainingAmount = invoice.RemainingAmount
+                RemainingAmount = invoice.RemainingAmount,
+                // ✅ For commission invoices, set the commission amount (from invoice.Amount)
+                CommissionAmount = invoice.InvoiceTypeParsed == Enums.InvoiceType.CommissionInvoice 
+                    ? invoice.Amount 
+                    : null
             };
 
             // 4️⃣ Map OrderItem -> Inventory Product -> Category Name

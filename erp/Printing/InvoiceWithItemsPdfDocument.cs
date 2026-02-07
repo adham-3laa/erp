@@ -148,8 +148,13 @@ namespace erp.Printing
                                     cols.RelativeColumn();
                                 });
 
-                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text("الإجمالي").SemiBold();
-                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.SubTotal:N2}").Bold();
+                                // For commission invoices, show "العمولة" instead of "الإجمالي"
+                                var totalLabel = _invoice.InvoiceType == erp.Enums.InvoiceType.CommissionInvoice 
+                                    ? "العمولة" 
+                                    : "الإجمالي";
+
+                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text(totalLabel).SemiBold();
+                                t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.DisplayTotal:N2}").Bold();
 
                                 t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).Text("المدفوع");
                                 t.Cell().BorderBottom(1).BorderColor(borderColor).Padding(5).AlignLeft().Text($"{_invoice.PaidAmount:N2}").Bold();
