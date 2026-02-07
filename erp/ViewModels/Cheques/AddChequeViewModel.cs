@@ -22,14 +22,28 @@ namespace erp.ViewModels.Cheques
         public string CheckNumber
         {
             get => _checkNumber;
-            set { _checkNumber = value; OnPropertyChanged(); }
+            set 
+            {
+                if (_checkNumber != value)
+                {
+                    _checkNumber = value; 
+                    OnPropertyChanged(); 
+                }
+            }
         }
 
         private decimal _amount;
         public decimal Amount
         {
             get => _amount;
-            set { _amount = value; OnPropertyChanged(); }
+            set 
+            {
+                if (_amount != value)
+                {
+                    _amount = value; 
+                    OnPropertyChanged(); 
+                }
+            }
         }
 
         private DateTime _dueDate = DateTime.Now;
@@ -43,14 +57,28 @@ namespace erp.ViewModels.Cheques
         public string BankName
         {
             get => _bankName;
-            set { _bankName = value; OnPropertyChanged(); }
+            set 
+            {
+                if (_bankName != value)
+                {
+                    _bankName = value; 
+                    OnPropertyChanged(); 
+                }
+            }
         }
 
         private bool _isIncoming = true;
         public bool IsIncoming
         {
             get => _isIncoming;
-            set { _isIncoming = value; OnPropertyChanged(); }
+            set 
+            {
+                if (_isIncoming != value)
+                {
+                    _isIncoming = value; 
+                    OnPropertyChanged(); 
+                }
+            }
         }
 
         // ================= Autocomplete Logic =================
@@ -63,9 +91,12 @@ namespace erp.ViewModels.Cheques
             get => _relatedName;
             set 
             { 
-                _relatedName = value; 
-                OnPropertyChanged();
-                FilterSuggestions(value);
+                if (_relatedName != value)
+                {
+                    _relatedName = value; 
+                    OnPropertyChanged();
+                    FilterSuggestions(value);
+                }
             }
         }
 
@@ -82,12 +113,15 @@ namespace erp.ViewModels.Cheques
             get => _selectedSuggestion;
             set
             {
-                _selectedSuggestion = value;
-                OnPropertyChanged();
-                if (!string.IsNullOrEmpty(value))
+                if (_selectedSuggestion != value)
                 {
-                    RelatedName = value; // Set text
-                    IsSuggestionOpen = false; // Close list
+                    _selectedSuggestion = value;
+                    OnPropertyChanged();
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        RelatedName = value; // Set text
+                        IsSuggestionOpen = false; // Close list
+                    }
                 }
             }
         }
@@ -105,14 +139,28 @@ namespace erp.ViewModels.Cheques
         public int InvoiceCode
         {
             get => _invoiceCode;
-            set { _invoiceCode = value; OnPropertyChanged(); }
+            set 
+            {
+                if (_invoiceCode != value)
+                {
+                    _invoiceCode = value; 
+                    OnPropertyChanged(); 
+                }
+            }
         }
 
         private int _supplierInvoiceCode = 0;
         public int SupplierInvoiceCode
         {
             get => _supplierInvoiceCode;
-            set { _supplierInvoiceCode = value; OnPropertyChanged(); }
+            set 
+            {
+                if (_supplierInvoiceCode != value)
+                {
+                    _supplierInvoiceCode = value; 
+                    OnPropertyChanged(); 
+                }
+            }
         }
 
         public ICommand SaveCommand { get; }
