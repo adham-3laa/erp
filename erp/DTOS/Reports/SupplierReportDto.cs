@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace erp.DTOS.Reports
@@ -50,5 +51,12 @@ namespace erp.DTOS.Reports
 
         [JsonPropertyName("unpaidreturns")]
         public List<UnpaidInvoiceDto> UnpaidReturns { get; set; } = new();
+
+        // Computed properties for sum of remaining amounts
+        [JsonIgnore]
+        public decimal UnpaidInvoicesTotal => UnpaidInvoices?.Sum(x => x.RemainingAmount) ?? 0;
+
+        [JsonIgnore]
+        public decimal UnpaidReturnsTotal => UnpaidReturns?.Sum(x => x.RemainingAmount) ?? 0;
     }
 }

@@ -390,7 +390,7 @@
                                             <TextBlock Text="{Binding Report.UnpaidReturns.Count}" FontSize="12" FontWeight="SemiBold" Foreground="#92400E"/>
                                         </Border>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding Report.TotalReturnsAmount, StringFormat='{}{0:N0} ج.م'}" 
+                                    <TextBlock Grid.Column="1" Text="{Binding Report.UnpaidReturnsTotal, StringFormat='{}{0:N0} ج.م'}" 
                                               FontSize="14" FontWeight="SemiBold" Foreground="#92400E" VerticalAlignment="Center"/>
                                 </Grid>
                                 
@@ -444,7 +444,7 @@
                                 <Border Background="#F3F4F6" CornerRadius="8" Padding="12,8" Margin="0,8,0,0">
                                     <Grid>
                                         <TextBlock Text="المجموع:" FontWeight="SemiBold" Foreground="#374151" HorizontalAlignment="Right"/>
-                                        <TextBlock Text="{Binding Report.TotalReturnsAmount, StringFormat='{}{0:N0} ج.م'}" 
+                                        <TextBlock Text="{Binding Report.UnpaidReturnsTotal, StringFormat='{}{0:N0} ج.م'}" 
                                                   FontWeight="Bold" Foreground="#92400E" FontSize="15" HorizontalAlignment="Left"/>
                                     </Grid>
                                 </Border>
