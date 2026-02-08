@@ -116,7 +116,8 @@ namespace erp.ViewModels
                 new InvoicePrintService(
                     new OrdersService(App.Api),
                     new InventoryService(),
-                    _invoiceService
+                    _invoiceService,
+                    new ReturnsService(App.Api)
                 );
 
             BackCommand = new RelayCommand(

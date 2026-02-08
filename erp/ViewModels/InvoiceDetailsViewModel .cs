@@ -44,6 +44,7 @@ namespace erp.ViewModels.Invoices
         private readonly OrdersService _ordersService;
         private readonly InventoryService _inventoryService;
         private readonly InvoiceService _invoiceService;
+        private readonly ReturnsService _returnsService;
 
         /// <summary>
         /// The invoice being displayed.
@@ -79,6 +80,7 @@ namespace erp.ViewModels.Invoices
             _ordersService = new OrdersService(App.Api);
             _inventoryService = new InventoryService();
             _invoiceService = new InvoiceService();
+            _returnsService = new ReturnsService(App.Api);
 
             _ = LoadAsync();
         }
@@ -137,7 +139,16 @@ namespace erp.ViewModels.Invoices
                 }
 
                 // ═══════════════════════════════════════════════════════════════
-                // STRATEGY C: ORDER-BASED INVOICES (Customer, Commission, Return)
+                // STRATEGY C: CUSTOMER RETURN INVOICE (return-invoice-items-OfCustomer)
+                // ═══════════════════════════════════════════════════════════════
+                 if (invoiceType == InvoiceType.ReturnInvoice)
+                {
+                    await LoadReturnInvoiceItemsAsync();
+                    return;
+                }
+
+                // ═══════════════════════════════════════════════════════════════
+                // STRATEGY D: ORDER-BASED INVOICES (Customer, Commission)
                 // Single source of truth: OrderCode
                 // ═══════════════════════════════════════════════════════════════
                 if (invoiceType.UsesOrderId())
@@ -388,6 +399,70 @@ namespace erp.ViewModels.Invoices
                 ErrorMessage = $"فشل في جلب عناصر فاتورة مرتجع المورد: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine(
                     $"[InvoiceDetailsVM] ERROR loading SupplierReturnInvoice: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Loads items for Customer Return Invoice.
+        /// Endpoint: GET /api/Returns/return-invoice-items-OfCustomer?InvoiceCode={invoiceCode}
+        /// </summary>
+        private async Task LoadReturnInvoiceItemsAsync()
+        {
+            if (Invoice.code <= 0)
+            {
+                ErrorMessage = "فاتورة المرتجع لا تحتوي على كود الفاتورة (InvoiceCode). لا يمكن تحميل العناصر.";
+                return;
+            }
+
+            try
+            {
+                var details = await _returnsService.GetReturnInvoiceDetailsAsync(Invoice.code);
+
+                if (details == null || details.Items == null || details.Items.Count == 0)
+                {
+                     ErrorMessage = "لم يتم العثور على عناصر لهذه الفاتورة";
+                     return;
+                }
+
+                // Populate items
+                 var productMap = await GetProductLookupMapAsync();
+
+                foreach (var item in details.Items)
+                {
+                     // Try to match by name if ProductId is not returned (The DTO only has ProductName)
+                     // But we need ProductId to enrich category. 
+                     // We can try to find ProductId from name in the map? map key is ID.
+                     // The new endpoint does not return ProductId.
+                     
+                     // Optimization: Search for product ID in map by name
+                     string? productId = null;
+                     var matchedProduct = productMap.Values.FirstOrDefault(p => string.Equals(p.ProductName, item.ProductName, StringComparison.OrdinalIgnoreCase));
+                     if (matchedProduct != null)
+                     {
+                         productId = matchedProduct.ProductId;
+                     }
+
+                    var row = new InvoiceOrderItemRow
+                    {
+                        ProductId = productId,
+                        ProductName = item.ProductName ?? "",
+                        CategoryName = "مرتجع", 
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        Total = item.TotalPrice
+                    };
+
+                    if (matchedProduct != null)
+                    {
+                        row.CategoryName = matchedProduct.CategoryName ?? "غير محدد";
+                    }
+
+                    OrderItems.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"فشل في جلب عناصر فاتورة المرتجع: {ex.Message}";
             }
         }
 

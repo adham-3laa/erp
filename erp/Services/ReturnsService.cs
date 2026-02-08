@@ -102,6 +102,30 @@ namespace erp.Services
             }
         }
 
+        // ===================== GET RETURN INVOICE DETAILS (CUSTOMER RETURN) =====================
+        public async Task<DTOS.InvoicesDTOS.ReturnInvoiceDetailsDto> GetReturnInvoiceDetailsAsync(int invoiceCode)
+        {
+            try
+            {
+                if (invoiceCode <= 0)
+                    throw new ArgumentException("رقم الفاتورة غير صالح", nameof(invoiceCode));
+
+                ErrorHandlingService.LogInfo($"GetReturnInvoiceDetailsAsync | InvoiceCode: {invoiceCode}");
+
+                // Using the specific endpoint for Return Invoice details
+                var response = await _api.GetAsync<DTOS.InvoicesDTOS.ReturnInvoiceDetailsDto>(
+                    $"api/Returns/return-invoice-items-OfCustomer?InvoiceCode={invoiceCode}"
+                );
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandlingService.LogError(ex, $"ReturnsService.GetReturnInvoiceDetailsAsync - InvoiceCode: {invoiceCode}");
+                throw new ServiceException("فشل في تحميل تفاصيل فاتورة المرتجع.", ex);
+            }
+        }
+
         // ===================== CREATE RETURN REQUEST (CUSTOMER) =====================
         public async Task<(bool Success, string? ErrorMessage)> CreateReturnAsync(CreateReturnRequestDto request)
         {

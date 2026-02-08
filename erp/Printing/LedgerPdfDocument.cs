@@ -43,26 +43,35 @@ namespace erp.Printing
                 // ================= HEADER =================
                 page.Header().Column(headerCol =>
                 {
-                    // Title section with border - all right aligned
+                    // Title section with border
                     headerCol.Item()
                         .BorderBottom(2)
                         .BorderColor(Colors.Black)
                         .PaddingBottom(10)
-                        .AlignRight()
-                        .Column(col =>
+                        .Row(row =>
                         {
-                            col.Item().Text("كشف حساب")
-                                .FontSize(20)
-                                .Bold();
+                            // Left Side: Company Name
+                            row.RelativeItem().AlignLeft().Column(col =>
+                            {
+                                col.Item().Text("The First").FontSize(20).Bold();
+                            });
 
-                            col.Item().PaddingTop(5).Text($"{userTypeLabel}: {_user.Fullname ?? "غير محدد"}")
-                                .FontSize(12);
+                            // Right Side: Ledger Info
+                            row.RelativeItem().AlignRight().Column(col =>
+                            {
+                                col.Item().Text("كشف حساب")
+                                    .FontSize(20)
+                                    .Bold();
 
-                            col.Item().PaddingTop(3).Text($"التاريخ: {DateTime.Now:yyyy-MM-dd}")
-                                .FontSize(10);
+                                col.Item().PaddingTop(5).Text($"{userTypeLabel}: {_user.Fullname ?? "غير محدد"}")
+                                    .FontSize(12);
 
-                            col.Item().PaddingTop(3).Text($"عدد الفواتير: {_invoices.Count()}")
-                                .FontSize(10);
+                                col.Item().PaddingTop(3).Text($"التاريخ: {DateTime.Now:yyyy-MM-dd}")
+                                    .FontSize(10);
+
+                                col.Item().PaddingTop(3).Text($"عدد الفواتير: {_invoices.Count()}")
+                                    .FontSize(10);
+                            });
                         });
 
                     headerCol.Item().PaddingTop(15);

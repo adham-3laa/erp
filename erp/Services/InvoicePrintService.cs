@@ -18,17 +18,20 @@ namespace erp.Services
         private readonly OrdersService _ordersService;
         private readonly InventoryService _inventoryService;
         private readonly InvoiceService _invoiceService;
+        private readonly ReturnsService _returnsService;
 
         private readonly HttpClient _categoriesClient;
 
         public InvoicePrintService(
             OrdersService ordersService,
             InventoryService inventoryService,
-            InvoiceService invoiceService)
+            InvoiceService invoiceService,
+            ReturnsService returnsService)
         {
             _ordersService = ordersService;
             _inventoryService = inventoryService;
             _invoiceService = invoiceService;
+            _returnsService = returnsService;
 
             _categoriesClient = ApiClient.CreateHttpClient();
         }
@@ -166,75 +169,167 @@ namespace erp.Services
             // =====================================================
             // ============== CUSTOMER INVOICE =====================
             // =====================================================
-            if (invoice.OrderId == null)
+            if (invoice.OrderId == null && invoice.InvoiceTypeParsed != Enums.InvoiceType.ReturnInvoice)
                 return null;
-
-            var orderId = invoice.OrderId.Value.ToString();
-
-            // 1️⃣ Get order items (بنفس منطق شاشة التفاصيل: نجرب Returns first ثم Orders)
-            List<OrderItemDto> orderItems = null;
             
-            try
+            // 2️⃣ Get inventory products (used for all types)
+            var inventoryProducts = await _inventoryService.GetAllProductsAsync();
+            
+            // 3️⃣ Get categories map (used for all types)
+            var categoriesMap = await GetCategoriesMapAsync();
+
+            List<PrintableInvoiceItemDto> printableItems = new List<PrintableInvoiceItemDto>();
+
+            // ===========================================
+            // STRATEGY: Return Invoice (uses InvoiceCode)
+            // ===========================================
+            if (invoice.InvoiceTypeParsed == Enums.InvoiceType.ReturnInvoice)
             {
-                // محاولة أولى: استخدام OrderId (GUID) من Returns endpoint
-                orderItems = await _ordersService.GetOrderItemsByOrderIdAsync(orderId);
+                 // Fetch using the new endpoint
+                 try
+                 {
+                     if (invoice.code > 0)
+                     {
+                         var returnDetails = await _returnsService.GetReturnInvoiceDetailsAsync(invoice.code);
+                         
+                         if (returnDetails != null && returnDetails.Items != null)
+                         {
+                             // Build product map for optimization
+                             var productMap = inventoryProducts
+                                 .Where(p => !string.IsNullOrEmpty(p.Name))
+                                 .GroupBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+                                 .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+                             foreach(var item in returnDetails.Items)
+                             {
+                                 // Try to find category
+                                 string categoryName = "مرتجع";
+                                 if (productMap.TryGetValue(item.ProductName ?? "", out var existingProduct))
+                                 {
+                                     categoryName = ResolveCategoryName(existingProduct.Category, categoriesMap);
+                                 }
+
+                                 printableItems.Add(new PrintableInvoiceItemDto
+                                 {
+                                     ProductName = item.ProductName ?? "-",
+                                     Quantity = item.Quantity,
+                                     UnitPrice = item.UnitPrice,
+                                     CategoryName = categoryName
+                                 });
+                             }
+                         }
+                     }
+                 }
+                 catch (Exception ex)
+                 {
+                     System.Diagnostics.Debug.WriteLine($"Error loading return invoice for print: {ex.Message}");
+                 }
             }
-            catch (Exception ex1) when (ex1.Message.Contains("404") || ex1.Message.Contains("Not Found"))
+            // ===========================================
+            // STRATEGY: Order-Based Invoice (Sales/Commission)
+            // ===========================================
+            else 
             {
-                // لو فشل بـ OrderId (GUID)، نجرب Orders endpoint
+                var orderId = invoice.OrderId.Value.ToString();
+
+                // 1️⃣ Get order items (بنفس منطق شاشة التفاصيل: نجرب Returns first ثم Orders)
+                List<OrderItemDto> orderItems = null;
+                
                 try
                 {
-                    orderItems = await _ordersService.GetOrderItemsAsync(orderId);
+                    // محاولة أولى: استخدام OrderId (GUID) من Returns endpoint
+                    orderItems = await _ordersService.GetOrderItemsByOrderIdAsync(orderId);
                 }
-                catch (Exception ex2) when (ex2.Message.Contains("404") || ex2.Message.Contains("Not Found"))
+                catch (Exception ex1) when (ex1.Message.Contains("404") || ex1.Message.Contains("Not Found"))
                 {
-                    // لو فشل كمان، نحاول نستخدم orderCode
-                    // نجيب الطلب من قائمة الطلبات المعتمدة للحصول على code
-                    var orders = await _ordersService.GetApprovedOrdersAsync();
-                    var order = orders.FirstOrDefault(o => o.id == orderId);
-                    
-                    if (order != null && order.code > 0)
+                    // لو فشل بـ OrderId (GUID)، نجرب Orders endpoint
+                    try
                     {
-                        // استخدام orderCode للبحث من Returns endpoint
-                        var returnsService = new ReturnsService(App.Api);
-                        var orderItemsForReturn = await returnsService.GetOrderItemsByOrderIdAsync(order.code.ToString());
-                        
-                        // تحويل OrderItemForReturnDto إلى OrderItemDto
-                        orderItems = orderItemsForReturn.Select(item => new OrderItemDto
-                        {
-                            ProductId = item.Productid,
-                            ProductName = item.Productname,
-                            Quantity = item.Quantity,
-                            Price = item.Unitprice
-                        }).ToList();
+                        orderItems = await _ordersService.GetOrderItemsAsync(orderId);
                     }
-                }
-            }
-            catch
-            {
-                // أي خطأ تاني، نجرب Orders endpoint
-                try
-                {
-                    orderItems = await _ordersService.GetOrderItemsAsync(orderId);
+                    catch (Exception ex2) when (ex2.Message.Contains("404") || ex2.Message.Contains("Not Found"))
+                    {
+                        // لو فشل كمان، نحاول نستخدم orderCode
+                        // نجيب الطلب من قائمة الطلبات المعتمدة للحصول على code
+                        var orders = await _ordersService.GetApprovedOrdersAsync();
+                        var order = orders.FirstOrDefault(o => o.id == orderId);
+                        
+                        if (order != null && order.code > 0)
+                        {
+                            // استخدام orderCode للبحث من Returns endpoint
+                            // We already access _ordersService, but here it specifically uses ReturnsService inside the Catch block? 
+                            // The original code created a new ReturnsService instance here. 
+                            // Since we now have _returnsService injected, we can use it, but GetOrderItemsByOrderIdAsync is on ReturnsService.
+                            // Wait, ReturnsService.GetOrderItemsByOrderIdAsync exists.
+                            
+                            var orderItemsForReturn = await _returnsService.GetOrderItemsByOrderIdAsync(order.code.ToString());
+                            
+                            // تحويل OrderItemForReturnDto إلى OrderItemDto
+                            orderItems = orderItemsForReturn.Select(item => new OrderItemDto
+                            {
+                                ProductId = item.Productid,
+                                ProductName = item.Productname,
+                                Quantity = item.Quantity,
+                                Price = item.Unitprice
+                            }).ToList();
+                        }
+                    }
                 }
                 catch
                 {
-                    orderItems = null;
+                    // أي خطأ تاني، نجرب Orders endpoint
+                    try
+                    {
+                        orderItems = await _ordersService.GetOrderItemsAsync(orderId);
+                    }
+                    catch
+                    {
+                        orderItems = null;
+                    }
+                }
+
+                if (orderItems != null && orderItems.Count > 0)
+                {
+                    // 4️⃣ Map OrderItem -> Inventory Product -> Category Name
+                    foreach (var orderItem in orderItems)
+                    {
+                        if (orderItem == null || string.IsNullOrWhiteSpace(orderItem.ProductId))
+                            continue;
+
+                        var product = inventoryProducts
+                            .FirstOrDefault(p =>
+                                string.Equals(p.ProductId?.Trim(), orderItem.ProductId?.Trim(),
+                                    StringComparison.OrdinalIgnoreCase));
+
+                        // لو المنتج مش موجود في المخزون هنكمل بس باللي عندنا من الطلب
+                        var productName = product?.Name ?? orderItem.ProductName ?? "-";
+
+                        // ✅ السعر: لو سعر الـ order item = 0 ناخد من الـ inventory
+                        var unitPrice =
+                            (orderItem.Price > 0)
+                                ? orderItem.Price
+                                : (product != null ? product.SalePrice : 0);
+
+                        // ✅ اسم الفئة: product.Category غالبًا فيها categoryId (GUID)
+                        var categoryName = ResolveCategoryName(product?.Category, categoriesMap);
+
+                        printableItems.Add(new PrintableInvoiceItemDto
+                        {
+                            ProductName = productName,
+                            Quantity = orderItem.Quantity,
+                            UnitPrice = unitPrice,
+                            CategoryName = categoryName
+                        });
+                    }
                 }
             }
 
-            if (orderItems == null || orderItems.Count == 0)
+            if (printableItems.Count == 0)
                 return null;
-
-            // 2️⃣ Get inventory products (فيها السعر + categoryId)
-            var inventoryProducts = await _inventoryService.GetAllProductsAsync();
-
-            // 3️⃣ Get categories map (categoryId -> categoryName)
-            var categoriesMap = await GetCategoriesMapAsync();
 
             var displayOrderId = (invoice.OrderCode.HasValue && invoice.OrderCode.Value > 0) 
                 ? invoice.OrderCode.Value.ToString() 
-                : orderId;
+                : (invoice.OrderId?.ToString() ?? "-");
 
             // Determine Title
             var customerTitle = "فاتورة مبيعات"; // Default
@@ -266,39 +361,12 @@ namespace erp.Services
                     : null
             };
 
-            // 4️⃣ Map OrderItem -> Inventory Product -> Category Name
-            foreach (var orderItem in orderItems)
+            foreach(var item in printableItems)
             {
-                if (orderItem == null || string.IsNullOrWhiteSpace(orderItem.ProductId))
-                    continue;
-
-                var product = inventoryProducts
-                    .FirstOrDefault(p =>
-                        string.Equals(p.ProductId?.Trim(), orderItem.ProductId?.Trim(),
-                            StringComparison.OrdinalIgnoreCase));
-
-                // لو المنتج مش موجود في المخزون هنكمل بس باللي عندنا من الطلب
-                var productName = product?.Name ?? orderItem.ProductName ?? "-";
-
-                // ✅ السعر: لو سعر الـ order item = 0 ناخد من الـ inventory
-                var unitPrice =
-                    (orderItem.Price > 0)
-                        ? orderItem.Price
-                        : (product != null ? product.SalePrice : 0);
-
-                // ✅ اسم الفئة: product.Category غالبًا فيها categoryId (GUID)
-                var categoryName = ResolveCategoryName(product?.Category, categoriesMap);
-
-                printableCustomer.Items.Add(new PrintableInvoiceItemDto
-                {
-                    ProductName = productName,
-                    Quantity = orderItem.Quantity,
-                    UnitPrice = unitPrice,
-                    CategoryName = categoryName
-                });
+                printableCustomer.Items.Add(item);
             }
 
-            return printableCustomer.Items.Any() ? printableCustomer : null;
+            return printableCustomer;
         }
 
         // =========================

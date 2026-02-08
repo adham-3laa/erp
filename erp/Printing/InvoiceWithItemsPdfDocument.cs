@@ -34,13 +34,10 @@ namespace erp.Printing
                 page.Header().Row(row =>
                 {
                     // Logo / Company Name
-                    //row.RelativeItem().Column(col =>
-                    //{
-                    //    col.Item().Text("The First").FontSize(20).Bold().FontColor(titleColor);
-                    //    col.Item().Text("Smart ERP System")
-                    //              .FontSize(10)
-                    //              .FontColor(Colors.Grey.Darken2);
-                    //});
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("The First").FontSize(20).Bold().FontColor(titleColor);
+                    });
 
                     // Invoice Details (Right Aligned)
                     row.RelativeItem().AlignRight().Column(col =>
